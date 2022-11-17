@@ -1,12 +1,14 @@
-To install pywikibot:
+Initial setup:
+  mkdir dyk-tools
+  cd dyk-tools
+  git clone <source-repo> src
+  python3 -m venv venv --prompt dyk-tools
+  . venv/bin/activate
+  pip install -r src/requirements.txt
 
-  pip install pywikibot
-  pip install "mwparserfromhell>=0.5.0"
 
 Create an empty config file:
-
   touch $HOME/.pywikibot/user-config.py file
 
 The installer may have created $HOME/.pywikibot with the wrong mode, so you need to do:
-
   chmod u+x $HOME/.pywikibot
