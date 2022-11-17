@@ -1,0 +1,12 @@
+To install pywikibot:
+
+  pip install pywikibot
+  pip install "mwparserfromhell>=0.5.0"
+
+Create an empty config file:
+
+  touch $HOME/.pywikibot/user-config.py file
+
+The installer may have created $HOME/.pywikibot with the wrong mode, so you need to do:
+
+  chmod u+x $HOME/.pywikibot
