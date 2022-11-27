@@ -1,0 +1,34 @@
+from unittest import TestCase
+from unittest.mock import Mock, MagicMock
+
+
+from pywikibot import Page
+
+from nomination import Nomination
+
+class NominationTest(TestCase):
+    def test_nomination_can_be_constructed(self):
+        page = Mock(spec=Page)
+        nomination = Nomination(page)
+
+    def test_is_approved_returns_true_with_tick(self):
+        page = MagicMock(spec_set=Page)
+        tick = Mock()
+        tick.title.return_value = 'File:Symbol confirmed.svg'
+        page.imagelinks().__iter__.return_value = [tick]
+        nomination = Nomination(page)
+        self.assertTrue(nomination.is_approved())
+
+    def test_is_approved_returns_false_without_tick(self):
+        page = MagicMock(spec_set=Page)
+        tick = Mock()
+        tick.title.return_value = 'File:foo.gif'
+        page.imagelinks().__iter__.return_value = [tick]
+        nomination = Nomination(page)
+        self.assertFalse(nomination.is_approved())
+
+    def test_get_articles_returns_empty_list_for_nomination_with_no_articles(self):
+        page = MagicMock(spec_set=Page)
+        page.templatesWithParams().__iter__.return_value = []
+        nomination = Nomination(page)
+        self.assertEqual(nomination.articles(), [])
