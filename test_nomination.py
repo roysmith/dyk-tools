@@ -92,7 +92,7 @@ def test_is_approved_returns_false_with_query(site, Page, dyk_query):
     assert nomination.is_approved() is False
 
 
-def test_is_approved_returns_false_with_quey_override(site, Page, dyk_tick, dyk_query):
+def test_is_approved_returns_false_with_query_override(site, Page, dyk_tick, dyk_query):
     page = Page(site, "")
     page.imagelinks.return_value = [dyk_tick, dyk_query]
     nomination = Nomination(page)
@@ -113,7 +113,7 @@ def test_is_approved_returns_false_with_no_override(site, Page, dyk_tick, dyk_no
     assert nomination.is_approved() is False
 
 
-def test_is_approved_returns_false_with_quey_override(site, Page, dyk_tick, dyk_again):
+def test_is_approved_returns_false_with_again_override(site, Page, dyk_tick, dyk_again):
     page = Page(site, "")
     page.imagelinks.return_value = [dyk_tick, dyk_again]
     nomination = Nomination(page)
