@@ -27,6 +27,6 @@ class Nomination:
     def articles(self):
         pages = []
         for t, params in self.page.templatesWithParams():
-            if t.title == "DYK nompage links":
+            if t.title() == "Template:DYK nompage links":
                 pages.append(Page(self.page, params[0]))
         return pages

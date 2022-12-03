@@ -99,7 +99,9 @@ def test_is_approved_returns_false_with_query_override(site, Page, dyk_tick, dyk
     assert nomination.is_approved() is False
 
 
-def test_is_approved_returns_false_with_query_no_override(site, Page, dyk_tick, dyk_query_no):
+def test_is_approved_returns_false_with_query_no_override(
+    site, Page, dyk_tick, dyk_query_no
+):
     page = Page(site, "")
     page.imagelinks.return_value = [dyk_tick, dyk_query_no]
     nomination = Nomination(page)
@@ -118,3 +120,17 @@ def test_is_approved_returns_false_with_again_override(site, Page, dyk_tick, dyk
     page.imagelinks.return_value = [dyk_tick, dyk_again]
     nomination = Nomination(page)
     assert nomination.is_approved() is False
+
+
+def test_articles_with_no_links_returns_empty_list(site, Page):
+    page = Page(site, "")
+    page.templatesWithParams.return_value = []
+    nomination = Nomination(page)
+    assert nomination.articles() == []
+
+
+def test_articles_with_one_link_returns_list(site, Page):
+    page = Page(site, "")
+    page.templatesWithParams.return_value = []
+    nomination = Nomination(page)
+    assert nomination.articles() == []
