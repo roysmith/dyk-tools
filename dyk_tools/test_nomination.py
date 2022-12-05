@@ -2,7 +2,7 @@ import pytest
 import pytest_socket
 import pywikibot
 
-from dyk_tools.nomination import Nomination
+from dyk_tools import Nomination
 
 
 @pytest.fixture

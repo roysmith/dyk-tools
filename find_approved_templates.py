@@ -7,7 +7,7 @@ import sys
 from typing import List
 
 from pywikibot import Site, Page, Category
-from dyk_tools.nomination import Nomination
+from dyk_tools import Nomination
 
 logger = logging.getLogger('find_approved_templates')
 
