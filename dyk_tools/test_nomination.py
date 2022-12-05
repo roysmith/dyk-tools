@@ -2,8 +2,7 @@ import pytest
 import pytest_socket
 import pywikibot
 
-from nomination import Nomination
-
+from dyk_tools.nomination import Nomination
 
 @pytest.fixture
 def site(monkeypatch, mocker):
@@ -134,3 +133,10 @@ def test_articles_with_one_link_returns_list(site, Page):
     page.templatesWithParams.return_value = []
     nomination = Nomination(page)
     assert nomination.articles() == []
+
+
+def test_title_returns_page_title(site, Page):
+    page = Page(site, "")
+    page.title.return_value = "foo"
+    nomination = Nomination(page)
+    assert nomination.title() == "foo"

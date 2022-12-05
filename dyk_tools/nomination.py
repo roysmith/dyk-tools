@@ -30,3 +30,6 @@ class Nomination:
             if t.title() == "Template:DYK nompage links":
                 pages.append(Page(self.page, params[0]))
         return pages
+
+    def title(self):
+        return self.page.title()

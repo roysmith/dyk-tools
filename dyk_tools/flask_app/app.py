@@ -16,10 +16,8 @@ def home_page():
     return render_template("home_page.html", form=form)
 
 
-@app.route("/display/<template_name>")
-def display(template_name):
-    """template_name is the DYK nomination template, without the Template: prefix."""
-    page = Page (SITE, f'Template:{template_name}')
-    nomination = Nomination(page)
-
-    return render_template("display.html", title=nomination.page.title(), approved=nomination.is_approved())
+@app.route("/display")
+def display():
+    """template_name query arg is the DYK nomination template, including the Template: prefix."""
+    page = Page (SITE, request.args['template_name'])
+    return render_template("display.html", nomination=Nomination(page))

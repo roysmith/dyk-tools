@@ -3,7 +3,7 @@
 {% block content %}
 
     <h1>Display!</h1>
-    <p>{{title}}</p>
-    <p>Approved: {{approved}}</p>
+    <p>{{nomination.title()}}</p>
+    <p>Approved: {{nomination.is_approved()}}</p>
 
 {% endblock %}
