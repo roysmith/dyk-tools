@@ -19,8 +19,7 @@ def home_page():
 @app.route("/display/<template_name>")
 def display(template_name):
     """template_name is the DYK nomination template, without the Template: prefix."""
-    return render_template("display.html")
-    # page = Page, site, (f'Template:{template_name}')
-    # nomination = Nomination(page)
+    page = Page (SITE, f'Template:{template_name}')
+    nomination = Nomination(page)
 
-    # return render_template("display.html", title=nomination.page.title(), approved=nomination.is_approved())
+    return render_template("display.html", title=nomination.page.title(), approved=nomination.is_approved())
