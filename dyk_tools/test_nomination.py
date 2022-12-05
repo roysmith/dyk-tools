@@ -4,6 +4,7 @@ import pywikibot
 
 from dyk_tools.nomination import Nomination
 
+
 @pytest.fixture
 def site(monkeypatch, mocker):
     """Returns a mock pywikibot.Site instance.  Also closes off some possible
@@ -17,9 +18,10 @@ def site(monkeypatch, mocker):
 
 
 @pytest.fixture
-def Page(mocker):
-    """Returns a mock of the pywikibot.Page class."""
-    return mocker.patch("pywikibot.Page", autospec=True)
+def page(mocker, site):
+    """Returns a mock pywikibot.Page."""
+    mock_Page = mocker.patch("pywikibot.Page", autospec=True)
+    return mock_Page(site)
 
 
 def icon(mocker, name):
@@ -58,85 +60,71 @@ def dyk_again(mocker):
     return icon(mocker, "Symbol redirect vote 4")
 
 
-def test_nomination_can_be_constructed(site, Page):
-    page = Page(site, "")
+def test_nomination_can_be_constructed(page):
     nomination = Nomination(page)
 
 
-def test_is_approved_returns_false_with_no_images(site, Page):
-    page = Page(site, "")
+def test_is_approved_returns_false_with_no_images(page):
     page.imagelinks.return_value = []
     nomination = Nomination(page)
     assert nomination.is_approved() is False
 
 
-def test_is_approved_returns_true_with_tick(site, Page, dyk_tick):
-    page = Page(site, "")
+def test_is_approved_returns_true_with_tick(page, dyk_tick):
     page.imagelinks.return_value = [dyk_tick]
     nomination = Nomination(page)
     assert nomination.is_approved() is True
 
 
-def test_is_approved_returns_true_with_tick_agf(site, Page, dyk_tick_agf):
-    page = Page(site, "")
+def test_is_approved_returns_true_with_tick_agf(page, dyk_tick_agf):
     page.imagelinks.return_value = [dyk_tick_agf]
     nomination = Nomination(page)
     assert nomination.is_approved() is True
 
 
-def test_is_approved_returns_false_with_query(site, Page, dyk_query):
-    page = Page(site, "")
+def test_is_approved_returns_false_with_query(page, dyk_query):
     page.imagelinks.return_value = [dyk_query]
     nomination = Nomination(page)
     assert nomination.is_approved() is False
 
 
-def test_is_approved_returns_false_with_query_override(site, Page, dyk_tick, dyk_query):
-    page = Page(site, "")
+def test_is_approved_returns_false_with_query_override(page, dyk_tick, dyk_query):
     page.imagelinks.return_value = [dyk_tick, dyk_query]
     nomination = Nomination(page)
     assert nomination.is_approved() is False
 
 
-def test_is_approved_returns_false_with_query_no_override(
-    site, Page, dyk_tick, dyk_query_no
-):
-    page = Page(site, "")
+def test_is_approved_returns_false_with_query_no_override(page, dyk_tick, dyk_query_no):
     page.imagelinks.return_value = [dyk_tick, dyk_query_no]
     nomination = Nomination(page)
     assert nomination.is_approved() is False
 
 
-def test_is_approved_returns_false_with_no_override(site, Page, dyk_tick, dyk_no):
-    page = Page(site, "")
+def test_is_approved_returns_false_with_no_override(page, dyk_tick, dyk_no):
     page.imagelinks.return_value = [dyk_tick, dyk_no]
     nomination = Nomination(page)
     assert nomination.is_approved() is False
 
 
-def test_is_approved_returns_false_with_again_override(site, Page, dyk_tick, dyk_again):
-    page = Page(site, "")
+def test_is_approved_returns_false_with_again_override(page, dyk_tick, dyk_again):
     page.imagelinks.return_value = [dyk_tick, dyk_again]
     nomination = Nomination(page)
     assert nomination.is_approved() is False
 
 
-def test_articles_with_no_links_returns_empty_list(site, Page):
-    page = Page(site, "")
+def test_articles_with_no_links_returns_empty_list(page):
     page.templatesWithParams.return_value = []
     nomination = Nomination(page)
     assert nomination.articles() == []
 
 
-def test_articles_with_one_link_returns_list(site, Page):
-    page = Page(site, "")
+def test_articles_with_one_link_returns_list(page):
     page.templatesWithParams.return_value = []
     nomination = Nomination(page)
     assert nomination.articles() == []
 
 
-def test_title_returns_page_title(site, Page):
-    page = Page(site, "")
+def test_title_returns_page_title(page):
     page.title.return_value = "foo"
     nomination = Nomination(page)
     assert nomination.title() == "foo"
