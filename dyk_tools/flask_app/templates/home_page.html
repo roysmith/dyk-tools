@@ -1,12 +1,10 @@
-<!doctype html>
+{% extends "base.html" %}
 
-<head>
-    <title>DYK Tools</title>
-</head>
+{% block content %}
 
-<body>
-    <h1>Hello!</h1>
+<h1>Hello!</h1>
     <form method="POST" action="/">
         <div>{{ form.name.label }}: {{ form.name }}</div>
     </form>
-</body>
+
+{% endblock %}
