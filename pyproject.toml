@@ -1,0 +1,7 @@
+[build-system]
+requires = ["setuptools"]
+
+[project]
+name = "dyk_tools"
+version = "0.0.1"
+

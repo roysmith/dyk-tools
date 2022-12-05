@@ -12,8 +12,7 @@ SITE = Site('en', 'wikipedia')
 def home_page():
     form = TemplateForm(request.form)
     if request.method == "POST" and form.validate():
-        name = form.name.data
-        return redirect(url_for("display"))
+        return redirect(url_for("display", template_name=form.name.data))
     return render_template("home_page.html", form=form)
 
 
