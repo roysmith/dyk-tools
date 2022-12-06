@@ -1,18 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        {% include "header.html" %}
-        {% block page_css %} <!-- per-page css --> {% endblock %}
-        <title>DYK Tools</title>
-    </head>
-    <body>
-        <div>
-            <a href="/">Home</a>
+
+  <head>
+    {% include "header.html" %}
+    {% block page_css %} <!-- per-page css --> {% endblock %}
+    <title>DYK Tools</title>
+  </head>
+
+  <body>
+
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <a type="button" class="btn btn-primary" href="/">Home</a>
         </div>
-        <div>
-            {% block content %} <!-- main content --> {% endblock %}
+      </div>
+
+      <div class="row">
+        <div class="col">
+         {% block content %} <!-- main content --> {% endblock %}
         </div>
-        {% include "footer.html" %}
-        {% block page_scripts %} <!-- per-page javascript --> {% endblock %}
-    </body>
+      </div>
+
+    </div>
+
+    {% include "footer.html" %}
+    {% block page_scripts %} <!-- per-page javascript --> {% endblock %}
+
+  </body>
+
 </html>
