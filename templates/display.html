@@ -3,8 +3,15 @@
 {% block content %}
 
 <h1><a href="{{ nomination.page.full_url() }}">{{nomination.page.title()}}</a></h1>
+<h2>Articles</h2>
+<ul>
+    {% for article in nomination.articles() %}
+    <li>{{ article.title() }}</li>
+    {% endfor %}
+</ul>
 <p>Approved: {{nomination.is_approved()}}</p>
 
+<h2>Hooks</h2>
 <ul>
     {% for hook in nomination.hooks() %}
     <li><span class="fw-bold">{{ hook.tag }}</span> {{ hook.text }}</li>
