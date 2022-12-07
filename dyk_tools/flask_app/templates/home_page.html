@@ -2,9 +2,12 @@
 
 {% block content %}
 
-<h1>Hello!</h1>
+    <h1>Pick a template</h1>
+
     <form method="POST" action="/">
-        <div>{{ form.name.label }}: {{ form.name }}</div>
+        {{ form.name }}
+        <input type=submit>
     </form>
 
 {% endblock %}
+

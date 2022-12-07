@@ -1,4 +1,5 @@
-from wtforms import Form, StringField
+from wtforms import Form, SelectField
 
 class TemplateForm(Form):
-    name = StringField('Name')
+    # See https://github.com/wtforms/wtforms/issues/762
+    name = SelectField(validate_choice=False, choices=[])
