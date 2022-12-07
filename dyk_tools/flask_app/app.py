@@ -5,7 +5,7 @@ from dyk_tools.nomination import Nomination
 
 app = Flask(__name__)
 
-SITE = Site("en", "wikipedia")
+SITE = Site("en", "wikipedia", "dyk-tools")
 
 
 @app.route("/", methods=["GET", "POST"])
