@@ -2,15 +2,23 @@
 <html lang="en">
 
 <head>
-  {% include "header.html" %}
+<!-- Required meta tags for bootstrap -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Bootstrap CSS -->
+<link
+  rel="stylesheet"
+  href="https://tools-static.wmflabs.org/cdnjs/ajax/libs/twitter-bootstrap/5.2.2/css/bootstrap.min.css">
+  
+<!-- Per-page css -->
   {% block page_css %}
-  <!-- per-page css -->
   {% endblock %}
+
   <title>DYK Tools</title>
 </head>
 
 <body>
-
   <div class="container">
     <div class="row mt-3">
       <div class="col">
@@ -27,11 +35,13 @@
 
   </div>
 
-  {% include "footer.html" %}
-  {% block page_scripts %}
-  <!-- per-page javascript -->
-  {% endblock %}
+<!-- JS libraries.  jQuery first, then Bootstrap JS bundle (which includes popper) -->
+<script src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jquery/3.6.1/jquery.slim.min.js"></script>
+<script src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/twitter-bootstrap/5.2.2/js/bootstrap.bundle.min.js"</script>
 
+<!-- Per-page javascript -->
+{% block page_scripts %}
+{% endblock %}
 </body>
 
 </html>
