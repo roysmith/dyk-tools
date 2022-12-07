@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 from pywikibot import Site, Page, Category
 from template_form import TemplateForm
-from dyk_tools.nomination import Nomination
+from dyk_tools import Nomination
 
 app = Flask(__name__)
 
