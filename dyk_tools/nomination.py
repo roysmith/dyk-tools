@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import re
+from typing import List
 
 from pywikibot import Page
 
@@ -22,7 +23,7 @@ class Hook:
 class Nomination:
     page: Page
 
-    def is_approved(self):
+    def is_approved(self) -> bool:
         state = False
         for image in self.page.imagelinks():
             if image.title() in APPROVALS:
@@ -31,7 +32,7 @@ class Nomination:
                 state = False
         return state
 
-    def articles(self):
+    def articles(self) -> List[Page]:
         pages = []
         for t, params in self.page.templatesWithParams():
             if t.title() == "Template:DYK nompage links":
@@ -39,7 +40,7 @@ class Nomination:
         return pages
 
 
-    def hooks(self):
+    def hooks(self) -> list[Hook]:
         """Get the hooks the nomination.
         
         Returns a list of Hook instances."""
