@@ -2,7 +2,7 @@ import pytest
 import pytest_socket
 import pywikibot
 
-from dyk_tools import Nomination
+from dyk_tools import Nomination, Hook
 
 
 @pytest.fixture
@@ -124,7 +124,45 @@ def test_articles_with_one_link_returns_list(page):
     assert nomination.articles() == []
 
 
-def test_title_returns_page_title(page):
-    page.title.return_value = "foo"
+
+def test_hooks_returns_empty_list_with_blank_page(page):
+    page.get.return_value = ""
     nomination = Nomination(page)
-    assert nomination.title() == "foo"
+    assert nomination.hooks() == []
+
+
+def test_hooks_returns_single_hook(page):
+    page.get.return_value = """
+        ... that this is a hook?"""
+    nomination = Nomination(page)
+    assert nomination.hooks() == [Hook("", "... that this is a hook?")]
+
+def test_hooks_returns_tag_and_text(page):
+    page.get.return_value = """
+        '''ALT0''' ... that blah?
+        """
+    nomination = Nomination(page)
+    assert nomination.hooks() == [Hook("ALT0", "... that blah?")]
+
+def test_hooks_returns_tag_and_text_with_colon_after_tag(page):
+    page.get.return_value = """
+        '''ALT0''': ... that blah?
+        """
+    nomination = Nomination(page)
+    assert nomination.hooks() == [Hook("ALT0", "... that blah?")]
+
+
+def test_hooks_returns_multiple_hooks(page):
+    page.get.return_value = """
+        blah, blah
+        ... that this is a hook?
+        ... not this one?
+        ... that this is also a hook?
+        '''ALT1''' ... that foo?
+        """
+    nomination = Nomination(page)
+    assert nomination.hooks() == [
+        Hook("", "... that this is a hook?"),
+        Hook("", "... that this is also a hook?"),
+        Hook("ALT1", "... that foo?"),
+    ]

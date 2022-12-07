@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import re
 
 from pywikibot import Page
 
@@ -9,6 +10,12 @@ DISAPPROVALS = [
     "File:Symbol delete vote.svg",
     "File:Symbol redirect vote 4.svg",
 ]
+
+
+@dataclass(frozen=True)
+class Hook:
+    tag: str
+    text: str
 
 
 @dataclass(frozen=True)
@@ -31,5 +38,11 @@ class Nomination:
                 pages.append(Page(self.page, params[0]))
         return pages
 
-    def title(self):
-        return self.page.title()
+
+    def hooks(self):
+        """Get the hooks the nomination.
+        
+        Returns a list of Hook instances."""
+        wikitext = self.page.get()
+        pattern = re.compile(r"(?:'''(\w+)''':?)? *(\.\.\. that .*?\?)")
+        return [Hook(tag, text) for tag, text in pattern.findall(wikitext)]

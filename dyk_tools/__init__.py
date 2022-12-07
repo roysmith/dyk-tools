@@ -1,3 +1,3 @@
-from dyk_tools.nomination import Nomination
+from dyk_tools.nomination import Nomination, Hook
 
-__all__ = ['Nomination']
+__all__ = ['Nomination', 'Hook']

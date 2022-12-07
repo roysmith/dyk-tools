@@ -21,8 +21,8 @@ def get_pending_nominations():
     cat = Category(SITE, "Pending DYK nominations")
     titles = []
     for nom in cat.articles():
-        title = nom.title(with_ns=False)
-        titles.append(title.removeprefix("Did you know nominations/"))
+        title = nom.title()
+        titles.append((title, title.removeprefix("Template:Did you know nominations/")))
     return titles
 
 
