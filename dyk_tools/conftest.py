@@ -21,4 +21,3 @@ def page(mocker, site):
     """Returns a mock pywikibot.Page."""
     mock_Page = mocker.patch("pywikibot.Page", autospec=True)
     return mock_Page(site)
-    
