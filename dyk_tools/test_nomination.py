@@ -98,10 +98,17 @@ def test_articles_with_no_links_returns_empty_list(page):
     assert nomination.articles() == []
 
 
-def test_articles_with_one_link_returns_list(page):
-    page.templatesWithParams.return_value = []
+def test_articles_with_one_link_returns_list_with_one_page(mocker, page):
+    backend_mock_page_class = mocker.patch("dyk_tools.nomination.Page", autospec=True)
+    mock_page = backend_mock_page_class(None, None)
+    backend_mock_page_class.reset_mock()
+    template = mocker.Mock(spec=pywikibot.Page)()
+    template.title.return_value = 'Template:DYK nompage links'
+    page.templatesWithParams.return_value = [(template, ['my article', 'nompage=foo'])]
     nomination = Nomination(page)
-    assert nomination.articles() == []
+    result = nomination.articles()
+    assert result == [mock_page]
+    backend_mock_page_class.assert_called_once_with(mocker.ANY, "my article")
 
 
 def test_hooks_returns_empty_list_with_blank_page(page):
