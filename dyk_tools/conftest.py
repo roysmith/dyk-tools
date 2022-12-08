@@ -4,13 +4,13 @@ import pytest_socket
 import pywikibot
 
 
+def pytest_runtest_setup():
+    pytest_socket.disable_socket()
+
+
 @pytest.fixture
 def site(monkeypatch, mocker):
-    """Returns a mock pywikibot.Site instance.  Also closes off some possible
-    network leakage paths in case something bypasses the mock.
-
-    """
-    pytest_socket.disable_socket()
+    """Returns a mock pywikibot.Site instance."""
     monkeypatch.setattr(pywikibot.config, "max_retries", 0)
     mock_Site = mocker.patch("pywikibot.Site", autoconfig=pywikibot.site.APISite)
     return mock_Site()
