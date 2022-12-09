@@ -6,7 +6,11 @@
 <h2>Articles</h2>
 <ul>
     {% for article in articles %}
-    <li>{{ article.page.title() }} {% if article.is_biography() %} (Biography) {% endif %} </li>
+    <li>
+        {{ article.page.title() }}
+        {% if article.is_biography() %} (Biography){% endif %}
+        {% if article.is_american() %} (American){% endif %}
+    </li>
     {% endfor %}
 </ul>
 <p>Approved: {{nomination.is_approved()}}</p>

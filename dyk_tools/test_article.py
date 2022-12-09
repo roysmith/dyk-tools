@@ -78,3 +78,43 @@ def test_has_person_infobox_returns_false_with_unknown_infobox(mocker, page):
         page, "People and person infobox templates"
     )
     infobox_cat.articles.assert_called_once_with(recurse=1, namespaces=[mocker.ANY])
+
+
+def test_is_american_returns_false_with_blank_intro(page):
+    page.extract.return_value = ""
+    article = Article(page)
+    assert article.is_american() == False
+
+
+def test_is_american_returns_true_with_american_in_intro(page):
+    page.extract.return_value = "Blah is an american thing"
+    article = Article(page)
+    assert article.is_american() == True
+
+
+def test_is_american_returns_true_with_upper_case_american_in_intro(page):
+    page.extract.return_value = "Blah is an American thing"
+    article = Article(page)
+    assert article.is_american() == True
+
+
+def test_is_american_returns_false_with_non_american_intro(page):
+    page.extract.return_value = "I am british"
+    article = Article(page)
+    assert article.is_american() == False
+
+
+def test_is_american_returns_true_with_united_states_category(mocker, page):
+    cat = mocker.Mock(spec=pywikibot.Category)
+    cat.title.return_value = "Things in the united states"
+    page.categories.return_value = [cat]
+    article = Article(page)
+    assert article.is_american() == True
+
+
+def test_is_american_returns_true_with_other_category(mocker, page):
+    cat = mocker.Mock(spec=pywikibot.Category)
+    cat.title.return_value = "Things in lower slobbovia"
+    page.categories.return_value = [cat]
+    article = Article(page)
+    assert article.is_american() == False

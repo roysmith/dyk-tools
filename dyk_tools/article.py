@@ -24,5 +24,20 @@ class Article:
         for t in self.page.templates():
             if t in infoboxes:
                 return True
-                
+        return False
+
+
+    def is_american(self) -> bool:
+        return self.american_in_intro() or self.has_united_states_category()
+
+
+    def american_in_intro(self) -> bool:
+        intro = self.page.extract(intro=True).lower()
+        return 'american' in intro
+
+
+    def has_united_states_category(self) -> bool:
+        for cat in self.page.categories():
+            if cat.title().lower().endswith(' in the united states'):
+                return True
         return False
