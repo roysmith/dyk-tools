@@ -7,7 +7,7 @@
 <ul>
     {% for article in articles %}
     <li>
-        {{ article.page.title() }}
+        <a href="{{ article.page.full_url() }}">{{ article.page.title() }}</a>
         {% if article.is_biography() %} (Biography){% endif %}
         {% if article.is_american() %} (American){% endif %}
     </li>
