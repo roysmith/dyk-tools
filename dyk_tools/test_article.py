@@ -31,7 +31,6 @@ def test_has_person_infobox_returns_false_with_no_infobox(mocker, page):
 
 
 def test_has_person_infobox_returns_true_with_correct_infobox(mocker, page):
-
     backend_mock_category_class = mocker.patch(
         "dyk_tools.article.Category", autospec=True
     )
@@ -57,7 +56,6 @@ def test_has_person_infobox_returns_true_with_correct_infobox(mocker, page):
 
 
 def test_has_person_infobox_returns_false_with_unknown_infobox(mocker, page):
-
     backend_mock_category_class = mocker.patch(
         "dyk_tools.article.Category", autospec=True
     )
