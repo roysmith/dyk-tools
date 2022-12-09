@@ -38,7 +38,7 @@ class Nomination:
             if t.title() == "Template:DYK nompage links":
                 for param in params:
                     if "=" not in param:
-                        pages.append(Page(self.page, param))
+                        pages.append(Page(self.page.site, param))
         return pages
 
     def hooks(self) -> list[Hook]:
