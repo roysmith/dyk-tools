@@ -36,13 +36,14 @@ class Nomination:
         pages = []
         for t, params in self.page.templatesWithParams():
             if t.title() == "Template:DYK nompage links":
-                pages.append(Page(self.page, params[0]))
+                for param in params:
+                    if "=" not in param:
+                        pages.append(Page(self.page, param))
         return pages
-
 
     def hooks(self) -> list[Hook]:
         """Get the hooks the nomination.
-        
+
         Returns a list of Hook instances."""
         wikitext = self.page.get()
         pattern = re.compile(r"(?:'''(\w+)''':?)? *(\.\.\. that .*?\?)")
