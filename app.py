@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 from pywikibot import Site, Page, Category
 from template_form import TemplateForm
-from dyk_tools import Nomination
+from dyk_tools import Nomination, Article
 
 app = Flask(__name__)
 
@@ -30,4 +30,8 @@ def get_pending_nominations():
 def display():
     """template_name query arg is the DYK nomination template, including the Template: prefix."""
     page = Page(SITE, request.args["template_name"])
-    return render_template("display.html", nomination=Nomination(page))
+    nomination = Nomination(page)
+    articles = [Article(a) for a in nomination.articles()]
+    return render_template(
+        "display.html", nomination=nomination, articles=articles
+    )

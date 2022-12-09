@@ -5,8 +5,8 @@
 <h1><a href="{{ nomination.page.full_url() }}">{{nomination.page.title()}}</a></h1>
 <h2>Articles</h2>
 <ul>
-    {% for article in nomination.articles() %}
-    <li>{{ article.title() }}</li>
+    {% for article in articles %}
+    <li>{{ article.page.title() }} {% if article.is_biography() %} (Biography) {% endif %} </li>
     {% endfor %}
 </ul>
 <p>Approved: {{nomination.is_approved()}}</p>
