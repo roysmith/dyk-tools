@@ -118,3 +118,11 @@ def test_is_american_returns_true_with_other_category(mocker, page):
     page.categories.return_value = [cat]
     article = Article(page)
     assert article.is_american() == False
+
+
+def test_is_american_returns_true_with_link_to_state_article(mocker, page):
+    vermont = mocker.Mock(spec=pywikibot.Page)()
+    vermont.title.return_value = "Vermont"
+    page.linkedPages.return_value = [vermont]
+    article = Article(page)
+    assert article.is_american() == True

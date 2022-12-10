@@ -2,6 +2,9 @@ from dataclasses import dataclass
 
 from pywikibot import Page, Category
 
+from dyk_tools.us_states import STATES
+
+
 @dataclass(frozen=True)
 class Article:
     page: Page
@@ -28,7 +31,11 @@ class Article:
 
 
     def is_american(self) -> bool:
-        return self.american_in_intro() or self.has_united_states_category()
+        return (
+            self.american_in_intro()
+            or self.has_united_states_category()
+            or self.has_link_to_state()
+        )
 
 
     def american_in_intro(self) -> bool:
@@ -41,3 +48,8 @@ class Article:
             if cat.title().lower().endswith(' in the united states'):
                 return True
         return False
+
+
+    def has_link_to_state(self) -> bool:
+        linked_titles = {l.title() for l in self.page.linkedPages(namespaces=[""])}
+        return bool(linked_titles & STATES)
