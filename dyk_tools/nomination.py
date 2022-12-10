@@ -42,7 +42,7 @@ class Nomination:
         return pages
 
     def hooks(self) -> list[Hook]:
-        """Get the hooks the nomination.
+        """Get the hooks from the nomination.
 
         Returns a list of Hook instances."""
         wikitext = self.page.get()
