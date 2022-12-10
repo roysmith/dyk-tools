@@ -9,20 +9,24 @@ from typing import List
 from pywikibot import Site, Page, Category
 from dyk_tools import Nomination
 
-logger = logging.getLogger('find_approved_templates')
+logger = logging.getLogger("find_approved_templates")
 
 
 def main():
     logging.basicConfig(stream=sys.stderr)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--max',
-                        type=int,
-                        help='Maximum number of templates to process (0 means no limit)')
-    parser.add_argument('--log-level',
-                        choices=['debug', 'info', 'warning', 'error'],
-                        default='info',
-                        help='Set logging level')
+    parser.add_argument(
+        "--max",
+        type=int,
+        help="Maximum number of templates to process (0 means no limit)",
+    )
+    parser.add_argument(
+        "--log-level",
+        choices=["debug", "info", "warning", "error"],
+        default="info",
+        help="Set logging level",
+    )
     args = parser.parse_args()
 
     logger.setLevel(args.log_level.upper())
@@ -31,8 +35,8 @@ def main():
 
 
 def process_all(max: int):
-    site = Site('en', 'wikipedia')
-    cat = Category(site, 'Pending DYK nominations')
+    site = Site("en", "wikipedia")
+    cat = Category(site, "Pending DYK nominations")
     for page in cat.articles(namespaces="Template", total=max):
         nomination = Nomination(page)
         if nomination.is_approved():
@@ -44,5 +48,5 @@ def process_all(max: int):
                 print(f"...{a.title()}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

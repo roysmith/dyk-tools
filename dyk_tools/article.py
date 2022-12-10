@@ -12,23 +12,20 @@ class Article:
     def is_biography(self) -> bool:
         return self.has_birth_category() or self.has_person_infobox()
 
-
     def has_birth_category(self) -> bool:
         for cat in self.page.categories():
-            if cat.title().endswith(' births'):
+            if cat.title().endswith(" births"):
                 return True
         return False
 
-
     def has_person_infobox(self) -> bool:
         category = Category(self.page, "People and person infobox templates")
-        ns = self.page.site.namespaces['Template'].id
+        ns = self.page.site.namespaces["Template"].id
         infoboxes = list(category.articles(recurse=1, namespaces=[ns]))
         for t in self.page.templates():
             if t in infoboxes:
                 return True
         return False
-
 
     def is_american(self) -> bool:
         return (
@@ -37,18 +34,15 @@ class Article:
             or self.has_link_to_state()
         )
 
-
     def american_in_intro(self) -> bool:
         intro = self.page.extract(intro=True).lower()
-        return 'american' in intro
-
+        return "american" in intro
 
     def has_united_states_category(self) -> bool:
         for cat in self.page.categories():
-            if cat.title().lower().endswith(' in the united states'):
+            if cat.title().lower().endswith(" in the united states"):
                 return True
         return False
-
 
     def has_link_to_state(self) -> bool:
         linked_titles = {l.title() for l in self.page.linkedPages(namespaces=[""])}

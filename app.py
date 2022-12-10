@@ -32,6 +32,4 @@ def display():
     page = Page(SITE, request.args["template_name"])
     nomination = Nomination(page)
     articles = [Article(a) for a in nomination.articles()]
-    return render_template(
-        "display.html", nomination=nomination, articles=articles
-    )
+    return render_template("display.html", nomination=nomination, articles=articles)
