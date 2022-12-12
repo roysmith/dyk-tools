@@ -12,7 +12,7 @@ def pytest_runtest_setup():
 def site(monkeypatch, mocker):
     """Returns a mock pywikibot.Site instance."""
     monkeypatch.setattr(pywikibot.config, "max_retries", 0)
-    mock_Site = mocker.patch("pywikibot.Site", autoconfig=pywikibot.site.APISite)
+    mock_Site = mocker.patch("pywikibot.Site", spec=pywikibot.site.APISite)
     return mock_Site()
 
 
