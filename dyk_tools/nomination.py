@@ -4,6 +4,8 @@ from typing import List
 
 from pywikibot import Page
 
+import dyk_tools
+
 APPROVALS = ["File:Symbol confirmed.svg", "File:Symbol voting keep.svg"]
 DISAPPROVALS = [
     "File:Symbol question.svg",
@@ -48,3 +50,15 @@ class Nomination:
         wikitext = self.page.get()
         pattern = re.compile(r"(?:'''(\w+)''':?)? *(\.\.\. that .*?\?)")
         return [Hook(tag, text) for tag, text in pattern.findall(wikitext)]
+
+    def is_biography(self) -> bool:
+        for page in self.articles():
+            if dyk_tools.Article(page).is_biography():
+                return True
+        return False
+
+    def is_american(self) -> bool:
+        for page in self.articles():
+            if dyk_tools.Article(page).is_american():
+                return True
+        return False

@@ -3,35 +3,32 @@
 import argparse
 from itertools import islice
 import logging
-import sys
-from typing import List
+from pathlib import Path
 
-from pywikibot import Site, Page, Category
+from pywikibot import Site, Category
 from dyk_tools import Nomination
 
-logger = logging.getLogger("find_approved_templates")
+logger = logging.getLogger("dykbot")
 
 
 def main():
-    logging.basicConfig(stream=sys.stderr)
+    logging.basicConfig(
+        filename=Path.home() / "dykbot.log",
+        format="%(asctime)s %(levelname)s %(name)s %(message)s",
+    )
     args = process_command_line()
     logger.setLevel(args.log_level.upper())
-    site = Site(args.code, "wikipedia")
-    process_nominations(site, args.max)
 
+    site = Site()
+    process_nominations(site, args.dry_run)
 
 
 def process_command_line():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--code",
-        default="test",
-        help="Wikipedia site language code",
-    )
-    parser.add_argument(
-        "--max",
-        type=int,
-        help="Maximum number of templates to process (default is no limit)",
+        "--dry-run",
+        action="store_false",
+        help="Don't write anything to the wiki, just log what would happen (default=%(default)s)",
     )
     parser.add_argument(
         "--log-level",
@@ -42,15 +39,19 @@ def process_command_line():
     return parser.parse_args()
 
 
-def process_nominations(site: Site, max: int):
+def process_nominations(site: Site, dry_run: bool):
+    logger.info("Starting run, site=%s, dry-run=%s", site, dry_run)
     cat = Category(site, "Pending DYK nominations")
-    for page in cat.articles(namespaces="Template", total=max):
-        nomination = Nomination(page)
-        if nomination.is_approved():
-            print(nomination)
-            articles = nomination.articles()
-            for a in articles:
-                print(f"...{a.title()}")
+    for page in cat.articles(namespaces="Template"):
+        nom = Nomination(page)
+        flags = []
+        if nom.is_approved():
+            flags.append("Approved")
+        if nom.is_biography():
+            flags.append("Biography")
+        if nom.is_american():
+            flags.append("American")
+        logger.debug("[[%s]] %s", nom.page.title(), flags)
 
 
 if __name__ == "__main__":
