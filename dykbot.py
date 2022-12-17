@@ -21,7 +21,7 @@ class App:
         self.logger.setLevel(self.args.log_level.upper())
         t0 = datetime.utcnow()
         self.nomination_count = 0
-        self.site = Site()
+        self.site = Site(self.args.mylang)
         self.logger.info(
             "Starting run, site=%s, dry-run=%s", self.site, self.args.dry_run
         )
@@ -49,6 +49,10 @@ class App:
             "--max",
             type=int,
             help="Maximum number of nominations to touch",
+        )
+        parser.add_argument(
+            "--mylang",
+            help="Override mylang config setting",
         )
         return parser.parse_args()
 
