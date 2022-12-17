@@ -7,6 +7,7 @@ import logging
 from pathlib import Path
 
 from pywikibot import Site, Category
+from pywikibot.exceptions import NoPageError
 from dyk_tools import Nomination
 
 
@@ -59,7 +60,11 @@ class App:
     def process_nominations(self):
         cat = Category(self.site, "Pending DYK nominations")
         for page in cat.articles(namespaces="Template"):
-            self.process_one_nomination(page)
+            try:
+                self.process_one_nomination(page)
+            except NoPageError:
+                self.logger.exception("NoPageError while processing %s, skipping", page)
+                continue
             self.nomination_count += 1
             if self.args.max and self.nomination_count >= self.args.max:
                 self.logger.info(
