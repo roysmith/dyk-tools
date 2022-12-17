@@ -52,20 +52,23 @@ class App:
     def process_nominations(self):
         cat = Category(self.site, "Pending DYK nominations")
         for page in cat.articles(namespaces="Template"):
-            nom = Nomination(page)
-            flags = []
-            if nom.is_approved():
-                flags.append("Approved")
-            if nom.is_biography():
-                flags.append("Biography")
-            if nom.is_american():
-                flags.append("American")
-            self.logger.debug("[[%s]] %s", nom.page.title(), flags)
+            self.process_one_nomination(page)
             self.nomination_count += 1
             if self.args.max and self.nomination_count >= self.args.max:
                 self.logger.info("Stopping early after %d nominations", self.nomination_count)
                 return
 
+
+    def process_one_nomination(self, page):
+        nom = Nomination(page)
+        flags = []
+        if nom.is_approved():
+            flags.append("Approved")
+        if nom.is_biography():
+            flags.append("Biography")
+        if nom.is_american():
+            flags.append("American")
+        self.logger.debug("[[%s]] %s", nom.page.title(), flags)
 
 if __name__ == "__main__":
     app = App()
