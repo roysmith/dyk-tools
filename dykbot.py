@@ -37,7 +37,7 @@ class App:
             "--dry-run",
             default=True,
             action=argparse.BooleanOptionalAction,
-            help="if dry-run, don't write anything to the wiki, just log what would happen (default=dry-run)",
+            help="don't write anything to the wiki, just log what would happen",
         )
         parser.add_argument(
             "--log-level",
