@@ -9,6 +9,7 @@ from pathlib import Path
 from pywikibot import Site, Category
 from dyk_tools import Nomination
 
+
 class App:
     def main(self):
         logging.basicConfig(
@@ -21,11 +22,14 @@ class App:
         t0 = datetime.utcnow()
         self.nomination_count = 0
         self.site = Site()
-        self.logger.info("Starting run, site=%s, dry-run=%s", self.site, self.args.dry_run)
+        self.logger.info(
+            "Starting run, site=%s, dry-run=%s", self.site, self.args.dry_run
+        )
         self.process_nominations()
         t1 = datetime.utcnow()
-        self.logger.info("Done.  Processed %d nominations in %s", self.nomination_count, t1 - t0)
-
+        self.logger.info(
+            "Done.  Processed %d nominations in %s", self.nomination_count, t1 - t0
+        )
 
     def process_command_line(self):
         parser = argparse.ArgumentParser()
@@ -48,16 +52,16 @@ class App:
         )
         return parser.parse_args()
 
-
     def process_nominations(self):
         cat = Category(self.site, "Pending DYK nominations")
         for page in cat.articles(namespaces="Template"):
             self.process_one_nomination(page)
             self.nomination_count += 1
             if self.args.max and self.nomination_count >= self.args.max:
-                self.logger.info("Stopping early after %d nominations", self.nomination_count)
+                self.logger.info(
+                    "Stopping early after %d nominations", self.nomination_count
+                )
                 return
-
 
     def process_one_nomination(self, page):
         nom = Nomination(page)
@@ -69,6 +73,7 @@ class App:
         if nom.is_american():
             flags.append("American")
         self.logger.debug("[[%s]] %s", nom.page.title(), flags)
+
 
 if __name__ == "__main__":
     app = App()
