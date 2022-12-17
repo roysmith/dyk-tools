@@ -24,7 +24,7 @@ class App:
         self.logger.info("Starting run, site=%s, dry-run=%s", self.site, self.args.dry_run)
         self.process_nominations()
         t1 = datetime.utcnow()
-        self.logger.info("Done.  Processed %d nominations", self.nomination_count)
+        self.logger.info("Done.  Processed %d nominations in %s", self.nomination_count, t1 - t0)
 
 
     def process_command_line(self):
@@ -41,6 +41,11 @@ class App:
             default="info",
             help="Set logging level",
         )
+        parser.add_argument(
+            "--max",
+            type=int,
+            help="Maximum number of nominations to touch",
+        )
         return parser.parse_args()
 
 
@@ -48,7 +53,6 @@ class App:
         cat = Category(self.site, "Pending DYK nominations")
         for page in cat.articles(namespaces="Template"):
             nom = Nomination(page)
-            self.nomination_count += 1
             flags = []
             if nom.is_approved():
                 flags.append("Approved")
@@ -57,6 +61,10 @@ class App:
             if nom.is_american():
                 flags.append("American")
             self.logger.debug("[[%s]] %s", nom.page.title(), flags)
+            self.nomination_count += 1
+            if self.args.max and self.nomination_count >= self.args.max:
+                self.logger.info("Stopping early after %d nominations", self.nomination_count)
+                return
 
 
 if __name__ == "__main__":
