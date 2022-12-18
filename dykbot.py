@@ -81,16 +81,19 @@ class App:
             self.logger.debug("[[%s]]: Been there, done that", nom.page.title())
             return
         flags = []
+        cats = []
         if nom.is_approved():
             flags.append("Approved")
         if nom.is_biography():
             flags.append("Biography")
+            cats.append("Category:Pending DYK biographies")
         if nom.is_american():
             flags.append("American")
+            cats.append("Category:Pending DYK American hooks")
         self.logger.debug("[[%s]] %s", nom.page.title(), flags)
         self.nomination_count += 1
         if not self.args.dry_run:
-            nom.mark_processed()
+            nom.mark_processed(cats)
 
 
 if __name__ == "__main__":

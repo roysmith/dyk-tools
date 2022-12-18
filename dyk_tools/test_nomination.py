@@ -194,7 +194,7 @@ def test_hooks_returns_multiple_hooks(page):
 def test_is_prevously_processed_returns_false_with_no_templates(page):
     page.itertemplates.return_value = []
     nomination = Nomination(page)
-    assert nomination.previously_processed() == False
+    assert nomination.is_previously_processed() == False
 
 
 def test_is_previously_processed_returns_true_with_dyk_tools_bot_template(mocker, page):
@@ -202,7 +202,7 @@ def test_is_previously_processed_returns_true_with_dyk_tools_bot_template(mocker
     template.title.return_value = "Template:DYK-Tools-Bot was here"
     page.itertemplates.return_value = [template]
     nomination = Nomination(page)
-    assert nomination.previously_processed() == True
+    assert nomination.is_previously_processed() == True
 
 
 def test_mark_processed_adds_template(mocker, page):
@@ -211,9 +211,44 @@ def test_mark_processed_adds_template(mocker, page):
         "}}<!--Please do not write below this line or remove this line. Place comments above this line.-->\n"
     )
     nomination = Nomination(page)
-    nomination.mark_processed()
+    nomination.mark_processed([])
     assert page.text == (
         "blah, blah\n"
         "{{Template:DYK-Tools-Bot was here}}\n"
+        "}}<!--Please do not write below this line or remove this line. Place comments above this line.-->\n"
+    )
+
+
+def test_mark_processed_adds_template_and_categories(mocker, page):
+    page.get.return_value = (
+        "blah, blah\n"
+        "}}<!--Please do not write below this line or remove this line. Place comments above this line.-->\n"
+    )
+    nomination = Nomination(page)
+    nomination.mark_processed(["Category:Foo", "Category:Bar"])
+    assert page.text == (
+        "blah, blah\n"
+        "{{Template:DYK-Tools-Bot was here}}\n"
+        "[[Category:Foo]]\n"
+        "[[Category:Bar]]\n"
+        "}}<!--Please do not write below this line or remove this line. Place comments above this line.-->\n"
+    )
+
+def test_mark_processed_cleans_out_pre_existing_categories(mocker, page):
+    page.get.return_value = (
+        "blah, blah\n"
+        "[[Category:Baz]]\n"
+        "[[Category:Foo]]\n"
+        "[[Category:Other]]\n"
+        "}}<!--Please do not write below this line or remove this line. Place comments above this line.-->\n"
+    )
+    nomination = Nomination(page)
+    nomination.mark_processed(["Category:Foo", "Category:Bar"], ["Category:Foo", "Category:Baz"])
+    assert page.text == (
+        "blah, blah\n"
+        "[[Category:Other]]\n"
+        "{{Template:DYK-Tools-Bot was here}}\n"
+        "[[Category:Foo]]\n"
+        "[[Category:Bar]]\n"
         "}}<!--Please do not write below this line or remove this line. Place comments above this line.-->\n"
     )

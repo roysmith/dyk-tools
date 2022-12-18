@@ -69,12 +69,22 @@ class Nomination:
                 return True
         return False
 
-    def mark_processed(self) -> None:
-        lines = self.page.get().split('\n')
+    def mark_processed(self, categories, categories_to_be_deleted) -> None:
+        lines = self.page.get().split("\n")
         new_lines = []
+        # This assumes categories are formatted one per line
+        pattern = re.compile(r"\[\[([^]]*)\]\]$")
         for line in lines:
-            if '<!--Please do not write below this line or remove this line. Place comments above this line.-->' in line:
-                new_lines.append('{{Template:DYK-Tools-Bot was here}}')
+            m = pattern.match(line)
+            if  m and m[1] in categories_to_be_deleted:
+                continue
+            if (
+                "<!--Please do not write below this line or remove this line. Place comments above this line.-->"
+                in line
+            ):
+                new_lines.append("{{Template:DYK-Tools-Bot was here}}")
+                for cat in categories:
+                       new_lines.append(f"[[{cat}]]")
             new_lines.append(line)
-        self.page.text = '\n'.join(new_lines)
-        self.page.save()
+        self.page.text = "\n".join(new_lines)
+        self.page.save("[[User:DYK-Tools-Bot|DYK-Tools-Bot]] classifying nomination.")
