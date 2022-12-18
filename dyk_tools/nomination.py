@@ -77,10 +77,10 @@ class Nomination:
         lines = self.page.get().split("\n")
         new_lines = []
         # This assumes categories are formatted one per line
-        pattern = re.compile(r"\[\[([^]]*)\]\]$")
+        pattern = re.compile(r"(<noinclude>)?\[\[(?P<cat>[^]]*)\]\](</noinclude>)?$")
         for line in lines:
             m = pattern.match(line)
-            if  m and m[1] in managed_categories:
+            if  m and m.group("cat") in managed_categories:
                 continue
             if (
                 "<!--Please do not write below this line or remove this line. Place comments above this line.-->"
@@ -88,7 +88,7 @@ class Nomination:
             ):
                 new_lines.append("{{Template:DYK-Tools-Bot was here}}")
                 for cat in categories:
-                       new_lines.append(f"[[{cat}]]")
+                       new_lines.append(f"<noinclude>[[{cat}]]</noinclude>")
             new_lines.append(line)
         self.page.text = "\n".join(new_lines)
         self.page.save("[[User:DYK-Tools-Bot|DYK-Tools-Bot]] classifying nomination.")

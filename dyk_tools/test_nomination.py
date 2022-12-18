@@ -229,27 +229,30 @@ def test_mark_processed_adds_template_and_categories(mocker, page):
     assert page.text == (
         "blah, blah\n"
         "{{Template:DYK-Tools-Bot was here}}\n"
-        "[[Category:Foo]]\n"
-        "[[Category:Bar]]\n"
+        "<noinclude>[[Category:Foo]]</noinclude>\n"
+        "<noinclude>[[Category:Bar]]</noinclude>\n"
         "}}<!--Please do not write below this line or remove this line. Place comments above this line.-->\n"
     )
 
 def test_mark_processed_cleans_out_pre_existing_categories(mocker, page):
     page.get.return_value = (
         "blah, blah\n"
-        "[[Category:Baz]]\n"
-        "[[Category:Foo]]\n"
-        "[[Category:Other]]\n"
+        "<noinclude>[[Category:Baz]]</noinclude>\n"
+        "<noinclude>[[Category:Foo]]</noinclude>\n"
+        "<noinclude>[[Category:Other]]</noinclude>\n"
+        "[[Category:Bare]]\n"
+
         "}}<!--Please do not write below this line or remove this line. Place comments above this line.-->\n"
     )
     nomination = Nomination(page)
     nomination.mark_processed(["Category:Foo", "Category:Bar"], ["Category:Foo", "Category:Bar", "Category:Baz"])
     assert page.text == (
         "blah, blah\n"
-        "[[Category:Other]]\n"
+        "<noinclude>[[Category:Other]]</noinclude>\n"
+        "[[Category:Bare]]\n"
         "{{Template:DYK-Tools-Bot was here}}\n"
-        "[[Category:Foo]]\n"
-        "[[Category:Bar]]\n"
+        "<noinclude>[[Category:Foo]]</noinclude>\n"
+        "<noinclude>[[Category:Bar]]</noinclude>\n"
         "}}<!--Please do not write below this line or remove this line. Place comments above this line.-->\n"
     )
 
