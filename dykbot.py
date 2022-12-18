@@ -75,6 +75,10 @@ class App:
                 )
                 return
 
+    MANAGED_CATEGORIES = frozenset(
+        ["Category:Pending DYK biographies", "Category:Pending DYK American hooks"]
+    )
+
     def process_one_nomination(self, page):
         nom = Nomination(page)
         if nom.is_previously_processed():
@@ -93,7 +97,7 @@ class App:
         self.logger.debug("[[%s]] %s", nom.page.title(), flags)
         self.nomination_count += 1
         if not self.args.dry_run:
-            nom.mark_processed(cats, ["Category:Pending DYK biographies", "Category:Pending DYK American hooks"])
+            nom.mark_processed(cats, self.MANAGED_CATEGORIES)
 
 
 if __name__ == "__main__":
