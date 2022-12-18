@@ -211,7 +211,7 @@ def test_mark_processed_adds_template(mocker, page):
         "}}<!--Please do not write below this line or remove this line. Place comments above this line.-->\n"
     )
     nomination = Nomination(page)
-    nomination.mark_processed([])
+    nomination.mark_processed([], [])
     assert page.text == (
         "blah, blah\n"
         "{{Template:DYK-Tools-Bot was here}}\n"
@@ -225,7 +225,7 @@ def test_mark_processed_adds_template_and_categories(mocker, page):
         "}}<!--Please do not write below this line or remove this line. Place comments above this line.-->\n"
     )
     nomination = Nomination(page)
-    nomination.mark_processed(["Category:Foo", "Category:Bar"])
+    nomination.mark_processed(["Category:Foo", "Category:Bar"], [])
     assert page.text == (
         "blah, blah\n"
         "{{Template:DYK-Tools-Bot was here}}\n"
