@@ -93,7 +93,7 @@ class App:
         self.logger.debug("[[%s]] %s", nom.page.title(), flags)
         self.nomination_count += 1
         if not self.args.dry_run:
-            nom.mark_processed(cats)
+            nom.mark_processed(cats, ["Category:Pending DYK biographies", "Category:Pending DYK American hooks"])
 
 
 if __name__ == "__main__":
