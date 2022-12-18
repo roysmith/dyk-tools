@@ -62,10 +62,13 @@ class App:
         for page in cat.articles(namespaces="Template"):
             try:
                 self.process_one_nomination(page)
-            except NoPageError:
-                self.logger.exception("NoPageError while processing %s, skipping", page)
+            except NoPageError as ex:
+                self.logger.error(
+                    "NoPageError while processing [[%s]] (article=[[%s]]), skipping",
+                    page.title(),
+                    ex.page.title(),
+                )
                 continue
-            self.nomination_count += 1
             if self.args.max and self.nomination_count >= self.args.max:
                 self.logger.info(
                     "Stopping early after %d nominations", self.nomination_count
@@ -74,6 +77,9 @@ class App:
 
     def process_one_nomination(self, page):
         nom = Nomination(page)
+        if nom.is_previously_processed():
+            self.logger.debug("[[%s]]: Been there, done that", nom.page.title())
+            return
         flags = []
         if nom.is_approved():
             flags.append("Approved")
@@ -82,6 +88,9 @@ class App:
         if nom.is_american():
             flags.append("American")
         self.logger.debug("[[%s]] %s", nom.page.title(), flags)
+        self.nomination_count += 1
+        if not self.args.dry_run:
+            nom.mark_processed()
 
 
 if __name__ == "__main__":

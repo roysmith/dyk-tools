@@ -1,6 +1,7 @@
 import pytest
 import pywikibot
 
+
 from dyk_tools import Nomination, Hook
 
 
@@ -188,3 +189,31 @@ def test_hooks_returns_multiple_hooks(page):
         Hook("", "... that this is also a hook?"),
         Hook("ALT1", "... that foo?"),
     ]
+
+
+def test_is_prevously_processed_returns_false_with_no_templates(page):
+    page.itertemplates.return_value = []
+    nomination = Nomination(page)
+    assert nomination.previously_processed() == False
+
+
+def test_is_previously_processed_returns_true_with_dyk_tools_bot_template(mocker, page):
+    template = mocker.Mock(spec=pywikibot.Page)()
+    template.title.return_value = "Template:DYK-Tools-Bot was here"
+    page.itertemplates.return_value = [template]
+    nomination = Nomination(page)
+    assert nomination.previously_processed() == True
+
+
+def test_mark_processed_adds_template(mocker, page):
+    page.get.return_value = (
+        "blah, blah\n"
+        "}}<!--Please do not write below this line or remove this line. Place comments above this line.-->\n"
+    )
+    nomination = Nomination(page)
+    nomination.mark_processed()
+    assert page.text == (
+        "blah, blah\n"
+        "{{Template:DYK-Tools-Bot was here}}\n"
+        "}}<!--Please do not write below this line or remove this line. Place comments above this line.-->\n"
+    )

@@ -62,3 +62,19 @@ class Nomination:
             if dyk_tools.Article(page).is_american():
                 return True
         return False
+
+    def is_previously_processed(self) -> bool:
+        for t in self.page.itertemplates():
+            if t.title() == "Template:DYK-Tools-Bot was here":
+                return True
+        return False
+
+    def mark_processed(self) -> None:
+        lines = self.page.get().split('\n')
+        new_lines = []
+        for line in lines:
+            if '<!--Please do not write below this line or remove this line. Place comments above this line.-->' in line:
+                new_lines.append('{{Template:DYK-Tools-Bot was here}}')
+            new_lines.append(line)
+        self.page.text = '\n'.join(new_lines)
+        self.page.save()
