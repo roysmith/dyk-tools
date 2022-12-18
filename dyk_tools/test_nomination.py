@@ -225,7 +225,7 @@ def test_mark_processed_adds_template_and_categories(mocker, page):
         "}}<!--Please do not write below this line or remove this line. Place comments above this line.-->\n"
     )
     nomination = Nomination(page)
-    nomination.mark_processed(["Category:Foo", "Category:Bar"], [])
+    nomination.mark_processed(["Category:Foo", "Category:Bar"], ["Category:Foo", "Category:Bar"])
     assert page.text == (
         "blah, blah\n"
         "{{Template:DYK-Tools-Bot was here}}\n"
@@ -243,7 +243,7 @@ def test_mark_processed_cleans_out_pre_existing_categories(mocker, page):
         "}}<!--Please do not write below this line or remove this line. Place comments above this line.-->\n"
     )
     nomination = Nomination(page)
-    nomination.mark_processed(["Category:Foo", "Category:Bar"], ["Category:Foo", "Category:Baz"])
+    nomination.mark_processed(["Category:Foo", "Category:Bar"], ["Category:Foo", "Category:Bar", "Category:Baz"])
     assert page.text == (
         "blah, blah\n"
         "[[Category:Other]]\n"
@@ -252,3 +252,9 @@ def test_mark_processed_cleans_out_pre_existing_categories(mocker, page):
         "[[Category:Bar]]\n"
         "}}<!--Please do not write below this line or remove this line. Place comments above this line.-->\n"
     )
+
+def test_mark_processed_raises_value_error_with_unmanaged_category(page):
+    nomination = Nomination(page)
+    with pytest.raises(ValueError) as info:
+        nomination.mark_processed(["Category:Foo"], ["Category:Bar"])
+    info.match(r"{'Category:Foo'} not in managed_categories")

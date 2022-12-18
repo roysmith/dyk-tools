@@ -70,6 +70,10 @@ class Nomination:
         return False
 
     def mark_processed(self, categories, managed_categories) -> None:
+        unknown_cats = set(categories) - set(managed_categories)
+        if unknown_cats:
+            raise ValueError(f"{unknown_cats} not in managed_categories")
+
         lines = self.page.get().split("\n")
         new_lines = []
         # This assumes categories are formatted one per line
