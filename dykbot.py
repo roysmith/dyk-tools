@@ -4,7 +4,6 @@ import argparse
 from datetime import datetime
 from itertools import islice
 import logging
-from pathlib import Path
 
 from pywikibot import Site, Category
 from pywikibot.exceptions import NoPageError
@@ -13,11 +12,14 @@ from dyk_tools import Nomination
 
 class App:
     def main(self):
-        logging.basicConfig(
-            filename=Path.home() / "dykbot.log",
-            format="%(asctime)s %(levelname)s %(name)s %(message)s",
-        )
         self.args = self.process_command_line()
+        logging_config_args = {
+            "format": "%(asctime)s %(levelname)s %(name)s %(message)s"
+        }
+        if self.args.log_file:
+            logging_config_args["filename"] = self.args.log_file
+        logging.basicConfig(**logging_config_args)
+       
         self.logger = logging.getLogger("dykbot")
         self.logger.setLevel(self.args.log_level.upper())
         t0 = datetime.utcnow()
@@ -46,6 +48,7 @@ class App:
             default="info",
             help="Set logging level",
         )
+        parser.add_argument("--log-file", help="log to file (default is to stderr)")
         parser.add_argument(
             "--max",
             type=int,
