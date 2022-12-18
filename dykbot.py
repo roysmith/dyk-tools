@@ -31,7 +31,7 @@ class App:
         self.process_nominations()
         t1 = datetime.utcnow()
         self.logger.info(
-            "Done.  Processed %d nominations in %s", self.nomination_count, t1 - t0
+            "Done.  Processed %d nomination(s) in %s", self.nomination_count, t1 - t0
         )
 
     def process_command_line(self):
