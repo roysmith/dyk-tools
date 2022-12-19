@@ -5,14 +5,20 @@ from datetime import datetime
 from itertools import islice
 import logging
 import os
+import time
 
 from pywikibot import Site, Category
 from pywikibot.exceptions import NoPageError
 from dyk_tools import Nomination
 
+class IdAdapter(logging.LoggerAdapter):
+    def process(self, msg, kwargs):
+        return '[%s] %s' % (self.extra['id'], msg), kwargs
+        
 
 class App:
     def main(self):
+        t0 = datetime.utcnow()
         self.args = self.process_command_line()
         logging_config_args = {
             "format": "%(asctime)s %(levelname)s %(name)s %(message)s"
@@ -21,9 +27,11 @@ class App:
             logging_config_args["filename"] = self.args.log_file
         logging.basicConfig(**logging_config_args)
 
-        self.logger = logging.getLogger("dykbot")
+        # Generate a 
+        id = int(t0.timestamp())
+        self.logger = IdAdapter(logging.getLogger("dykbot"), {'id': id})
+
         self.logger.setLevel(self.args.log_level.upper())
-        t0 = datetime.utcnow()
         self.nomination_count = 0
         self.site = Site(self.args.mylang)
         self.logger.info("Running on %s", os.uname().nodename)
@@ -33,7 +41,7 @@ class App:
 
         t1 = datetime.utcnow()
         self.logger.info(
-            "Done.  Processed %d nomination(s) in %s", self.nomination_count, t1 - t0
+            "Processed %d nomination(s) in %s", self.nomination_count, t1 - t0
         )
 
     def process_command_line(self):
@@ -99,7 +107,7 @@ class App:
         if nom.is_american():
             flags.append("American")
             cats.append("Category:Pending DYK American hooks")
-        self.logger.info("processing (flags=%s) [[%s]] %s", flags, nom.page.title())
+        self.logger.info("processing [[%s]] (flags=%s)", nom.page.title(), flags)
         self.nomination_count += 1
         if not self.args.dry_run:
             nom.mark_processed(cats, self.MANAGED_CATEGORIES)
