@@ -4,6 +4,7 @@ import argparse
 from datetime import datetime
 from itertools import islice
 import logging
+import os
 
 from pywikibot import Site, Category
 from pywikibot.exceptions import NoPageError
@@ -19,16 +20,17 @@ class App:
         if self.args.log_file:
             logging_config_args["filename"] = self.args.log_file
         logging.basicConfig(**logging_config_args)
-       
+
         self.logger = logging.getLogger("dykbot")
         self.logger.setLevel(self.args.log_level.upper())
         t0 = datetime.utcnow()
         self.nomination_count = 0
         self.site = Site(self.args.mylang)
-        self.logger.info(
-            "Starting run, site=%s, dry-run=%s", self.site, self.args.dry_run
-        )
+        self.logger.info("Running on %s", os.uname().nodename)
+        self.logger.info("site=%s, dry-run=%s", self.site, self.args.dry_run)
+
         self.process_nominations()
+
         t1 = datetime.utcnow()
         self.logger.info(
             "Done.  Processed %d nomination(s) in %s", self.nomination_count, t1 - t0
@@ -85,7 +87,7 @@ class App:
     def process_one_nomination(self, page):
         nom = Nomination(page)
         if nom.is_previously_processed():
-            self.logger.debug("[[%s]]: Been there, done that", nom.page.title())
+            self.logger.debug("skipping [[%s]]", nom.page.title())
             return
         flags = []
         cats = []
@@ -97,7 +99,7 @@ class App:
         if nom.is_american():
             flags.append("American")
             cats.append("Category:Pending DYK American hooks")
-        self.logger.debug("[[%s]] %s", nom.page.title(), flags)
+        self.logger.info("processing (flags=%s) [[%s]] %s", flags, nom.page.title())
         self.nomination_count += 1
         if not self.args.dry_run:
             nom.mark_processed(cats, self.MANAGED_CATEGORIES)
