@@ -21,7 +21,8 @@ class App:
         t0 = datetime.utcnow()
         self.args = self.process_command_line()
         logging_config_args = {
-            "format": "%(asctime)s %(levelname)s %(name)s %(message)s"
+            "format": "%(asctime)s %(levelname)s %(name)s %(message)s",
+            "datefmt": "%Y-%m-%dT%H:%M:%S",
         }
         if self.args.log_file:
             logging_config_args["filename"] = self.args.log_file
@@ -35,6 +36,7 @@ class App:
         self.nomination_count = 0
         self.site = Site(self.args.mylang)
         self.logger.info("Running on %s", os.uname().nodename)
+        self.logger.info("%s", self.args.log_comment)
         self.logger.info("site=%s, dry-run=%s", self.site, self.args.dry_run)
 
         self.process_nominations()
@@ -57,6 +59,10 @@ class App:
             choices=["debug", "info", "warning", "error"],
             default="info",
             help="Set logging level",
+        )
+        parser.add_argument(
+            "--log-comment",
+            help="string to log on startup",
         )
         parser.add_argument("--log-file", help="log to file (default is to stderr)")
         parser.add_argument(
