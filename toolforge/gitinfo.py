@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Utilities for interfacing with git source control.
 
 import sh
