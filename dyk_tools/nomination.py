@@ -1,8 +1,10 @@
+from contextlib import suppress
 from dataclasses import dataclass
 import re
 from typing import List
 
 from pywikibot import Page
+import mwparserfromhell as mwp
 
 import dyk_tools
 
@@ -73,22 +75,19 @@ class Nomination:
         unknown_cats = set(categories) - set(managed_categories)
         if unknown_cats:
             raise ValueError(f"{unknown_cats} not in managed_categories")
+    
+        wikicode = mwp.parse(self.page.get())
+        for cat_node in wikicode.filter_wikilinks(recursive=False):
+            for managed_cat_title in managed_categories:
+                if cat_node.title.matches(managed_cat_title):
+                    with suppress(ValueError):
+                        wikicode.remove(cat_node)
 
-        lines = self.page.get().split("\n")
-        new_lines = []
-        # This assumes categories are formatted one per line
-        pattern = re.compile(r"(<noinclude>)?\[\[(?P<cat>[^]]*)\]\](</noinclude>)?$")
-        for line in lines:
-            m = pattern.match(line)
-            if  m and m.group("cat") in managed_categories:
-                continue
-            if (
-                "<!--Please do not write below this line or remove this line. Place comments above this line.-->"
-                in line
-            ):
-                new_lines.append("{{Template:DYK-Tools-Bot was here}}")
+        for node in wikicode.nodes:
+            if isinstance(node, mwp.nodes.Template) and node.name.matches("DYKsubpage"):
+                wikicode.insert_after(node, "\n{{DYK-Tools-Bot was here}}")
                 for cat in categories:
-                       new_lines.append(f"<noinclude>[[{cat}]]</noinclude>")
-            new_lines.append(line)
-        self.page.text = "\n".join(new_lines)
+                    wikicode.insert_after(node, f"\n[[{cat}]]")
+                break
+        self.page.text = str(wikicode)
         self.page.save("[[User:DYK-Tools-Bot|DYK-Tools-Bot]] classifying nomination.")

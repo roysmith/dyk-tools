@@ -1,5 +1,8 @@
 import pytest
+from textwrap import dedent
+
 import pywikibot
+import mwparserfromhell as mwp
 
 
 from dyk_tools import Nomination, Hook
@@ -197,7 +200,9 @@ def test_is_prevously_processed_returns_false_with_no_templates(page):
     assert nomination.is_previously_processed() == False
 
 
-def test_is_previously_processed_returns_true_with_dyk_tools_bot_template(mocker, page):
+def test_is_previously_processed_returns_true_with_existing_dyk_tools_bot_template(
+    mocker, page
+):
     template = mocker.Mock(spec=pywikibot.Page)()
     template.title.return_value = "Template:DYK-Tools-Bot was here"
     page.itertemplates.return_value = [template]
@@ -205,61 +210,97 @@ def test_is_previously_processed_returns_true_with_dyk_tools_bot_template(mocker
     assert nomination.is_previously_processed() == True
 
 
-def test_mark_processed_adds_template(mocker, page):
-    page.get.return_value = (
-        "blah, blah\n"
-        "}}<!--Please do not write below this line or remove this line. Place comments above this line.-->\n"
+def test_mark_processed_adds_template_after_dyk_subpage(mocker, page):
+    page.get.return_value = dedent(
+        """\
+        {{DYKsubpage
+        |blah, blah
+        }}<!--Please do not write below this line or remove this line. Place comments above this line.-->
+        """
     )
     nomination = Nomination(page)
     nomination.mark_processed([], [])
-    assert page.text == (
-        "blah, blah\n"
-        "{{Template:DYK-Tools-Bot was here}}\n"
-        "}}<!--Please do not write below this line or remove this line. Place comments above this line.-->\n"
+
+    wikicode = mwp.parse(page.text)
+    nodes = wikicode.filter(
+        recursive=False, matches=lambda n: not isinstance(n, mwp.nodes.Text)
     )
+    assert nodes[0].name.matches("DYKsubpage")
+    assert nodes[1].name.matches("DYK-Tools-Bot was here")
+    assert isinstance(nodes[2], mwp.nodes.Comment)
 
 
 def test_mark_processed_adds_template_and_categories(mocker, page):
-    page.get.return_value = (
-        "blah, blah\n"
-        "}}<!--Please do not write below this line or remove this line. Place comments above this line.-->\n"
+    page.get.return_value = dedent(
+        """\
+        {{DYKsubpage
+        |blah, blah
+        }}<!--Please do not write below this line or remove this line. Place comments above this line.-->
+        """
     )
     nomination = Nomination(page)
     nomination.mark_processed(
         ["Category:Foo", "Category:Bar"], ["Category:Foo", "Category:Bar"]
     )
-    assert page.text == (
-        "blah, blah\n"
-        "{{Template:DYK-Tools-Bot was here}}\n"
-        "<noinclude>[[Category:Foo]]</noinclude>\n"
-        "<noinclude>[[Category:Bar]]</noinclude>\n"
-        "}}<!--Please do not write below this line or remove this line. Place comments above this line.-->\n"
-    )
+
+    wikicode = mwp.parse(page.text)
+    templates = wikicode.filter_templates(recursive=False)
+    assert any(t.name.matches("DYK-Tools-Bot was here") for t in templates)
+
+    links = wikicode.filter_wikilinks(recursive=False)
+    assert any(l.title.matches("Category:Foo") for l in links)
+    assert any(l.title.matches("Category:Bar") for l in links)
 
 
 def test_mark_processed_cleans_out_pre_existing_categories(mocker, page):
-    page.get.return_value = (
-        "blah, blah\n"
-        "<noinclude>[[Category:Baz]]</noinclude>\n"
-        "<noinclude>[[Category:Foo]]</noinclude>\n"
-        "<noinclude>[[Category:Other]]</noinclude>\n"
-        "[[Category:Bare]]\n"
-        "}}<!--Please do not write below this line or remove this line. Place comments above this line.-->\n"
+    page.get.return_value = dedent(
+        """\
+        {{DYKsubpage
+        |blah, blah
+        }}
+        [[Category:Baz]]
+        [[Category:Foo]]
+        [[Category:Other]]
+        <!--Please do not write below this line or remove this line. Place comments above this line.-->
+        """
+    )
+    nomination = Nomination(page)
+    nomination.mark_processed(
+        [],
+        ["Category:Foo", "Category:Bar", "Category:Baz"],
+    )
+
+    wikicode = mwp.parse(page.text)
+    links = wikicode.filter_wikilinks(recursive=False)
+    assert len([l for l in links if l.title.matches("Category:Foo")]) == 0
+    assert len([l for l in links if l.title.matches("Category:Baz")]) == 0
+    assert len([l for l in links if l.title.matches("Category:Other")]) == 1
+
+
+def test_mark_processed_removes_and_adds_categories(mocker, page):
+    page.get.return_value = dedent(
+        """\
+        {{DYKsubpage
+        |blah, blah
+        }}
+        [[Category:Baz]]
+        [[Category:Foo]]
+        [[Category:Other]]
+        <!--Please do not write below this line or remove this line. Place comments above this line.-->
+        """
     )
     nomination = Nomination(page)
     nomination.mark_processed(
         ["Category:Foo", "Category:Bar"],
         ["Category:Foo", "Category:Bar", "Category:Baz"],
     )
-    assert page.text == (
-        "blah, blah\n"
-        "<noinclude>[[Category:Other]]</noinclude>\n"
-        "[[Category:Bare]]\n"
-        "{{Template:DYK-Tools-Bot was here}}\n"
-        "<noinclude>[[Category:Foo]]</noinclude>\n"
-        "<noinclude>[[Category:Bar]]</noinclude>\n"
-        "}}<!--Please do not write below this line or remove this line. Place comments above this line.-->\n"
-    )
+
+    wikicode = mwp.parse(page.text)
+    links = wikicode.filter_wikilinks(recursive=False)
+    assert len([l for l in links if l.title.matches("Category:Foo")]) == 1
+    assert len([l for l in links if l.title.matches("Category:Bar")]) == 1
+    assert len([l for l in links if l.title.matches("Category:Baz")]) == 0
+    assert len([l for l in links if l.title.matches("Category:Other")]) == 1
 
 
 def test_mark_processed_raises_value_error_with_unmanaged_category(page):
