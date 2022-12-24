@@ -1,4 +1,3 @@
-from contextlib import suppress
 from dataclasses import dataclass
 import re
 from typing import List
@@ -80,8 +79,7 @@ class Nomination:
         for cat_node in wikicode.filter_wikilinks(recursive=False):
             for managed_cat_title in managed_categories:
                 if cat_node.title.matches(managed_cat_title):
-                    with suppress(ValueError):
-                        wikicode.remove(cat_node)
+                    wikicode.remove(cat_node)
 
         for node in wikicode.nodes:
             if isinstance(node, mwp.nodes.Template) and node.name.matches("DYKsubpage"):
