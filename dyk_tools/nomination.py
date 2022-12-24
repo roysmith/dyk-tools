@@ -75,7 +75,7 @@ class Nomination:
         unknown_cats = set(categories) - set(managed_categories)
         if unknown_cats:
             raise ValueError(f"{unknown_cats} not in managed_categories")
-    
+
         wikicode = mwp.parse(self.page.get())
         for cat_node in wikicode.filter_wikilinks(recursive=False):
             for managed_cat_title in managed_categories:
