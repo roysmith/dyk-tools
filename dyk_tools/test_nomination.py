@@ -43,9 +43,11 @@ def dyk_no(mocker):
 def dyk_again(mocker):
     return icon(mocker, "Symbol redirect vote 4")
 
+
 class TestNomination:
     def test_nomination_can_be_constructed(self, page):
         nomination = Nomination(page)
+
 
 class TestIsApproved:
     def test_is_approved_returns_false_with_no_images(self, page):
@@ -53,47 +55,47 @@ class TestIsApproved:
         nomination = Nomination(page)
         assert nomination.is_approved() is False
 
-
     def test_is_approved_returns_true_with_tick(self, page, dyk_tick):
         page.imagelinks.return_value = [dyk_tick]
         nomination = Nomination(page)
         assert nomination.is_approved() is True
-
 
     def test_is_approved_returns_true_with_tick_agf(self, page, dyk_tick_agf):
         page.imagelinks.return_value = [dyk_tick_agf]
         nomination = Nomination(page)
         assert nomination.is_approved() is True
 
-
     def test_is_approved_returns_false_with_query(self, page, dyk_query):
         page.imagelinks.return_value = [dyk_query]
         nomination = Nomination(page)
         assert nomination.is_approved() is False
 
-
-    def test_is_approved_returns_false_with_query_override(self, page, dyk_tick, dyk_query):
+    def test_is_approved_returns_false_with_query_override(
+        self, page, dyk_tick, dyk_query
+    ):
         page.imagelinks.return_value = [dyk_tick, dyk_query]
         nomination = Nomination(page)
         assert nomination.is_approved() is False
 
-
-    def test_is_approved_returns_false_with_query_no_override(self, page, dyk_tick, dyk_query_no):
+    def test_is_approved_returns_false_with_query_no_override(
+        self, page, dyk_tick, dyk_query_no
+    ):
         page.imagelinks.return_value = [dyk_tick, dyk_query_no]
         nomination = Nomination(page)
         assert nomination.is_approved() is False
-
 
     def test_is_approved_returns_false_with_no_override(self, page, dyk_tick, dyk_no):
         page.imagelinks.return_value = [dyk_tick, dyk_no]
         nomination = Nomination(page)
         assert nomination.is_approved() is False
 
-
-    def test_is_approved_returns_false_with_again_override(self, page, dyk_tick, dyk_again):
+    def test_is_approved_returns_false_with_again_override(
+        self, page, dyk_tick, dyk_again
+    ):
         page.imagelinks.return_value = [dyk_tick, dyk_again]
         nomination = Nomination(page)
         assert nomination.is_approved() is False
+
 
 class TestArticles:
     def test_articles_with_no_links_returns_empty_list(self, page):
@@ -101,16 +103,19 @@ class TestArticles:
         nomination = Nomination(page)
         assert nomination.articles() == []
 
-
     def test_articles_with_one_link_returns_list_with_one_page(self, mocker, page):
         # Set up the Page mock for Nomination.articles() to create instances of
-        backend_mock_page_class = mocker.patch("dyk_tools.nomination.Page", autospec=True)
+        backend_mock_page_class = mocker.patch(
+            "dyk_tools.nomination.Page", autospec=True
+        )
 
         # Set up the mock template for Nomination.articles() to examine
         template = mocker.Mock(spec=pywikibot.Page)()
         template.title.return_value = "Template:DYK nompage links"
 
-        page.templatesWithParams.return_value = [(template, ["my article", "nompage=foo"])]
+        page.templatesWithParams.return_value = [
+            (template, ["my article", "nompage=foo"])
+        ]
         nomination = Nomination(page)
 
         result = nomination.articles()
@@ -118,10 +123,11 @@ class TestArticles:
         backend_mock_page_class.assert_called_once_with(mocker.ANY, "my article")
         assert result == [backend_mock_page_class(None, None)]
 
-
     def test_articles_with_n_links_returns_list_with_n_pages(self, mocker, page):
         # Set up the Page mock for Nomination.articles() to create instances of
-        backend_mock_page_class = mocker.patch("dyk_tools.nomination.Page", autospec=True)
+        backend_mock_page_class = mocker.patch(
+            "dyk_tools.nomination.Page", autospec=True
+        )
 
         # Set up the mock template for Nomination.articles() to examine
         template = mocker.Mock(spec=pywikibot.Page)()
@@ -148,19 +154,18 @@ class TestArticles:
             backend_mock_page_class(None, None),
         ]
 
+
 class TestHooks:
     def test_hooks_returns_empty_list_with_blank_page(self, page):
         page.get.return_value = ""
         nomination = Nomination(page)
         assert nomination.hooks() == []
 
-
     def test_hooks_returns_single_hook(self, page):
         page.get.return_value = """
             ... that this is a hook?"""
         nomination = Nomination(page)
         assert nomination.hooks() == [Hook("", "... that this is a hook?")]
-
 
     def test_hooks_returns_tag_and_text(self, page):
         page.get.return_value = """
@@ -169,14 +174,12 @@ class TestHooks:
         nomination = Nomination(page)
         assert nomination.hooks() == [Hook("ALT0", "... that blah?")]
 
-
     def test_hooks_returns_tag_and_text_with_colon_after_tag(self, page):
         page.get.return_value = """
             '''ALT0''': ... that blah?
             """
         nomination = Nomination(page)
         assert nomination.hooks() == [Hook("ALT0", "... that blah?")]
-
 
     def test_hooks_returns_multiple_hooks(self, page):
         page.get.return_value = """
@@ -193,21 +196,22 @@ class TestHooks:
             Hook("ALT1", "... that foo?"),
         ]
 
+
 class TestIsPreviouslyProcessed:
     def test_is_prevously_processed_returns_false_with_no_templates(self, page):
         page.itertemplates.return_value = []
         nomination = Nomination(page)
         assert nomination.is_previously_processed() == False
 
-
-    def test_is_previously_processed_returns_true_with_existing_dyk_tools_bot_template(self, 
-        mocker, page
+    def test_is_previously_processed_returns_true_with_existing_dyk_tools_bot_template(
+        self, mocker, page
     ):
         template = mocker.Mock(spec=pywikibot.Page)()
         template.title.return_value = "Template:DYK-Tools-Bot was here"
         page.itertemplates.return_value = [template]
         nomination = Nomination(page)
         assert nomination.is_previously_processed() == True
+
 
 class TestMarkProcessed:
     def test_mark_processed_adds_template_after_dyk_subpage(self, mocker, page):
@@ -229,7 +233,6 @@ class TestMarkProcessed:
         assert nodes[1].name.matches("DYK-Tools-Bot was here")
         assert isinstance(nodes[2], mwp.nodes.Comment)
 
-
     def test_mark_processed_adds_template_and_categories(self, mocker, page):
         page.get.return_value = dedent(
             """\
@@ -250,7 +253,6 @@ class TestMarkProcessed:
         links = wikicode.filter_wikilinks(recursive=False)
         assert any(l.title.matches("Category:Foo") for l in links)
         assert any(l.title.matches("Category:Bar") for l in links)
-
 
     def test_mark_processed_cleans_out_pre_existing_categories(self, mocker, page):
         page.get.return_value = dedent(
@@ -276,7 +278,6 @@ class TestMarkProcessed:
         assert len([l for l in links if l.title.matches("Category:Baz")]) == 0
         assert len([l for l in links if l.title.matches("Category:Other")]) == 1
 
-
     def test_mark_processed_removes_and_adds_categories(self, mocker, page):
         page.get.return_value = dedent(
             """\
@@ -301,7 +302,6 @@ class TestMarkProcessed:
         assert len([l for l in links if l.title.matches("Category:Bar")]) == 1
         assert len([l for l in links if l.title.matches("Category:Baz")]) == 0
         assert len([l for l in links if l.title.matches("Category:Other")]) == 1
-
 
     def test_mark_processed_raises_value_error_with_unmanaged_category(self, page):
         nomination = Nomination(page)
