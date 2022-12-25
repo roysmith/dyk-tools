@@ -225,6 +225,7 @@ class TestMarkProcessed:
         nomination = Nomination(page)
         nomination.mark_processed([], [])
 
+        page.save.assert_called_once()
         wikicode = mwp.parse(page.text)
         nodes = wikicode.filter(
             recursive=False, matches=lambda n: not isinstance(n, mwp.nodes.Text)
@@ -246,6 +247,7 @@ class TestMarkProcessed:
             ["Category:Foo", "Category:Bar"], ["Category:Foo", "Category:Bar"]
         )
 
+        page.save.assert_called_once()
         wikicode = mwp.parse(page.text)
         templates = wikicode.filter_templates(recursive=False)
         assert any(t.name.matches("DYK-Tools-Bot was here") for t in templates)
@@ -272,6 +274,7 @@ class TestMarkProcessed:
             ["Category:Foo", "Category:Bar", "Category:Baz"],
         )
 
+        page.save.assert_called_once()
         wikicode = mwp.parse(page.text)
         links = wikicode.filter_wikilinks(recursive=False)
         assert len([l for l in links if l.title.matches("Category:Foo")]) == 0
@@ -296,6 +299,7 @@ class TestMarkProcessed:
             ["Category:Foo", "Category:Bar", "Category:Baz"],
         )
 
+        page.save.assert_called_once()
         wikicode = mwp.parse(page.text)
         links = wikicode.filter_wikilinks(recursive=False)
         assert len([l for l in links if l.title.matches("Category:Foo")]) == 1
