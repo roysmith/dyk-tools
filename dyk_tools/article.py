@@ -9,6 +9,12 @@ from dyk_tools.us_states import STATES
 class Article:
     page: Page
 
+    def title(self) -> str:
+        return self.page.title()
+
+    def url(self) -> str:
+        return self.page.full_url()
+
     def is_biography(self) -> bool:
         return self.has_birth_category() or self.has_person_infobox()
 
