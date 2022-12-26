@@ -12,3 +12,8 @@ Create an empty config file:
 
 The installer may have created $HOME/.pywikibot with the wrong mode, so you need to do:
   chmod u+x $HOME/.pywikibot
+
+
+  Running a local test server (the on-line docs may be incorrect on this):
+    cd src
+    flask --debug run
