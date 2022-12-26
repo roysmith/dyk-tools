@@ -26,6 +26,12 @@ class Hook:
 class Nomination:
     page: Page
 
+    def title(self) -> str:
+        return self.page.title()
+
+    def url(self) -> str:
+        return self.page.full_url()
+
     def is_approved(self) -> bool:
         state = False
         for image in self.page.imagelinks():

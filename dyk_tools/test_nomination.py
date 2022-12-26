@@ -49,6 +49,20 @@ class TestNomination:
         nomination = Nomination(page)
 
 
+class TestTitle:
+    def test_title_returns_page_title(self, page):
+        nomination = Nomination(page)
+        page.title.return_value = "Foo"
+        assert nomination.title() == "Foo"
+
+
+class TestUrl:
+    def test_url_returns_page_url(self, page):
+        nomination = Nomination(page)
+        page.full_url.return_value = "blah"
+        assert nomination.url() == "blah"
+
+
 class TestIsApproved:
     def test_is_approved_returns_false_with_no_images(self, page):
         page.imagelinks.return_value = []

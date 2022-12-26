@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<h1><a href="{{ nomination.page.full_url() }}">{{nomination.page.title()}}</a></h1>
+<h1><a href="{{ nomination.url() }}">{{nomination.title()}}</a></h1>
 <h2>Articles</h2>
 <ul>
     {% for article in articles %}
