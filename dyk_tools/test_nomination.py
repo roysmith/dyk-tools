@@ -228,7 +228,7 @@ class TestIsPreviouslyProcessed:
 
 
 class TestMarkProcessed:
-    def test_mark_processed_adds_template_after_dyk_subpage(self, mocker, page):
+    def test_mark_processed_adds_template_after_dyk_subpage_comment(self, mocker, page):
         page.get.return_value = dedent(
             """\
             {{DYKsubpage
@@ -245,8 +245,9 @@ class TestMarkProcessed:
             recursive=False, matches=lambda n: not isinstance(n, mwp.nodes.Text)
         )
         assert nodes[0].name.matches("DYKsubpage")
-        assert nodes[1].name.matches("DYK-Tools-Bot was here")
-        assert isinstance(nodes[2], mwp.nodes.Comment)
+        assert nodes[1].contents == "Please do not write below this line or remove this line. Place comments above this line."
+        assert nodes[2].name.matches("DYK-Tools-Bot was here")
+
 
     def test_mark_processed_adds_template_and_categories(self, mocker, page):
         page.get.return_value = dedent(

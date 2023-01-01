@@ -87,11 +87,8 @@ class Nomination:
                 if cat_node.title.matches(managed_cat_title):
                     wikicode.remove(cat_node)
 
-        for node in wikicode.nodes:
-            if isinstance(node, mwp.nodes.Template) and node.name.matches("DYKsubpage"):
-                wikicode.insert_after(node, "\n{{DYK-Tools-Bot was here}}")
-                for cat in categories:
-                    wikicode.insert_after(node, f"\n[[{cat}]]")
-                break
+        wikicode.append("\n{{DYK-Tools-Bot was here}}")
+        for cat in categories:
+            wikicode.append(f"\n[[{cat}]]")
         self.page.text = str(wikicode)
         self.page.save("[[User:DYK-Tools-Bot|DYK-Tools-Bot]] classifying nomination.")
