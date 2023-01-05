@@ -100,12 +100,14 @@ class TestIsAmerican:
         article = Article(page)
         assert article.is_american() == False
 
-    def test_is_american_returns_true_with_american_in_intro(self, page):
+    def test_is_american_returns_true_with_is_an_american_in_first_sentence(self, page):
         page.extract.return_value = "Blah is an american thing"
         article = Article(page)
         assert article.is_american() == True
 
-    def test_is_american_returns_true_with_upper_case_american_in_intro(self, page):
+    def test_is_american_returns_true_with_is_an_upper_case_american_in_first_sentence(
+        self, page
+    ):
         page.extract.return_value = "Blah is an American thing"
         article = Article(page)
         assert article.is_american() == True
@@ -115,10 +117,23 @@ class TestIsAmerican:
         article = Article(page)
         assert article.is_american() == False
 
+    def test_is_american_returns_false_with_is_an_american_in_second_sentence(
+        self, page
+    ):
+        page.extract.return_value = "Blah blah blah. And is an american too"
+        article = Article(page)
+        assert article.is_american() == False
+
+    def test_is_american_returns_false_with_just_american_in_first_sentence(self, page):
+        page.extract.return_value = "This is not an american thing."
+        article = Article(page)
+        assert article.is_american() == False
+
     def test_is_american_returns_true_with_united_states_category(self, mocker, page):
         cat = mocker.Mock(spec=pywikibot.Category)
         cat.title.return_value = "Things in the united states"
         page.categories.return_value = [cat]
+        page.extract.return_value = ""
         article = Article(page)
         assert article.is_american() == True
 
@@ -126,12 +141,6 @@ class TestIsAmerican:
         cat = mocker.Mock(spec=pywikibot.Category)
         cat.title.return_value = "Things in lower slobbovia"
         page.categories.return_value = [cat]
+        page.extract.return_value = ""
         article = Article(page)
         assert article.is_american() == False
-
-    def test_is_american_returns_true_with_link_to_state_article(self, mocker, page):
-        vermont = mocker.Mock(spec=pywikibot.Page)()
-        vermont.title.return_value = "Vermont"
-        page.linkedPages.return_value = [vermont]
-        article = Article(page)
-        assert article.is_american() == True

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import re
 
 from pywikibot import Page, Category
 
@@ -34,15 +35,13 @@ class Article:
         return False
 
     def is_american(self) -> bool:
-        return (
-            self.american_in_intro()
-            or self.has_united_states_category()
-            or self.has_link_to_state()
-        )
+        return self.american_in_first_sentence() or self.has_united_states_category()
 
-    def american_in_intro(self) -> bool:
-        intro = self.page.extract(intro=True).lower()
-        return "american" in intro
+    def american_in_first_sentence(self) -> bool:
+        intro = self.page.extract(intro=True)
+        sentences = re.split(r"[.?!] +[A-Z]", intro, maxsplit=1)
+        first_sentence = sentences[0]
+        return bool(re.search(r"(is|was) +an? +american", first_sentence.lower()))
 
     def has_united_states_category(self) -> bool:
         for cat in self.page.categories():
