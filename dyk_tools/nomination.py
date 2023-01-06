@@ -76,19 +76,19 @@ class Nomination:
                 return True
         return False
 
-    def mark_processed(self, categories, managed_categories) -> None:
-        unknown_cats = set(categories) - set(managed_categories)
-        if unknown_cats:
-            raise ValueError(f"{unknown_cats} not in managed_categories")
+    def mark_processed(self, tags, managed_tags) -> None:
+        unknown_tags = set(tags) - set(managed_tags)
+        if unknown_tags:
+            raise ValueError(f"{unknown_tags} not in managed_tags")
 
         wikicode = mwp.parse(self.page.get())
-        for cat_node in wikicode.filter_wikilinks(recursive=False):
-            for managed_cat_title in managed_categories:
-                if cat_node.title.matches(managed_cat_title):
-                    wikicode.remove(cat_node)
+        for template in wikicode.filter_templates(recursive=False):
+            for managed_tag in managed_tags:
+                if template.name.matches(managed_tag):
+                    wikicode.remove(template)
 
         wikicode.append("\n{{DYK-Tools-Bot was here}}")
-        for cat in categories:
-            wikicode.append(f"\n[[{cat}]]")
+        for tag in tags:
+            wikicode.append("\n{{%s}}" % tag)
         self.page.text = str(wikicode)
         self.page.save("[[User:DYK-Tools-Bot|DYK-Tools-Bot]] classifying nomination.")

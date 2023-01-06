@@ -94,8 +94,8 @@ class App:
                 )
                 return
 
-    MANAGED_CATEGORIES = frozenset(
-        ["Category:Pending DYK biographies", "Category:Pending DYK American hooks"]
+    MANAGED_TAGS = frozenset(
+        ["Pending DYK biographies", "Pending DYK American hooks"]
     )
 
     def process_one_nomination(self, page):
@@ -104,19 +104,19 @@ class App:
             self.logger.debug("skipping [[%s]]", nom.page.title())
             return
         flags = []
-        cats = []
+        tags = []
         if nom.is_approved():
             flags.append("Approved")
         if nom.is_biography():
             flags.append("Biography")
-            cats.append("Category:Pending DYK biographies")
+            tags.append("Pending DYK biographies")
         if nom.is_american():
             flags.append("American")
-            cats.append("Category:Pending DYK American hooks")
+            tags.append("Pending DYK American hooks")
         self.logger.info("processing [[%s]] (flags=%s)", nom.page.title(), flags)
         self.nomination_count += 1
         if not self.args.dry_run:
-            nom.mark_processed(cats, self.MANAGED_CATEGORIES)
+            nom.mark_processed(tags, self.MANAGED_TAGS)
 
 
 if __name__ == "__main__":

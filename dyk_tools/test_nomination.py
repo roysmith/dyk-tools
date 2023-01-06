@@ -259,17 +259,17 @@ class TestMarkProcessed:
         )
         nomination = Nomination(page)
         nomination.mark_processed(
-            ["Category:Foo", "Category:Bar"], ["Category:Foo", "Category:Bar"]
+            ["Foo", "Bar"], ["Foo", "Bar"]
         )
 
         page.save.assert_called_once()
         wikicode = mwp.parse(page.text)
         templates = wikicode.filter_templates(recursive=False)
-        assert any(t.name.matches("DYK-Tools-Bot was here") for t in templates)
+        template_names = {str(t.name) for t in templates}
+        assert "DYK-Tools-Bot was here" in template_names
+        assert "Foo" in template_names
+        assert "Bar" in template_names
 
-        links = wikicode.filter_wikilinks(recursive=False)
-        assert any(l.title.matches("Category:Foo") for l in links)
-        assert any(l.title.matches("Category:Bar") for l in links)
 
     def test_mark_processed_cleans_out_pre_existing_categories(self, mocker, page):
         page.get.return_value = dedent(
@@ -277,24 +277,26 @@ class TestMarkProcessed:
             {{DYKsubpage
             |blah, blah
             }}
-            [[Category:Baz]]
-            [[Category:Foo]]
-            [[Category:Other]]
+            {{Baz}}
+            {{Foo}}
+            {{Other}}
             <!--Please do not write below this line or remove this line. Place comments above this line.-->
             """
         )
         nomination = Nomination(page)
         nomination.mark_processed(
             [],
-            ["Category:Foo", "Category:Bar", "Category:Baz"],
+            ["Foo", "Bar", "Baz"],
         )
 
         page.save.assert_called_once()
         wikicode = mwp.parse(page.text)
-        links = wikicode.filter_wikilinks(recursive=False)
-        assert len([l for l in links if l.title.matches("Category:Foo")]) == 0
-        assert len([l for l in links if l.title.matches("Category:Baz")]) == 0
-        assert len([l for l in links if l.title.matches("Category:Other")]) == 1
+        templates = wikicode.filter_templates(recursive=False)
+        template_names = {str(t.name) for t in templates}
+        assert "Foo" not in template_names
+        assert "Baz" not in template_names
+        assert "Other" in template_names
+
 
     def test_mark_processed_removes_and_adds_categories(self, mocker, page):
         page.get.return_value = dedent(
@@ -302,28 +304,30 @@ class TestMarkProcessed:
             {{DYKsubpage
             |blah, blah
             }}
-            [[Category:Baz]]
-            [[Category:Foo]]
-            [[Category:Other]]
+            {{Baz}}
+            {{Foo}}
+            {{Other}}
             <!--Please do not write below this line or remove this line. Place comments above this line.-->
             """
         )
         nomination = Nomination(page)
         nomination.mark_processed(
-            ["Category:Foo", "Category:Bar"],
-            ["Category:Foo", "Category:Bar", "Category:Baz"],
+            ["Foo", "Bar"],
+            ["Foo", "Bar", "Baz"],
         )
 
         page.save.assert_called_once()
         wikicode = mwp.parse(page.text)
-        links = wikicode.filter_wikilinks(recursive=False)
-        assert len([l for l in links if l.title.matches("Category:Foo")]) == 1
-        assert len([l for l in links if l.title.matches("Category:Bar")]) == 1
-        assert len([l for l in links if l.title.matches("Category:Baz")]) == 0
-        assert len([l for l in links if l.title.matches("Category:Other")]) == 1
+        templates = wikicode.filter_templates(recursive=False)
+        template_names = {str(t.name) for t in templates}
+        assert "Foo" in template_names
+        assert "Bar" in template_names
+        assert "Baz" not in template_names
+        assert "Other" in template_names
+ 
 
     def test_mark_processed_raises_value_error_with_unmanaged_category(self, page):
         nomination = Nomination(page)
         with pytest.raises(ValueError) as info:
-            nomination.mark_processed(["Category:Foo"], ["Category:Bar"])
-        info.match(r"{'Category:Foo'} not in managed_categories")
+            nomination.mark_processed(["Foo"], ["Bar"])
+        info.match(r"{'Foo'} not in managed_tags")
