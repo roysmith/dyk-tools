@@ -1,7 +1,11 @@
 from dataclasses import dataclass
+import logging
 import re
 
+import mwparserfromhell
 from pywikibot import Page, Category
+
+logger = logging.getLogger("dyk_tools.article")
 
 from dyk_tools.us_states import STATES
 
@@ -32,6 +36,29 @@ class Article:
         for t in self.page.templates():
             if t in infoboxes:
                 return True
+        return False
+
+    def has_american_short_description(self) -> bool:
+        wikicode = mwparserfromhell.parse(self.page.get())
+        templates = wikicode.filter_templates(
+            recursive=False, matches=lambda t: t.name.matches("short description")
+        )
+        if len(templates) == 0:
+            return False
+        if len(templates) > 1:
+            logger.warning(
+                "Found multiple {{short description}} templates in %s; using the first one",
+                self.page.title,
+            )
+        template = templates[0]
+        if len(template.params) == 0:
+            logger.warning(
+                "Found {{short description}} with no parameters in %s", self.page.title
+            )
+            return False
+        text = template.params[0].value.lower()
+        if "american" in text or "united states" in text:
+            return True
         return False
 
     def is_american(self) -> bool:

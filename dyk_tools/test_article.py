@@ -1,3 +1,5 @@
+from textwrap import dedent
+
 from dyk_tools import Article
 
 import pywikibot
@@ -92,6 +94,22 @@ class TestHasPersonInfobox:
             page, "People and person infobox templates"
         )
         infobox_cat.articles.assert_called_once_with(recurse=1, namespaces=[mocker.ANY])
+
+    def test_has_american_short_description_returns_false_with_no_short_description(
+        self, mocker, page
+    ):
+        page.get.return_value = ""
+        article = Article(page)
+        assert article.has_american_short_description() == False
+
+    def test_has_american_short_description_returns_true_with_american(self, page):
+        page.get.return_value = dedent(
+            """\
+            {{short description|An American thing}}
+            """
+        )
+        article = Article(page)
+        assert article.has_american_short_description() == True
 
 
 class TestIsAmerican:
