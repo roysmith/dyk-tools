@@ -123,6 +123,11 @@ class TestIsAmerican:
         article = Article(page)
         assert article.is_american() == True
 
+    def test_is_american_returns_false_with_south_american(self, page):
+        page.extract.return_value = "Blah is a south american thing"
+        article = Article(page)
+        assert article.is_american() == False
+
     def test_is_american_returns_true_with_is_an_upper_case_american_in_first_sentence(
         self, page
     ):
