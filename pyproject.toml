@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dyk_tools"
+dynamic = ["version"]
+dependencies = [
+  "Flask",
+  "mwoauth",
+  "mwparserfromhell",
+  "pytest-mock",
+  "pytest-socket",
+  "pywikibot",
+  "sh",
+  "ujson",
+  "WTforms",
+]
+
+[project.scripts]
+get-states = "dyk_tools.scripts:get_states.main"
+analyze-article = "dyk_tools.scripts:analyze_article.main"
+find-approved_templates = "dyk_tools.scripts:find_approved_templates.main"
+
+[tool.setuptools]
+packages = ["dyk_tools", "dyk_tools.scripts"]
+
+[tool.setuptools_scm]
+write_to = "dyk_tools/_version.py"

@@ -20,3 +20,6 @@ The installer may have created $HOME/.pywikibot with the wrong mode, so you need
 
 Running toolforge cronjob:
 toolforge-jobs run dykbot-cron --command /data/project/dyk-tools/www/python/src/dykbot.bash --image tf-python39 --schedule "43 * * * *"
+
+Building a wheel:
+python -m build
