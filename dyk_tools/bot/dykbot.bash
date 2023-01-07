@@ -5,5 +5,4 @@ cd $HOME/www/python/src
 ./dykbot.py \
     --no-dry-run \
     --log-level=debug \
-    --log-file=$HOME/dykbot.log \
-    --log-comment="git: `./gitinfo.py`"
+    --log-file=$HOME/dykbot.log

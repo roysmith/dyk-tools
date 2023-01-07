@@ -10,6 +10,7 @@ import time
 from pywikibot import Site, Category
 from pywikibot.exceptions import NoPageError
 from dyk_tools import Nomination
+from dyk_tools.version import version_string
 
 class IdAdapter(logging.LoggerAdapter):
     def process(self, msg, kwargs):
@@ -17,7 +18,7 @@ class IdAdapter(logging.LoggerAdapter):
         
 
 class App:
-    def main(self):
+    def run(self):
         t0 = datetime.utcnow()
         self.args = self.process_command_line()
         logging_config_args = {
@@ -36,8 +37,9 @@ class App:
         self.nomination_count = 0
         self.site = Site(self.args.mylang)
         self.logger.info("Running on %s", os.uname().nodename)
-        self.logger.info("%s", self.args.log_comment)
-        self.logger.info("site=%s, dry-run=%s", self.site, self.args.dry_run)
+        self.logger.info("version: %s", version_string)
+        self.logger.info("site: %s", self.site)
+        self.logger.info("dry-run: %s", self.args.dry_run)
 
         self.process_nominations()
 
@@ -59,10 +61,6 @@ class App:
             choices=["debug", "info", "warning", "error"],
             default="info",
             help="Set logging level",
-        )
-        parser.add_argument(
-            "--log-comment",
-            help="string to log on startup",
         )
         parser.add_argument("--log-file", help="log to file (default is to stderr)")
         parser.add_argument(
@@ -119,6 +117,9 @@ class App:
             nom.mark_processed(tags, self.MANAGED_TAGS)
 
 
-if __name__ == "__main__":
+def main():
     app = App()
-    app.main()
+    app.run()
+
+if __name__ == "__main__":
+    main()

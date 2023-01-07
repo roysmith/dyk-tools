@@ -21,6 +21,7 @@ dependencies = [
 get-states = "dyk_tools.scripts:get_states.main"
 analyze-article = "dyk_tools.scripts:analyze_article.main"
 find-approved_templates = "dyk_tools.scripts:find_approved_templates.main"
+dykbot = "dyk_tools.bot:dykbot.main"
 
 [tool.setuptools]
 packages = ["dyk_tools", "dyk_tools.scripts"]
