@@ -23,3 +23,8 @@ toolforge-jobs run dykbot-cron --command /data/project/dyk-tools/www/python/src/
 
 Building a wheel:
 python -m build
+
+To install:
+locally: git commit, git push
+on bastion: git pull
+on krb host: pip install -e .
