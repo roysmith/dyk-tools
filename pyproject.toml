@@ -24,7 +24,7 @@ find-approved_templates = "dyk_tools.scripts:find_approved_templates.main"
 dykbot = "dyk_tools.bot:dykbot.main"
 
 [tool.setuptools]
-packages = ["dyk_tools", "dyk_tools.scripts"]
+packages = ["dyk_tools", "dyk_tools.scripts", "dyk_web"]
 
 [tool.setuptools_scm]
 write_to = "dyk_tools/_version.py"
