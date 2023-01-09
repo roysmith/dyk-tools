@@ -8,3 +8,4 @@ dyk_tools.egg-info
 /dist/
 /build/
 _version.py
+.pytest_cache
