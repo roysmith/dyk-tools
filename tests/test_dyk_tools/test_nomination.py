@@ -5,7 +5,7 @@ import pywikibot
 import mwparserfromhell as mwp
 
 
-from dyk_tools import Nomination, Hook
+from dyk_tools import Article, Nomination, Hook
 
 
 def icon(mocker, name):
@@ -117,7 +117,7 @@ class TestArticles:
         nomination = Nomination(page)
         assert nomination.articles() == []
 
-    def test_articles_with_one_link_returns_list_with_one_page(self, mocker, page):
+    def test_articles_with_one_link_returns_list_with_one_article(self, mocker, page):
         # Set up the Page mock for Nomination.articles() to create instances of
         backend_mock_page_class = mocker.patch(
             "dyk_tools.nomination.Page", autospec=True
@@ -135,9 +135,9 @@ class TestArticles:
         result = nomination.articles()
 
         backend_mock_page_class.assert_called_once_with(mocker.ANY, "my article")
-        assert result == [backend_mock_page_class(None, None)]
+        assert result == [Article(backend_mock_page_class(None, None))]
 
-    def test_articles_with_n_links_returns_list_with_n_pages(self, mocker, page):
+    def test_articles_with_n_links_returns_list_with_n_articles(self, mocker, page):
         # Set up the Page mock for Nomination.articles() to create instances of
         backend_mock_page_class = mocker.patch(
             "dyk_tools.nomination.Page", autospec=True
@@ -163,9 +163,9 @@ class TestArticles:
             any_order=True,
         )
         assert result == [
-            backend_mock_page_class(None, None),
-            backend_mock_page_class(None, None),
-            backend_mock_page_class(None, None),
+            Article(backend_mock_page_class(None, None)),
+            Article(backend_mock_page_class(None, None)),
+            Article(backend_mock_page_class(None, None)),
         ]
 
 

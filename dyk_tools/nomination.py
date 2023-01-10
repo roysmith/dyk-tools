@@ -42,13 +42,13 @@ class Nomination:
         return state
 
     def articles(self) -> List[Page]:
-        pages = []
+        articles = []
         for t, params in self.page.templatesWithParams():
             if t.title() == "Template:DYK nompage links":
                 for param in params:
                     if "=" not in param:
-                        pages.append(Page(self.page.site, param))
-        return pages
+                        articles.append(dyk_tools.Article(Page(self.page.site, param)))
+        return articles
 
     def hooks(self) -> list[Hook]:
         """Get the hooks from the nomination.

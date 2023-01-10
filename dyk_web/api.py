@@ -51,7 +51,7 @@ class API_Nomination:
             nomination.title(),
             nomination.url(),
             nomination.is_approved(),
-            [API_Article.from_article(Article(a)) for a in nomination.articles()],
+            [API_Article.from_article(a) for a in nomination.articles()],
             [API_Hook.from_hook(h) for h in nomination.hooks()],
         )
 
