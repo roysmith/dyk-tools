@@ -2,7 +2,9 @@
 
 {% block content %}
 
-<h1><a href="{{ nomination.url() }}">{{nomination.title()}}</a></h1>
+<h1><a href="{{ nomination.url() }}">{{ nomination.title() }}</a></h1>
+<h2>API</h2>
+<a href="/api/v1/info?template_name={{ nomination.title() }}">/api/v1/info?template_name={{ nomination.title() }}</a>
 <h2>Articles</h2>
 <ul>
     {% for article in articles %}

@@ -29,5 +29,5 @@ def display():
     """template_name query arg is the DYK nomination template, including the Template: prefix."""
     page = Page(g.site, request.args["template_name"])
     nomination = Nomination(page)
-    articles = [Article(a) for a in nomination.articles()]
+    articles = nomination.articles()
     return render_template("display.html", nomination=nomination, articles=articles)
