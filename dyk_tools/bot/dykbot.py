@@ -29,7 +29,7 @@ class App:
             logging_config_args["filename"] = self.args.log_file
         logging.basicConfig(**logging_config_args)
 
-        # Generate a 
+        # Generate a timestamp identifying this run
         id = int(t0.timestamp())
         self.logger = IdAdapter(logging.getLogger("dykbot"), {'id': id})
 
