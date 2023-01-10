@@ -26,8 +26,8 @@ class Test_API_Article:
 
     def test_from_article(self, mocker):
         article = mocker.Mock(spec=dyk_tools.Article)
-        article.title = "title"
-        article.url = "url"
+        article.title.return_value = "title"
+        article.url.return_value = "url"
         article.is_biography.return_value = True
         article.is_american.return_value = False
         api_article = API_Article.from_article(article)

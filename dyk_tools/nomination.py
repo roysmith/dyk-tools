@@ -5,7 +5,7 @@ from typing import List
 from pywikibot import Page
 import mwparserfromhell as mwp
 
-import dyk_tools
+from .article import Article
 
 APPROVALS = ["File:Symbol confirmed.svg", "File:Symbol voting keep.svg"]
 DISAPPROVALS = [
@@ -41,13 +41,13 @@ class Nomination:
                 state = False
         return state
 
-    def articles(self) -> List[Page]:
+    def articles(self) -> List[Article]:
         articles = []
         for t, params in self.page.templatesWithParams():
             if t.title() == "Template:DYK nompage links":
                 for param in params:
                     if "=" not in param:
-                        articles.append(dyk_tools.Article(Page(self.page.site, param)))
+                        articles.append(Article(Page(self.page.site, param)))
         return articles
 
     def hooks(self) -> list[Hook]:
@@ -59,14 +59,14 @@ class Nomination:
         return [Hook(tag, text) for tag, text in pattern.findall(wikitext)]
 
     def is_biography(self) -> bool:
-        for page in self.articles():
-            if dyk_tools.Article(page).is_biography():
+        for article in self.articles():
+            if article.is_biography():
                 return True
         return False
 
     def is_american(self) -> bool:
-        for page in self.articles():
-            if dyk_tools.Article(page).is_american():
+        for article in self.articles():
+            if article.is_american():
                 return True
         return False
 
