@@ -62,5 +62,4 @@ def nomination_info():
     page = Page(g.site, request.args["template_name"])
     nomination = Nomination(page)
     api_nomination = API_Nomination.from_nomination(nomination)
-    print("a==> pi_nomination:", api_nomination)
     return asdict(api_nomination)
