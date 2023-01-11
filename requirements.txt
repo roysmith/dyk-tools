@@ -5,7 +5,6 @@ cachelib==0.10.0
 certifi==2022.9.24
 charset-normalizer==2.1.1
 click==8.1.3
--e git+ssh://git@github.com/roysmith/dyk-tools.git@576ecf99358a8074951943983e77b34c1d569ca0#egg=dyk_tools
 exceptiongroup==1.0.4
 Flask==2.2.2
 Flask-Caching==2.0.1
