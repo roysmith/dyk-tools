@@ -4,6 +4,7 @@ from dyk_tools import Nomination, Article
 from dyk_web.template_form import TemplateForm
 from dyk_web.data import NominationData
 
+
 bp = Blueprint("core", __name__)
 
 
