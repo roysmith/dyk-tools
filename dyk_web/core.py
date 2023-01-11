@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, g
 from pywikibot import Page, Category
 from dyk_tools import Nomination, Article
 from dyk_web.template_form import TemplateForm
+from dyk_web.data import NominationData
 
 bp = Blueprint("core", __name__)
 
@@ -29,5 +30,5 @@ def display():
     """template_name query arg is the DYK nomination template, including the Template: prefix."""
     page = Page(g.site, request.args["template_name"])
     nomination = Nomination(page)
-    articles = nomination.articles()
-    return render_template("display.html", nomination=nomination, articles=articles)
+    nomination_data = NominationData.from_nomination(nomination)
+    return render_template("display.html", nomination=nomination_data)

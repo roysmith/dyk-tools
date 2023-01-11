@@ -2,24 +2,24 @@
 
 {% block content %}
 
-<h1><a href="{{ nomination.url() }}">{{ nomination.title() }}</a></h1>
+<h1><a href="{{ nomination.url }}">{{ nomination.title }}</a></h1>
 <h2>API</h2>
-<a href="/api/v1/info?template_name={{ nomination.title() }}">/api/v1/info?template_name={{ nomination.title() }}</a>
+<a href="/api/v1/info?template_name={{ nomination.title }}">/api/v1/info?template_name={{ nomination.title }}</a>
 <h2>Articles</h2>
 <ul>
-    {% for article in articles %}
+    {% for article in nomination.articles %}
     <li>
-        <a href="{{ article.url() }}">{{ article.title() }}</a>
-        {% if article.is_biography() %} (Biography){% endif %}
-        {% if article.is_american() %} (American){% endif %}
+        <a href="{{ article.url }}">{{ article.title }}</a>
+        {% if article.is_biography %} (Biography){% endif %}
+        {% if article.is_american %} (American){% endif %}
     </li>
     {% endfor %}
 </ul>
-<p>Approved: {{nomination.is_approved()}}</p>
+<p>Approved: {{nomination.is_approved}}</p>
 
 <h2>Hooks</h2>
 <ul>
-    {% for hook in nomination.hooks() %}
+    {% for hook in nomination.hooks %}
     <li><span class="fw-bold">{{ hook.tag }}</span> {{ hook.text }}</li>
     {% endfor %}
 </ul>
