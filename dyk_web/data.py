@@ -1,10 +1,16 @@
-"""This collection of classes are intended to be fully static data structures,
-in the style of Google protobufs.  They can be serialized as JSON, hashed, or
-stored in an external cache such as memcache or redis.
+"""This collection of classes are intended to be fully static immutable
+data structures, in the style of Google protobufs.  They are serializable,
+hashable, and thread-safe.
+
+Python, of course, doesn't have truly immutable data.  If you try hard
+enough, you can get around the frozen-ness of these classes.  So don't
+do that.
 
 """
 
 from dataclasses import dataclass
+
+from .cache import cache
 
 
 @dataclass(frozen=True)
@@ -14,7 +20,7 @@ class HookData:
 
     @staticmethod
     def from_hook(hook):
-        """Construct an HookData from a dyk_tools.Hook"""
+        """Construct a HookData from a dyk_tools.Hook"""
         return HookData(hook.tag, hook.text)
 
 
@@ -45,8 +51,9 @@ class NominationData:
     hooks: list[HookData]
 
     @staticmethod
+    @cache.memoize(timeout=30)
     def from_nomination(nomination):
-        """Construct an NominationData from a dyk_tools.Nomination"""
+        """Construct a NominationData from a dyk_tools.Nomination"""
         return NominationData(
             nomination.title(),
             nomination.url(),
