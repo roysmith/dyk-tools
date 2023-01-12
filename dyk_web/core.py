@@ -1,4 +1,6 @@
-from flask import Blueprint, render_template, request, redirect, url_for, g
+import os
+
+from flask import Blueprint, render_template, request, redirect, url_for, g, current_app
 from pywikibot import Page, Category
 from dyk_tools import Nomination, Article
 from dyk_web.template_form import TemplateForm
@@ -29,6 +31,7 @@ def get_pending_nominations():
 @bp.route("/display")
 def display():
     """template_name query arg is the DYK nomination template, including the Template: prefix."""
+    current_app.logger.info("Running on %s", os.uname().nodename)
     page = Page(g.site, request.args["template_name"])
     nomination = Nomination(page)
     nomination_data = NominationData.from_nomination(nomination)
