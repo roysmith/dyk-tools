@@ -51,7 +51,7 @@ class NominationData:
     hooks: list[HookData]
 
     @staticmethod
-    @cache.memoize(timeout=30)
+    @cache.memoize(timeout=600)
     def from_nomination(nomination):
         """Construct a NominationData from a dyk_tools.Nomination"""
         return NominationData(
