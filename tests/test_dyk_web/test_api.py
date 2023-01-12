@@ -65,7 +65,7 @@ class Test_NominationData:
         nomination.is_approved.return_value = True
         nomination.articles.return_value = [article1, article2]
         nomination.hooks.return_value = [Hook("tag", "text")]
-        nomination_data = NominationData.from_nomination(nomination)
+        nomination_data = NominationData.from_nomination.uncached(nomination)
         assert nomination_data == NominationData(
             "title",
             "url",
