@@ -7,6 +7,8 @@ from pywikibot import Site
 
 from . import core, api
 from .cache import cache, cache_config
+from .app_config import app_config
+
 
 # fmt: off
 logging.config.dictConfig(
@@ -18,13 +20,17 @@ logging.config.dictConfig(
             }
         },
         "handlers": {
-            "wsgi": {
+            "file": {
                 "class": "logging.FileHandler",
                 "filename": Path.home() / "dyk-tools-web.log",
                 "formatter": "default",
+            },
+            "stderr": {
+                "class": "logging.StreamHandler",
+                "formatter": "default",
             }
         },
-        "root": {"level": "INFO", "handlers": ["wsgi"]},
+        "root": {"level": "INFO", "handlers": [app_config["logging"]["handler"]]},
     }
 )
 # fmt: on
