@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import functools
 import logging
 import re
 
@@ -8,6 +9,31 @@ from pywikibot import Page, Category
 logger = logging.getLogger("dyk_tools.article")
 
 from dyk_tools.us_states import STATES
+
+
+@functools.cache
+def _get_infobox_templates(site) -> list[Page]:
+    """Returns all the templates which represent people.  This gets the
+    members of [[Category:People and person infobox templates]],
+    recursing 1 deep.  In theory, limiting the recursion level could
+    cause some to be missed, but in practice it works just fine.
+
+    This also includes some templates which are not really about people,
+    i.e. the members of [[Category:Styles infobox templates]].  It also
+    misses members of [[Category:Fictional characters]], which by DYK
+    convention are considered biographies.  Both of these issues may
+    be fixed in later versions.
+
+    Because this is cached, a process restart or call to cache_clear()
+    will be required to pick up any changes since the first invocation.
+    Since these template categories change slowly, that's not a serious
+    problem in practice.
+
+    """
+    logger.info("_get_infobox_templates")
+    category = Category(site, "People and person infobox templates")
+    ns = site.namespaces["Template"].id
+    return list(category.articles(recurse=1, namespaces=[ns]))
 
 
 @dataclass(frozen=True)
@@ -30,9 +56,7 @@ class Article:
         return False
 
     def has_person_infobox(self) -> bool:
-        category = Category(self.page.site, "People and person infobox templates")
-        ns = self.page.site.namespaces["Template"].id
-        infoboxes = list(category.articles(recurse=1, namespaces=[ns]))
+        infoboxes = _get_infobox_templates(self.page.site)
         for t in self.page.templates():
             if t in infoboxes:
                 return True
