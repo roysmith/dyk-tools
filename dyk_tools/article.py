@@ -30,7 +30,7 @@ class Article:
         return False
 
     def has_person_infobox(self) -> bool:
-        category = Category(self.page, "People and person infobox templates")
+        category = Category(self.page.site, "People and person infobox templates")
         ns = self.page.site.namespaces["Template"].id
         infoboxes = list(category.articles(recurse=1, namespaces=[ns]))
         for t in self.page.templates():

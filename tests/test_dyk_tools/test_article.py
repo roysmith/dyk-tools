@@ -67,7 +67,7 @@ class TestHasPersonInfobox:
 
         assert article.has_person_infobox() == True
         backend_mock_category_class.assert_called_once_with(
-            page, "People and person infobox templates"
+            page.site, "People and person infobox templates"
         )
         infobox_cat.articles.assert_called_once_with(recurse=1, namespaces=[mocker.ANY])
 
@@ -91,7 +91,7 @@ class TestHasPersonInfobox:
 
         assert article.has_person_infobox() == False
         backend_mock_category_class.assert_called_once_with(
-            page, "People and person infobox templates"
+            page.site, "People and person infobox templates"
         )
         infobox_cat.articles.assert_called_once_with(recurse=1, namespaces=[mocker.ANY])
 
