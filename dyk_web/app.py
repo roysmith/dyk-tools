@@ -14,6 +14,7 @@ from .app_config import app_config
 logging.config.dictConfig(
     {
         "version": 1,
+        "disable_existing_loggers": False,
         "formatters": {
             "default": {
                 "format": "[%(asctime)s] %(process)s/%(thread)d %(levelname)s in %(module)s: %(message)s",
