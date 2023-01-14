@@ -12,7 +12,7 @@ from dyk_tools.us_states import STATES
 
 
 @functools.cache
-def _get_infobox_templates(site) -> list[Page]:
+def _get_biography_infobox_templates(site) -> list[Page]:
     """Returns all the templates which represent people.  This gets the
     members of [[Category:People and person infobox templates]],
     recursing 1 deep.  In theory, limiting the recursion level could
@@ -30,7 +30,7 @@ def _get_infobox_templates(site) -> list[Page]:
     problem in practice.
 
     """
-    logger.info("_get_infobox_templates")
+    logger.debug("In _get_biography_infobox_templates()")
     category = Category(site, "People and person infobox templates")
     ns = site.namespaces["Template"].id
     return list(category.articles(recurse=1, namespaces=[ns]))
@@ -56,7 +56,7 @@ class Article:
         return False
 
     def has_person_infobox(self) -> bool:
-        infoboxes = _get_infobox_templates(self.page.site)
+        infoboxes = _get_biography_infobox_templates(self.page.site)
         for t in self.page.templates():
             if t in infoboxes:
                 return True
