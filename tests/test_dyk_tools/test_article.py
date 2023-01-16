@@ -92,6 +92,8 @@ class TestHasPersonInfobox:
         MockPage.assert_any_call(page1.site, "Template:Infobox character")
         MockPage.assert_any_call(page1.site, "Template:Infobox comics character")
 
+
+class TestIsAmerican:
     def test_has_american_short_description_returns_false_with_no_short_description(
         self, page1
     ):
@@ -106,8 +108,6 @@ class TestHasPersonInfobox:
         article = Article(page1)
         assert article.has_american_short_description() == True
 
-
-class TestIsAmerican:
     def test_is_american_returns_false_with_blank_intro(self, page1):
         page1.extract.return_value = ""
         article = Article(page1)
