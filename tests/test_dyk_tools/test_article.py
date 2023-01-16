@@ -1,6 +1,12 @@
-from dyk_tools import Article
-
+import pytest
 import pywikibot
+from dyk_tools import Article
+import dyk_tools.article
+
+
+@pytest.fixture(autouse=True)
+def clear_cache():
+    dyk_tools.article.get_biography_infobox_templates.cache_clear()
 
 
 class TestArticle:
@@ -38,17 +44,20 @@ class TestHasBirthCategory:
 class TestHasPersonInfobox:
     def test_has_person_infobox_returns_false_with_no_infobox(self, mocker, page1):
         mocker.patch("dyk_tools.article.Category", autospec=True)
+        Mock_Page = mocker.patch("dyk_tools.article.Page", autospec=True)
         article = Article(page1)
         page1.templates.return_value = []
         assert article.has_person_infobox() == False
 
     def test_has_person_infobox_returns_true_with_correct_infobox(
-        self, mocker, page1, page2, page3
+        self, mocker, page1, page2
     ):
         page1.templates.return_value = [page2]
+        page2.title.return_value = "Template:Infobox A"
         Mock_Category = mocker.patch("dyk_tools.article.Category", autospec=True)
+        Mock_Page = mocker.patch("dyk_tools.article.Page", autospec=True)
         infobox_cat = Mock_Category(None, None)
-        infobox_cat.articles.return_value = [page2, page3]
+        infobox_cat.articles.return_value = [page2]
         mocker.resetall()
         article = Article(page1)
 
@@ -56,13 +65,16 @@ class TestHasPersonInfobox:
         Mock_Category.assert_called_once_with(
             page1.site, "People and person infobox templates"
         )
-        infobox_cat.articles.assert_called_once_with(recurse=1, namespaces=[mocker.ANY])
+        infobox_cat.articles.assert_called_once_with(recurse=3, namespaces=[mocker.ANY])
+        Mock_Page.assert_any_call(page1.site, "Template:Infobox character")
+        Mock_Page.assert_any_call(page1.site, "Template:Infobox comics character")
 
     def test_has_person_infobox_returns_false_with_unknown_infobox(
         self, mocker, page1, page2, page3, page4
     ):
         page1.templates.return_value = [page2]
         Mock_Category = mocker.patch("dyk_tools.article.Category", autospec=True)
+        Mock_Page = mocker.patch("dyk_tools.article.Page", autospec=True)
         infobox_cat = Mock_Category(None, None)
         infobox_cat.articles.return_value = [page3, page4]
         mocker.resetall()
@@ -72,7 +84,9 @@ class TestHasPersonInfobox:
         Mock_Category.assert_called_once_with(
             page1.site, "People and person infobox templates"
         )
-        infobox_cat.articles.assert_called_once_with(recurse=1, namespaces=[mocker.ANY])
+        infobox_cat.articles.assert_called_once_with(recurse=3, namespaces=[mocker.ANY])
+        Mock_Page.assert_any_call(page1.site, "Template:Infobox character")
+        Mock_Page.assert_any_call(page1.site, "Template:Infobox comics character")
 
     def test_has_american_short_description_returns_false_with_no_short_description(
         self, page1

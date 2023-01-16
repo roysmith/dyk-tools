@@ -12,28 +12,30 @@ from dyk_tools.us_states import STATES
 
 
 @functools.cache
-def _get_biography_infobox_templates(site) -> list[Page]:
-    """Returns all the templates which represent people.  This gets the
-    members of [[Category:People and person infobox templates]],
-    recursing 1 deep.  In theory, limiting the recursion level could
-    cause some to be missed, but in practice it works just fine.
+def get_biography_infobox_templates(site) -> set[Page]:
+    """Returns all the templates which represent people.
 
-    This also includes some templates which are not really about people,
-    i.e. the members of [[Category:Styles infobox templates]].  It also
-    misses members of [[Category:Fictional characters]], which by DYK
-    convention are considered biographies.  Both of these issues may
-    be fixed in later versions.
+    This employs heuristics to navigate the infobox template categories.
+    The exact rules are not well defined, so don't count on this returning
+    exactly the same results every time.
 
     Because this is cached, a process restart or call to cache_clear()
     will be required to pick up any changes since the first invocation.
-    Since these template categories change slowly, that's not a serious
+    Since these template categories change (very) slowly, that's not a
     problem in practice.
 
     """
-    logger.debug("In _get_biography_infobox_templates()")
-    category = Category(site, "People and person infobox templates")
+    logger.debug("In get_biography_infobox_templates()")
+
+    pages = set()
+    cat = Category(site, "People and person infobox templates")
     ns = site.namespaces["Template"].id
-    return list(category.articles(recurse=1, namespaces=[ns]))
+    for t in cat.articles(recurse=3, namespaces=[ns]):
+        if not t.title().endswith(" styles"):
+            pages.add(t)
+    pages.add(Page(site, "Template:Infobox character"))
+    pages.add(Page(site, "Template:Infobox comics character"))
+    return pages
 
 
 @dataclass(frozen=True)
@@ -56,7 +58,7 @@ class Article:
         return False
 
     def has_person_infobox(self) -> bool:
-        infoboxes = _get_biography_infobox_templates(self.page.site)
+        infoboxes = get_biography_infobox_templates(self.page.site)
         for t in self.page.templates():
             if t in infoboxes:
                 return True
