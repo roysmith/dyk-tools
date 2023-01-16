@@ -19,49 +19,62 @@ def clear_cache():
     dyk_tools.article.get_biography_infobox_templates.cache_clear()
 
 
+@pytest.fixture
+def make_page(mocker, site):
+    def _make_page(title):
+        attrs = {"site": site, "title.return_value": title}
+        return mocker.MagicMock(spec=pywikibot.Page, **attrs)
+
+    return _make_page
+
+
 class TestArticle:
-    def test_article_can_be_constructed(self, page1):
-        article = Article(page1)
+    def test_article_can_be_constructed(self, make_page):
+        article = Article(make_page("Page 1"))
 
 
 class TestTitle:
-    def test_title_returns_page_title(self, page1):
-        page1.title.return_value = "Foo"
-        article = Article(page1)
+    def test_title_returns_page_title(self, make_page):
+        article = Article(make_page("Foo"))
         assert article.title() == "Foo"
 
 
 class TestUrl:
-    def test_url_returns_page_url(self, page1):
-        article = Article(page1)
-        page1.full_url.return_value = "blah"
+    def test_url_returns_page_url(self, make_page):
+        page = make_page("Page 1")
+        page.full_url.return_value = "blah"
+        article = Article(page)
         assert article.url() == "blah"
 
 
 class TestHasBirthCategory:
-    def test_has_birth_category_returns_false_with_no_categories(self, page1):
-        article = Article(page1)
-        page1.categories.return_value = []
+    def test_has_birth_category_returns_false_with_no_categories(self, make_page):
+        page = make_page("Page 1")
+        page.categories.return_value = []
+        article = Article(page)
         assert article.has_birth_category() == False
 
-    def test_has_birth_category_returns_true_with_birth_category(self, page1, cat1):
-        article = Article(page1)
+    def test_has_birth_category_returns_true_with_birth_category(self, make_page, cat1):
+        page = make_page("Page 1")
+        page.categories.return_value = [cat1]
+        article = Article(page)
         cat1.title.return_value = "1944 births"
-        page1.categories.return_value = [cat1]
         assert article.has_birth_category() == True
 
 
 class TestHasPersonInfobox:
-    def test_has_person_infobox_returns_false_with_no_infobox(self, page1):
-        article = Article(page1)
-        page1.templates.return_value = []
+    def test_has_person_infobox_returns_false_with_no_infobox(self, make_page):
+        page = make_page("Page 1")
+        page.templates.return_value = []
+        article = Article(page)
         assert article.has_person_infobox() == False
 
     def test_has_person_infobox_returns_true_with_correct_infobox(
-        self, mocker, MockCategory, MockPage, page1, page2
+        self, mocker, MockCategory, MockPage, make_page
     ):
+        page1 = make_page("Foo")
+        page2 = make_page("Template:Infobox A")
         page1.templates.return_value = [page2]
-        page2.title.return_value = "Template:Infobox A"
         infobox_cat = MockCategory(None, None)
         infobox_cat.articles.return_value = [page2]
         mocker.resetall()
@@ -76,8 +89,12 @@ class TestHasPersonInfobox:
         MockPage.assert_any_call(page1.site, "Template:Infobox comics character")
 
     def test_has_person_infobox_returns_false_with_unknown_infobox(
-        self, mocker, MockCategory, MockPage, page1, page2, page3, page4
+        self, mocker, MockCategory, MockPage, make_page
     ):
+        page1 = make_page("Article 1")
+        page2 = make_page("Template:Foo")
+        page3 = make_page("Article 2")
+        page4 = make_page("Article 3")
         page1.templates.return_value = [page2]
         infobox_cat = MockCategory(None, None)
         infobox_cat.articles.return_value = [page3, page4]
