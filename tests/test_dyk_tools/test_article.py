@@ -1,12 +1,15 @@
 import pytest
 import pywikibot
+import unittest.mock
 from dyk_tools import Article
 import dyk_tools.article
 
 
 @pytest.fixture(autouse=True)
 def MockPage(mocker):
-    return mocker.patch("dyk_tools.article.Page", autospec=True)
+    mock = mocker.patch("dyk_tools.article.Page", autospec=True)
+    mock.__eq__ = lambda o1, o2: o1.title() == o2.title()
+    return mock
 
 
 @pytest.fixture(autouse=True)
@@ -63,11 +66,58 @@ class TestHasBirthCategory:
 
 
 class TestHasPersonInfobox:
-    def test_has_person_infobox_returns_false_with_no_infobox(self, make_page):
-        page = make_page("Page 1")
-        page.templates.return_value = []
-        article = Article(page)
-        assert article.has_person_infobox() == False
+    # _params is a list of (article_templates, category_templates, result)
+    # tuples.  Article_templates are the templates which will be returned
+    # by article.templates().  Category_templates will be returned by
+    # Category(site, ""People and person infobox templates).articles().
+    # Result is what Article.has_person_infobox() should return for that
+    # combination.
+    infobox_a = unittest.mock.MagicMock(spec=pywikibot.Page)
+    infobox_b = unittest.mock.MagicMock(spec=pywikibot.Page)
+    infobox_c = unittest.mock.MagicMock(spec=pywikibot.Page)
+    infobox_character = unittest.mock.MagicMock(spec=pywikibot.Page)
+    infobox_comics_character = unittest.mock.MagicMock(spec=pywikibot.Page)
+
+    infobox_a.title.return_value = "Template:Infobox A"
+    infobox_b.title.return_value = "Template:Infobox B"
+    infobox_c.title.return_value = "Template:Infobox C"
+    infobox_character.title.return_value = "Template:Infobox character"
+    infobox_character.title.return_value = "Template:Infobox comics character"
+
+    _params = [
+        # article, category, result
+        ([], [], False),
+        ([infobox_a], [infobox_b], False),
+        ([], [infobox_a], False),
+        ([infobox_c], [infobox_a, infobox_b], False),
+        #
+        ([infobox_a], [infobox_a], True),
+        ([infobox_a], [infobox_a, infobox_b], True),
+        ([infobox_a, infobox_b], [infobox_b, infobox_c], True),
+        # ([infobox_character], [], True),
+        # ([infobox_comics_character], [], True),
+    ]
+
+    @pytest.fixture(params=_params)
+    def templates_result(self, request):
+        return request.param
+
+    def test_has_person_infobox(
+        self, mocker, templates_result, make_page, MockCategory
+    ):
+        article_templates, category_templates, result = templates_result
+        article_page = make_page("Article")
+        article_page.templates.return_value = [t for t in article_templates]
+        infobox_cat = MockCategory(None, None)
+        infobox_cat.articles.return_value = [t for t in category_templates]
+        mocker.resetall()
+        article = Article(article_page)
+
+        assert article.has_person_infobox() == result
+
+        MockCategory.assert_called_once_with(
+            article_page.site, "People and person infobox templates"
+        )
 
     def test_has_person_infobox_returns_true_with_correct_infobox(
         self, mocker, MockCategory, MockPage, make_page
