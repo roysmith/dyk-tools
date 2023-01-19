@@ -25,7 +25,12 @@ def clear_cache():
 @pytest.fixture
 def make_page(mocker, site):
     def _make_page(title):
-        attrs = {"site": site, "title.return_value": title}
+        attrs = {
+            "site": site,
+            "title.return_value": title,
+            "__eq__": lambda o1, o2: o1.title() == o2.title(),
+            "__hash__": lambda o: hash(o.title()),
+        }
         return mocker.MagicMock(spec=pywikibot.Page, **attrs)
 
     return _make_page
@@ -66,47 +71,37 @@ class TestHasBirthCategory:
 
 
 class TestHasPersonInfobox:
-    # _params is a list of (article_templates, category_templates, result)
+    # _params is a list of (result, article_templates, category_templates)
     # tuples.  Article_templates are the templates which will be returned
     # by article.templates().  Category_templates will be returned by
     # Category(site, ""People and person infobox templates).articles().
     # Result is what Article.has_person_infobox() should return for that
     # combination.
-    infobox_a = unittest.mock.MagicMock(
-        spec=pywikibot.Page, **{"title.return_value": "Template:Infobox A"}
-    )
-    infobox_b = unittest.mock.MagicMock(
-        spec=pywikibot.Page, **{"title.return_value": "Template:Infobox B"}
-    )
-    infobox_c = unittest.mock.MagicMock(
-        spec=pywikibot.Page, **{"title.return_value": "Template:Infobox C"}
-    )
-    infobox_character = unittest.mock.MagicMock(
-        spec=pywikibot.Page, **{"title.return_value": "Template:Infobox character"}
-    )
-    infobox_comics_character = unittest.mock.MagicMock(
-        spec=pywikibot.Page,
-        **{"title.return_value": "Template:Infobox comics character"}
-    )
-
     _params = [
-        # result, article, category
         (False, [], []),
-        (False, [infobox_a], [infobox_b]),
-        (False, [], [infobox_a]),
-        (False, [infobox_c], [infobox_a, infobox_b]),
-        #
-        (True, [infobox_a], [infobox_a]),
-        (True, [infobox_a], [infobox_a, infobox_b]),
-        (True, [infobox_a, infobox_b], [infobox_b, infobox_c]),
-        (True, [infobox_character], []),
-        (True, [infobox_comics_character], []),
+        (False, ["Template:Infobox A"], ["Template:Infobox B"]),
+        (False, [], ["Template:Infobox A"]),
+        (False, ["Template:Infobox C"], ["Template:Infobox A", "Template:Infobox B"]),
+        (True, ["Template:Infobox A"], ["Template:Infobox A"]),
+        (True, ["Template:Infobox A"], ["Template:Infobox A", "Template:Infobox B"]),
+        (
+            True,
+            ["Template:Infobox A", "Template:Infobox B"],
+            ["Template:Infobox B", "Template:Infobox C"],
+        ),
+        (True, ["Template:Infobox character"], []),
+        (True, ["Template:Infobox comics character"], []),
     ]
 
     @pytest.fixture()
-    def MockCharacterPages(self, mocker):
+    def MockCharacterPages(self, mocker, make_page):
         mock = mocker.patch("dyk_tools.article.Page", autospec=True)
-        mock.side_effect = [self.infobox_character, self.infobox_comics_character]
+        mock.__eq__ = lambda o1, o2: o1.title() == o2.title()
+        mock.__hash__ = lambda o: hash(o.title())
+        mock.side_effect = [
+            make_page("Template:Infobox character"),
+            make_page("Template:Infobox comics character"),
+        ]
         return mock
 
     @pytest.fixture(params=_params)
@@ -118,9 +113,9 @@ class TestHasPersonInfobox:
     ):
         result, article_templates, category_templates = result_templates
         article_page = make_page("Article")
-        article_page.templates.return_value = [t for t in article_templates]
+        article_page.templates.return_value = [make_page(t) for t in article_templates]
         infobox_cat = MockCategory(None, None)
-        infobox_cat.articles.return_value = [t for t in category_templates]
+        infobox_cat.articles.return_value = [make_page(t) for t in category_templates]
         mocker.resetall()
         article = Article(article_page)
 
