@@ -176,7 +176,7 @@ class TestIsAmerican:
         assert article.is_american() == False
 
     def test_is_american_returns_true_with_united_states_category(
-        self, mocker, MockCategory, page1
+        self, MockCategory, page1
     ):
         cat = MockCategory(None, None)
         cat.title.return_value = "Things in the united states"
@@ -185,9 +185,7 @@ class TestIsAmerican:
         article = Article(page1)
         assert article.is_american() == True
 
-    def test_is_american_returns_true_with_other_category(
-        self, mocker, MockCategory, page1
-    ):
+    def test_is_american_returns_true_with_other_category(self, MockCategory, page1):
         cat = MockCategory(None, None)
         cat.title.return_value = "Things in lower slobbovia"
         page1.categories.return_value = [cat]
