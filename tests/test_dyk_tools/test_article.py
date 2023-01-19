@@ -90,17 +90,17 @@ class TestHasPersonInfobox:
     )
 
     _params = [
-        # article, category, result
-        ([], [], False),
-        ([infobox_a], [infobox_b], False),
-        ([], [infobox_a], False),
-        ([infobox_c], [infobox_a, infobox_b], False),
+        # result, article, category
+        (False, [], []),
+        (False, [infobox_a], [infobox_b]),
+        (False, [], [infobox_a]),
+        (False, [infobox_c], [infobox_a, infobox_b]),
         #
-        ([infobox_a], [infobox_a], True),
-        ([infobox_a], [infobox_a, infobox_b], True),
-        ([infobox_a, infobox_b], [infobox_b, infobox_c], True),
-        ([infobox_character], [], True),
-        ([infobox_comics_character], [], True),
+        (True, [infobox_a], [infobox_a]),
+        (True, [infobox_a], [infobox_a, infobox_b]),
+        (True, [infobox_a, infobox_b], [infobox_b, infobox_c]),
+        (True, [infobox_character], []),
+        (True, [infobox_comics_character], []),
     ]
 
     @pytest.fixture()
@@ -110,13 +110,13 @@ class TestHasPersonInfobox:
         return mock
 
     @pytest.fixture(params=_params)
-    def templates_result(self, request):
+    def result_templates(self, request):
         return request.param
 
     def test_has_person_infobox(
-        self, mocker, templates_result, make_page, MockCategory, MockCharacterPages
+        self, mocker, result_templates, make_page, MockCategory, MockCharacterPages
     ):
-        article_templates, category_templates, result = templates_result
+        result, article_templates, category_templates = result_templates
         article_page = make_page("Article")
         article_page.templates.return_value = [t for t in article_templates]
         infobox_cat = MockCategory(None, None)
