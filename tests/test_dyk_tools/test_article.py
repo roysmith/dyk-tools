@@ -5,7 +5,7 @@ from dyk_tools import Article
 import dyk_tools.article
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture()
 def MockPage(mocker):
     mock = mocker.patch("dyk_tools.article.Page", autospec=True)
     mock.__eq__ = lambda o1, o2: o1.title() == o2.title()
@@ -72,17 +72,22 @@ class TestHasPersonInfobox:
     # Category(site, ""People and person infobox templates).articles().
     # Result is what Article.has_person_infobox() should return for that
     # combination.
-    infobox_a = unittest.mock.MagicMock(spec=pywikibot.Page)
-    infobox_b = unittest.mock.MagicMock(spec=pywikibot.Page)
-    infobox_c = unittest.mock.MagicMock(spec=pywikibot.Page)
-    infobox_character = unittest.mock.MagicMock(spec=pywikibot.Page)
-    infobox_comics_character = unittest.mock.MagicMock(spec=pywikibot.Page)
-
-    infobox_a.title.return_value = "Template:Infobox A"
-    infobox_b.title.return_value = "Template:Infobox B"
-    infobox_c.title.return_value = "Template:Infobox C"
-    infobox_character.title.return_value = "Template:Infobox character"
-    infobox_character.title.return_value = "Template:Infobox comics character"
+    infobox_a = unittest.mock.MagicMock(
+        spec=pywikibot.Page, **{"title.return_value": "Template:Infobox A"}
+    )
+    infobox_b = unittest.mock.MagicMock(
+        spec=pywikibot.Page, **{"title.return_value": "Template:Infobox B"}
+    )
+    infobox_c = unittest.mock.MagicMock(
+        spec=pywikibot.Page, **{"title.return_value": "Template:Infobox C"}
+    )
+    infobox_character = unittest.mock.MagicMock(
+        spec=pywikibot.Page, **{"title.return_value": "Template:Infobox character"}
+    )
+    infobox_comics_character = unittest.mock.MagicMock(
+        spec=pywikibot.Page,
+        **{"title.return_value": "Template:Infobox comics character"}
+    )
 
     _params = [
         # article, category, result
@@ -94,16 +99,22 @@ class TestHasPersonInfobox:
         ([infobox_a], [infobox_a], True),
         ([infobox_a], [infobox_a, infobox_b], True),
         ([infobox_a, infobox_b], [infobox_b, infobox_c], True),
-        # ([infobox_character], [], True),
-        # ([infobox_comics_character], [], True),
+        ([infobox_character], [], True),
+        ([infobox_comics_character], [], True),
     ]
+
+    @pytest.fixture()
+    def MockCharacterPages(self, mocker):
+        mock = mocker.patch("dyk_tools.article.Page", autospec=True)
+        mock.side_effect = [self.infobox_character, self.infobox_comics_character]
+        return mock
 
     @pytest.fixture(params=_params)
     def templates_result(self, request):
         return request.param
 
     def test_has_person_infobox(
-        self, mocker, templates_result, make_page, MockCategory
+        self, mocker, templates_result, make_page, MockCategory, MockCharacterPages
     ):
         article_templates, category_templates, result = templates_result
         article_page = make_page("Article")
