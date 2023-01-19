@@ -75,6 +75,7 @@ class TestHasPersonInfobox:
         (False, ["Template:Infobox A"], ["Template:Infobox B"]),
         (False, [], ["Template:Infobox A"]),
         (False, ["Template:Infobox C"], ["Template:Infobox A", "Template:Infobox B"]),
+        (False, ["Template:Infobox archbishop styles"], ["Template:Infobox archbishop styles"]),
         (True, ["Template:Infobox A"], ["Template:Infobox A"]),
         (True, ["Template:Infobox A"], ["Template:Infobox A", "Template:Infobox B"]),
         (True, ["Template:Infobox A", "Template:Infobox B"], ["Template:Infobox B", "Template:Infobox C"]),
