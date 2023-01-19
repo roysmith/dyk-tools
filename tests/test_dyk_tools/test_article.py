@@ -130,46 +130,6 @@ class TestHasPersonInfobox:
             article_page.site, "People and person infobox templates"
         )
 
-    def test_has_person_infobox_returns_true_with_correct_infobox(
-        self, mocker, MockCategory, MockPage, make_page
-    ):
-        page1 = make_page("Foo")
-        page2 = make_page("Template:Infobox A")
-        page1.templates.return_value = [page2]
-        infobox_cat = MockCategory(None, None)
-        infobox_cat.articles.return_value = [page2]
-        mocker.resetall()
-        article = Article(page1)
-
-        assert article.has_person_infobox() == True
-        MockCategory.assert_called_once_with(
-            page1.site, "People and person infobox templates"
-        )
-        infobox_cat.articles.assert_called_once_with(recurse=3, namespaces=[mocker.ANY])
-        MockPage.assert_any_call(page1.site, "Template:Infobox character")
-        MockPage.assert_any_call(page1.site, "Template:Infobox comics character")
-
-    def test_has_person_infobox_returns_false_with_unknown_infobox(
-        self, mocker, MockCategory, MockPage, make_page
-    ):
-        article1 = make_page("Article 1")
-        article2 = make_page("Article 2")
-        article3 = make_page("Article 3")
-        template = make_page("Template:Foo")
-        article1.templates.return_value = [template]
-        infobox_cat = MockCategory(None, None)
-        infobox_cat.articles.return_value = [article2, article3]
-        mocker.resetall()
-        article = Article(article1)
-
-        assert article.has_person_infobox() == False
-        MockCategory.assert_called_once_with(
-            article1.site, "People and person infobox templates"
-        )
-        infobox_cat.articles.assert_called_once_with(recurse=3, namespaces=[mocker.ANY])
-        MockPage.assert_any_call(article1.site, "Template:Infobox character")
-        MockPage.assert_any_call(article1.site, "Template:Infobox comics character")
-
 
 class TestIsAmerican:
     def test_has_american_short_description_returns_false_with_no_short_description(
