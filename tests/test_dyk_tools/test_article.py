@@ -77,6 +77,7 @@ class TestHasPersonInfobox:
     # Category(site, ""People and person infobox templates).articles().
     # Result is what Article.has_person_infobox() should return for that
     # combination.
+    # fmt: off
     _params = [
         (False, [], []),
         (False, ["Template:Infobox A"], ["Template:Infobox B"]),
@@ -84,14 +85,11 @@ class TestHasPersonInfobox:
         (False, ["Template:Infobox C"], ["Template:Infobox A", "Template:Infobox B"]),
         (True, ["Template:Infobox A"], ["Template:Infobox A"]),
         (True, ["Template:Infobox A"], ["Template:Infobox A", "Template:Infobox B"]),
-        (
-            True,
-            ["Template:Infobox A", "Template:Infobox B"],
-            ["Template:Infobox B", "Template:Infobox C"],
-        ),
+        (True, ["Template:Infobox A", "Template:Infobox B"], ["Template:Infobox B", "Template:Infobox C"]),
         (True, ["Template:Infobox character"], []),
         (True, ["Template:Infobox comics character"], []),
     ]
+    # fmt: on
 
     @pytest.fixture()
     def MockCharacterPages(self, mocker, make_page):
