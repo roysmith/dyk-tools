@@ -66,7 +66,7 @@ class TestHasPersonInfobox:
     # _params is a list of (result, article_templates, category_templates)
     # tuples.  Article_templates are the templates which will be returned
     # by article.templates().  Category_templates will be returned by
-    # Category(site, ""People and person infobox templates).articles().
+    # Category(site, "People and person infobox templates").articles().
     # Result is what Article.has_person_infobox() should return for that
     # combination.
     # fmt: off
