@@ -1,6 +1,5 @@
 import pytest
 import pywikibot
-import unittest.mock
 from dyk_tools import Article
 import dyk_tools.article
 
