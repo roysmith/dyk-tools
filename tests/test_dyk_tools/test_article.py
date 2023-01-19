@@ -5,13 +5,6 @@ from dyk_tools import Article
 import dyk_tools.article
 
 
-@pytest.fixture()
-def MockPage(mocker):
-    mock = mocker.patch("dyk_tools.article.Page", autospec=True)
-    mock.__eq__ = lambda o1, o2: o1.title() == o2.title()
-    return mock
-
-
 @pytest.fixture(autouse=True)
 def MockCategory(mocker):
     return mocker.patch("dyk_tools.article.Category", autospec=True)
