@@ -1,0 +1,5 @@
+Nail up a SSH tunnel to the tools SQL cluster:
+  ssh -t dev.toolforge.org -L 3306:tools.db.svc.wikimedia.cloud:3306
+
+Similar to above, but with no interactive shell:
+  ssh -N dev.toolforge.org -L 3306:tools.db.svc.wikimedia.cloud:3306
