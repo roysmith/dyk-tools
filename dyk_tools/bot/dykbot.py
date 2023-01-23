@@ -12,10 +12,11 @@ from pywikibot.exceptions import NoPageError
 from dyk_tools import Nomination
 from dyk_tools.version import version_string
 
+
 class IdAdapter(logging.LoggerAdapter):
     def process(self, msg, kwargs):
-        return '[%s] %s' % (self.extra['id'], msg), kwargs
-        
+        return "[%s] %s" % (self.extra["id"], msg), kwargs
+
 
 class App:
     def run(self):
@@ -31,7 +32,7 @@ class App:
 
         # Generate a timestamp identifying this run
         id = int(t0.timestamp())
-        self.logger = IdAdapter(logging.getLogger("dykbot"), {'id': id})
+        self.logger = IdAdapter(logging.getLogger("dykbot"), {"id": id})
 
         self.logger.setLevel(self.args.log_level.upper())
         self.nomination_count = 0
@@ -92,9 +93,7 @@ class App:
                 )
                 return
 
-    MANAGED_TAGS = frozenset(
-        ["Pending DYK biographies", "Pending DYK American hooks"]
-    )
+    MANAGED_TAGS = frozenset(["Pending DYK biographies", "Pending DYK American hooks"])
 
     def process_one_nomination(self, page):
         nom = Nomination(page)
@@ -120,6 +119,7 @@ class App:
 def main():
     app = App()
     app.run()
+
 
 if __name__ == "__main__":
     main()
