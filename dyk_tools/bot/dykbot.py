@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 
 import argparse
+from configparser import ConfigParser
 from datetime import datetime
 from itertools import islice
 import logging
 import os
+from pathlib import Path
 import time
 
 from pywikibot import Site, Category
 from pywikibot.exceptions import NoPageError
+import sqlalchemy
+
 from dyk_tools import Nomination
 from dyk_tools.version import version_string
 
@@ -21,6 +25,7 @@ class IdAdapter(logging.LoggerAdapter):
 class App:
     def run(self):
         t0 = datetime.utcnow()
+        self.basedir = self.get_basedir()
         self.args = self.process_command_line()
         logging_config_args = {
             "format": "%(asctime)s %(levelname)s %(name)s %(message)s",
@@ -37,10 +42,14 @@ class App:
         self.logger.setLevel(self.args.log_level.upper())
         self.nomination_count = 0
         self.site = Site(self.args.mylang)
+
         self.logger.info("Running on %s", os.uname().nodename)
+        self.logger.info("Basedir: %s", self.basedir)
         self.logger.info("version: %s", version_string)
         self.logger.info("site: %s", self.site)
         self.logger.info("dry-run: %s", self.args.dry_run)
+
+        self.engine = self.get_db_engine()
 
         self.process_nominations()
 
@@ -48,6 +57,14 @@ class App:
         self.logger.info(
             "Processed %d nomination(s) in %s", self.nomination_count, t1 - t0
         )
+
+    def get_basedir(self):
+        """Return the application's base directory as a Path.  This is where
+        configuration files should be found, log files created, etc.
+
+        """
+        env = os.environ
+        return Path(env.get("DYK_TOOLS_BASEDIR") or env.get("HOME"))
 
     def process_command_line(self):
         parser = argparse.ArgumentParser()
@@ -74,6 +91,19 @@ class App:
             help="Override mylang config setting",
         )
         return parser.parse_args()
+
+    def get_db_engine(self):
+        configparser = ConfigParser()
+        configparser.read(self.basedir / "replica.my.cnf")
+        configparser.read(self.basedir / "dykbot.ini")
+
+        data = dict(configparser["client"])
+        data["dbname"] = f"{data['user']}__dyk_tools_bot_{self.site.code}"
+        template = "{scheme}://{user}:{password}@{host}/{dbname}"
+        url = template.format(**data)
+        data["password"] = "******"
+        self.logger.info("Database: %s", template.format(**data))
+        return sqlalchemy.create_engine(url)
 
     def process_nominations(self):
         cat = Category(self.site, "Pending DYK nominations")
