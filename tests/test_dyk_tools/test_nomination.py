@@ -211,24 +211,8 @@ class TestHooks:
         ]
 
 
-class TestIsPreviouslyProcessed:
-    def test_is_prevously_processed_returns_false_with_no_templates(self, page):
-        page.itertemplates.return_value = []
-        nomination = Nomination(page)
-        assert nomination.is_previously_processed() == False
-
-    def test_is_previously_processed_returns_true_with_existing_dyk_tools_bot_template(
-        self, mocker, page
-    ):
-        template = mocker.Mock(spec=pywikibot.Page)()
-        template.title.return_value = "Template:DYK-Tools-Bot was here"
-        page.itertemplates.return_value = [template]
-        nomination = Nomination(page)
-        assert nomination.is_previously_processed() == True
-
-
 class TestMarkProcessed:
-    def test_mark_processed_adds_template_after_dyk_subpage_comment(self, mocker, page):
+    def test_mark_processed_adds_categories(self, mocker, page):
         page.get.return_value = dedent(
             """\
             {{DYKsubpage
@@ -237,39 +221,14 @@ class TestMarkProcessed:
             """
         )
         nomination = Nomination(page)
-        nomination.mark_processed([], [])
-
-        page.save.assert_called_once()
-        wikicode = mwp.parse(page.text)
-        nodes = wikicode.filter(
-            recursive=False, matches=lambda n: not isinstance(n, mwp.nodes.Text)
-        )
-        assert nodes[0].name.matches("DYKsubpage")
-        assert nodes[1].contents == "Please do not write below this line or remove this line. Place comments above this line."
-        assert nodes[2].name.matches("DYK-Tools-Bot was here")
-
-
-    def test_mark_processed_adds_template_and_categories(self, mocker, page):
-        page.get.return_value = dedent(
-            """\
-            {{DYKsubpage
-            |blah, blah
-            }}<!--Please do not write below this line or remove this line. Place comments above this line.-->
-            """
-        )
-        nomination = Nomination(page)
-        nomination.mark_processed(
-            ["Foo", "Bar"], ["Foo", "Bar"]
-        )
+        nomination.mark_processed(["Foo", "Bar"], ["Foo", "Bar"])
 
         page.save.assert_called_once()
         wikicode = mwp.parse(page.text)
         templates = wikicode.filter_templates(recursive=False)
         template_names = {str(t.name) for t in templates}
-        assert "DYK-Tools-Bot was here" in template_names
         assert "Foo" in template_names
         assert "Bar" in template_names
-
 
     def test_mark_processed_cleans_out_pre_existing_categories(self, mocker, page):
         page.get.return_value = dedent(
@@ -297,7 +256,6 @@ class TestMarkProcessed:
         assert "Baz" not in template_names
         assert "Other" in template_names
 
-
     def test_mark_processed_removes_and_adds_categories(self, mocker, page):
         page.get.return_value = dedent(
             """\
@@ -324,7 +282,6 @@ class TestMarkProcessed:
         assert "Bar" in template_names
         assert "Baz" not in template_names
         assert "Other" in template_names
- 
 
     def test_mark_processed_raises_value_error_with_unmanaged_category(self, page):
         nomination = Nomination(page)

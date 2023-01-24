@@ -11,10 +11,12 @@ import time
 
 from pywikibot import Site, Category
 from pywikibot.exceptions import NoPageError
-import sqlalchemy
+from sqlalchemy import create_engine, select
+from sqlalchemy.orm import Session
 
 from dyk_tools import Nomination
 from dyk_tools.version import version_string
+from dyk_tools.db.models import BotLog
 
 
 class IdAdapter(logging.LoggerAdapter):
@@ -103,17 +105,18 @@ class App:
         url = template.format(**data)
         data["password"] = "******"
         self.logger.info("Database: %s", template.format(**data))
-        return sqlalchemy.create_engine(url)
+        return create_engine(url)
 
     def process_nominations(self):
         cat = Category(self.site, "Pending DYK nominations")
         for page in cat.articles(namespaces="Template"):
+            nom = Nomination(page)
             try:
-                self.process_one_nomination(page)
+                self.process_one_nomination(nom)
             except NoPageError as ex:
                 self.logger.error(
                     "NoPageError while processing [[%s]] (article=[[%s]]), skipping",
-                    page.title(),
+                    nom.title(),
                     ex.page.title(),
                 )
                 continue
@@ -125,10 +128,9 @@ class App:
 
     MANAGED_TAGS = frozenset(["Pending DYK biographies", "Pending DYK American hooks"])
 
-    def process_one_nomination(self, page):
-        nom = Nomination(page)
-        if nom.is_previously_processed():
-            self.logger.debug("skipping [[%s]]", nom.page.title())
+    def process_one_nomination(self, nom):
+        if self.nomination_is_previously_processed(nom):
+            self.logger.debug("skipping [[%s]]", nom.title())
             return
         flags = []
         tags = []
@@ -140,10 +142,23 @@ class App:
         if nom.is_american():
             flags.append("American")
             tags.append("Pending DYK American hooks")
-        self.logger.info("processing [[%s]] (flags=%s)", nom.page.title(), flags)
+        self.logger.info("processing [[%s]] (flags=%s)", nom.title(), flags)
         self.nomination_count += 1
         if not self.args.dry_run:
             nom.mark_processed(tags, self.MANAGED_TAGS)
+            self.insert_log_entry(nom)
+
+    def nomination_is_previously_processed(self, nom) -> bool:
+        with Session(self.engine) as session:
+            stmt = select(BotLog).where(BotLog.title == nom.title())
+            data = session.scalars(stmt).first()
+            return bool(data)
+
+    def insert_log_entry(self, nom) -> None:
+        with Session(self.engine) as session:
+            entry = BotLog(title=nom.title(), timestamp_utc=datetime.utcnow())
+            session.add(entry)
+            session.commit()
 
 
 def main():
