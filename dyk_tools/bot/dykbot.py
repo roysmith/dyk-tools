@@ -46,7 +46,7 @@ class App:
         self.site = Site(self.args.mylang)
 
         self.logger.info("Running on %s", os.uname().nodename)
-        self.logger.info("Basedir: %s", self.basedir)
+        self.logger.info("basedir: %s", self.basedir)
         self.logger.info("version: %s", version_string)
         self.logger.info("site: %s", self.site)
         self.logger.info("dry-run: %s", self.args.dry_run)
