@@ -82,7 +82,10 @@ class App:
             default="info",
             help="Set logging level",
         )
-        parser.add_argument("--log-file", help="log to file (default is to stderr)")
+        parser.add_argument(
+            "--log-file",
+            help="log to file (default is to stderr)",
+        )
         parser.add_argument(
             "--max",
             type=int,
