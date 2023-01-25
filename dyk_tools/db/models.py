@@ -11,11 +11,11 @@ from sqlalchemy.orm import (
 )
 
 
-class Base(DeclarativeBase):
+class BaseModel(DeclarativeBase):
     pass
 
 
-class BotLog(Base):
+class BotLog(BaseModel):
     __tablename__ = "bot_log"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)

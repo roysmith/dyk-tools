@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 
 from dyk_tools.bot.dykbot import App
-from dyk_tools.db.models import Base, BotLog
+from dyk_tools.db.models import BaseModel, BotLog
 
 
 @pytest.fixture
@@ -17,9 +17,9 @@ def engine():
 
 @pytest.fixture(autouse=True)
 def create_db(engine):
-    Base.metadata.create_all(engine)
+    BaseModel.metadata.create_all(engine)
     yield
-    Base.metadata.drop_all(engine)
+    BaseModel.metadata.drop_all(engine)
 
 
 def test_construct():

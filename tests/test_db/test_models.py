@@ -1,6 +1,6 @@
 from datetime import datetime
 import pytest
-from dyk_tools.db.models import Base, BotLog
+from dyk_tools.db.models import BaseModel, BotLog
 
 from sqlalchemy import create_engine, Table
 from sqlalchemy.orm import Session
@@ -13,13 +13,13 @@ def engine():
 
 @pytest.fixture
 def db(engine):
-    Base.metadata.create_all(engine)
+    BaseModel.metadata.create_all(engine)
     yield
-    Base.metadata.drop_all(engine)
+    BaseModel.metadata.drop_all(engine)
 
 
 def test_table_creation(db):
-    bot_log = Table("bot_log", Base.metadata, autoload_with=engine)
+    bot_log = Table("bot_log", BaseModel.metadata, autoload_with=engine)
     columns = {col.name for col in bot_log.columns}
     assert columns == {"id", "title", "timestamp_utc"}
 
