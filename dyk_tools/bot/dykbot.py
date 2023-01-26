@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session
 
 from dyk_tools import Nomination
 from dyk_tools.version import version_string
-from dyk_tools.db.models import BotLog
+from dyk_tools.db.models import BaseModel, BotLog
 
 
 class IdAdapter(logging.LoggerAdapter):
@@ -50,15 +50,23 @@ class App:
         self.logger.info("version: %s", version_string)
         self.logger.info("site: %s", self.site)
         self.logger.info("dry-run: %s", self.args.dry_run)
+        self.logger.info("create-db: %s", self.args.create_db)
 
         self.engine = self.get_db_engine()
 
-        self.process_nominations()
+        if self.args.create_db:
+            self.create_db()
+        else:
+            self.process_nominations()
 
         t1 = datetime.utcnow()
         self.logger.info(
             "Processed %d nomination(s) in %s", self.nomination_count, t1 - t0
         )
+
+    def create_db(self) -> None:
+        self.logger.info("Creating %s", list(BaseModel.metadata.tables.keys()))
+        BaseModel.metadata.create_all(self.engine)
 
     def get_basedir(self):
         """Return the application's base directory as a Path.  This is where
@@ -94,6 +102,12 @@ class App:
         parser.add_argument(
             "--mylang",
             help="Override mylang config setting",
+        )
+        parser.add_argument(
+            "--create-db",
+            default=False,
+            action=argparse.BooleanOptionalAction,
+            help="Force creation of database tables and exit",
         )
         return parser.parse_args()
 
