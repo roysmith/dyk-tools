@@ -1,11 +1,30 @@
 {% extends "base.html" %}
 
+<!-- Per-page css -->
+{% block page_css %}
+<link rel="stylesheet" href="/static/selectize-0.15.2.default.min.css" />
+{% endblock %}
+
 {% block content %}
 
 <h1>Pick a template</h1>
 <form method="POST" action="/select">
-    {{ form.name }}
-    <input type=submit>
+    <div class="w-50 m-1">{{ form.name }}</div>
+    <div class="m-1"><input type=submit></div>
 </form>
 
+{% endblock %}
+
+<!-- Per-page javascript -->
+{% block page_scripts %}
+<script src="/static/selectize-0.15.2.min.js"></script>
+<script>
+    $(function () {
+        $("select").selectize({
+            create: true,
+            showAddOptionOnCreate: true,
+            placeholder: "Select a template, or enter one manually",
+        });
+    });
+</script>
 {% endblock %}
