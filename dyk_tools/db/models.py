@@ -20,5 +20,5 @@ class BotLog(BaseModel):
     __tablename__ = "bot_log"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    title: Mapped[str] = mapped_column(String(255), index=True)
+    title: Mapped[str] = mapped_column(String(190), index=True)
     timestamp_utc: Mapped[datetime]
