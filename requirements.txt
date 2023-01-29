@@ -29,6 +29,7 @@ pipdeptree==2.3.3
 platformdirs==2.5.4
 pluggy==1.0.0
 PyJWT==2.6.0
+PyMySQL==1.0.2
 pyparsing==3.0.9
 pytest==7.2.0
 pytest-mock==3.10.0
@@ -41,7 +42,7 @@ setuptools-scm==7.1.0
 sh==1.14.3
 simplejson==3.18.1
 six==1.16.0
-SQLAlchemy==2.0.0rc3
+SQLAlchemy==2.0.0
 toml==0.10.2
 tomli==2.0.1
 typing_extensions==4.4.0

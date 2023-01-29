@@ -70,12 +70,6 @@ class Nomination:
                 return True
         return False
 
-    def is_previously_processed(self) -> bool:
-        for t in self.page.itertemplates():
-            if t.title() == "Template:DYK-Tools-Bot was here":
-                return True
-        return False
-
     def mark_processed(self, tags, managed_tags) -> None:
         unknown_tags = set(tags) - set(managed_tags)
         if unknown_tags:
@@ -87,7 +81,6 @@ class Nomination:
                 if template.name.matches(managed_tag):
                     wikicode.remove(template)
 
-        wikicode.append("\n{{DYK-Tools-Bot was here}}")
         for tag in tags:
             wikicode.append("\n{{%s}}" % tag)
         self.page.text = str(wikicode)
