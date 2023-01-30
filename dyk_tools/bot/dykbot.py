@@ -25,10 +25,12 @@ class IdAdapter(logging.LoggerAdapter):
 
 
 class App:
-    def run(self):
-        t0 = datetime.utcnow()
-        self.basedir = self.get_basedir()
+    def __init__(self):
         self.args = self.process_command_line()
+        self.basedir = self.get_basedir()
+        self.nomination_count = 0
+
+    def configure_logging(self):
         logging_config_args = {
             "format": "%(asctime)s %(levelname)s %(name)s %(message)s",
             "datefmt": "%Y-%m-%dT%H:%M:%S",
@@ -38,12 +40,15 @@ class App:
         logging.basicConfig(**logging_config_args)
 
         # Generate a timestamp identifying this run
-        id = int(t0.timestamp())
-        self.logger = IdAdapter(logging.getLogger("dykbot"), {"id": id})
+        id = int(datetime.utcnow().timestamp())
 
+        self.logger = IdAdapter(logging.getLogger("dykbot"), {"id": id})
         self.logger.setLevel(self.args.log_level.upper())
-        self.nomination_count = 0
+
+    def run(self):
+        t0 = datetime.utcnow()
         self.site = Site(self.args.mylang)
+        self.engine = self.get_db_engine()
 
         self.logger.info("Running on %s", os.uname().nodename)
         self.logger.info("basedir: %s", self.basedir)
@@ -52,13 +57,10 @@ class App:
         self.logger.info("dry-run: %s", self.args.dry_run)
         self.logger.info("create-db: %s", self.args.create_db)
 
-        self.engine = self.get_db_engine()
-
         if self.args.create_db:
             self.create_db()
         else:
             self.process_nominations()
-
         t1 = datetime.utcnow()
         self.logger.info(
             "Processed %d nomination(s) in %s", self.nomination_count, t1 - t0
@@ -73,8 +75,11 @@ class App:
         configuration files should be found, log files created, etc.
 
         """
-        env = os.environ
-        return Path(env.get("DYK_TOOLS_BASEDIR") or env.get("HOME"))
+        if "basedir" in self.args:
+            return Path(self.args.basedir)
+        else:
+            env = os.environ
+            return Path(env.get("DYK_TOOLS_BASEDIR") or env.get("HOME"))
 
     def process_command_line(self):
         parser = argparse.ArgumentParser()
@@ -108,6 +113,11 @@ class App:
             default=False,
             action=argparse.BooleanOptionalAction,
             help="Force creation of database tables and exit",
+        )
+        parser.add_argument(
+            "--basedir",
+            default=argparse.SUPPRESS,
+            help="Directory where for config files (overrides $DYK_TOOLS_BASEDIR)",
         )
         return parser.parse_args()
 

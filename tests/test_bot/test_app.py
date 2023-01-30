@@ -1,5 +1,6 @@
 from datetime import datetime
 import logging
+from pathlib import Path
 import pytest
 
 from sqlalchemy import create_engine, select
@@ -22,20 +23,27 @@ def create_db(engine):
     BaseModel.metadata.drop_all(engine)
 
 
-def test_construct():
+def test_construct(mocker):
+    mocker.patch("sys.argv", ["program.py"])
     app = App()
     assert app
+
+
+def test_cli_basedir(mocker):
+    mocker.patch("sys.argv", ["program.py", "--basedir=/foo/bar"])
+    app = App()
+    assert app.basedir == Path("/foo/bar")
 
 
 class TestProcessOneNomination:
     @pytest.fixture
     def app(self, mocker, engine):
+        mocker.patch("sys.argv", ["program.py"])
         app = App()
         app.logger = logging.getLogger("dykbot")
         app.args = mocker.Mock()
         app.args.dry_run = False
         app.engine = engine
-        app.nomination_count = 0
         return app
 
     @pytest.fixture(autouse=True)
