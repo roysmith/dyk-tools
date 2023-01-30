@@ -47,6 +47,7 @@ class App:
 
     def run(self):
         t0 = datetime.utcnow()
+        self.configure_logging()
         self.site = Site(self.args.mylang)
         self.engine = self.get_db_engine()
 
