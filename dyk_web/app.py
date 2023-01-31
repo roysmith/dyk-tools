@@ -11,8 +11,7 @@ from .app_config import app_config
 
 
 # fmt: off
-logging.config.dictConfig(
-    {
+logging_config = {
         "version": 1,
         "disable_existing_loggers": False,
         "formatters": {
@@ -33,23 +32,25 @@ logging.config.dictConfig(
         },
         "root": {"level": "INFO", "handlers": [app_config["logging"]["handler"]]},
     }
-)
 # fmt: on
 
-app = Flask(__name__)
-app.register_blueprint(core.bp)
-app.register_blueprint(api.bp)
-cache.init_app(app)
 
-app.logger.info(f"Running on {os.uname().nodename}")
-app.logger.info(f"Using {cache_config['CACHE_TYPE']}")
+def create_app():
+    logging.config.dictConfig(logging_config)
+    app = Flask(__name__)
+    app.register_blueprint(core.bp)
+    app.register_blueprint(api.bp)
+    cache.init_app(app)
 
+    app.logger.info(f"Running on {os.uname().nodename}")
+    app.logger.info(f"Using {cache_config['CACHE_TYPE']}")
 
-@app.before_request
-def set_site():
-    g.site = Site("en", "wikipedia", "dyk-tools")
+    @app.before_request
+    def set_site():
+        g.site = Site("en", "wikipedia", "dyk-tools")
 
+    @app.route("/")
+    def home():
+        return redirect(url_for("core.select"))
 
-@app.route("/")
-def home():
-    return redirect(url_for("core.select"))
+    return app
