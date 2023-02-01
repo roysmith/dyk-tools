@@ -3,7 +3,7 @@ import os
 from flask import Blueprint, render_template, request, redirect, url_for, g, current_app
 from pywikibot import Page, Category
 from dyk_tools import Nomination, Article
-from dyk_web.template_form import TemplateForm
+from dyk_web.core_forms import TemplateForm
 from dyk_web.data import NominationData
 
 
