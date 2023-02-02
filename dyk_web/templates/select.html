@@ -7,11 +7,28 @@
 
 {% block content %}
 
-<h1>Pick a template</h1>
-<form method="POST" action="/select">
-    <div class="w-50 m-1">{{ form.name }}</div>
-    <div class="m-1">{{ form.submit }}</div>
-</form>
+<h1>Pick one of the following options</h1>
+
+<div class="card text-bg-light mt-3">
+    <h2 class="card-title">Nomination template</h2>
+    <div class="card-body">
+        <form method="POST" action="/select">
+            {{ template_form.type }}
+            <div class="w-50 m-1">{{ template_form.name }}</div>
+            <div class="m-1">{{ template_form.submit }}</div>
+        </form>
+    </div>
+</div>
+
+<div class="card text-bg-light mt-3">
+    <h2 class="card-title">Prep area</h2>
+    <div class="card-body">
+        <form method="POST" action="/select">
+            <div class="w-50 m-1">{{ prep_form.name }}</div>
+            <div class="m-1">{{ prep_form.submit }}</div>
+        </form>
+    </div>
+</div>
 
 {% endblock %}
 
