@@ -4,8 +4,8 @@ import pytest_socket
 import pywikibot
 
 
-@pytest.fixture
-def site(monkeypatch, mocker, autouse=True):
+@pytest.fixture(autouse=True)
+def site(monkeypatch, mocker):
     """Returns a mock pywikibot.APISite instance.
 
     Attempts to prevent accidental network traffic leaking from test by
