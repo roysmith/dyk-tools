@@ -10,7 +10,7 @@ class NominationForm(Form):
 class HookSetForm(Form):
     name = RadioField(
         choices=[
-            (f"Template:Did you know/Preparation area {i}", f"Prep {i}")
+            (f"Template:Did you know/Preparation area {i}", f"Prep area {i}")
             for i in [1, 2, 3, 4, 5, 6, 7]
         ]
         + [
