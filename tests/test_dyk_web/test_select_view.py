@@ -42,7 +42,6 @@ def client(app):
 def get_pending_nominations(mocker):
     gpn = mocker.patch("dyk_web.core.get_pending_nominations", autospec=True)
     gpn.return_value = []
-    print("--> gpn:", type(gpn))
     return gpn
 
 
