@@ -5,7 +5,6 @@ from flask import template_rendered
 import pytest
 
 from dyk_web.app import create_app
-import dyk_web.core
 
 # https://flask.palletsprojects.com/en/2.2.x/signals/
 @contextmanager
