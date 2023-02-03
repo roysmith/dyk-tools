@@ -9,11 +9,11 @@ from .data import NominationData
 bp = Blueprint("api", __name__, url_prefix="/api/v1")
 
 
-@bp.route("/info")
-def nomination_info():
-    """template_name query arg is the DYK nomination template, including the Template: prefix."""
+@bp.route("/nomination")
+def nomination():
+    """title query arg is the DYK nomination template, including the Template: prefix."""
     current_app.logger.info("logger is %s", current_app.logger)
-    page = Page(g.site, request.args["template_name"])
+    page = Page(g.site, request.args["title"])
     nomination = Nomination(page)
     nomination_data = NominationData.from_nomination(nomination)
     return asdict(nomination_data)
