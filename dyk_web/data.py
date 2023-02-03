@@ -61,3 +61,16 @@ class NominationData:
             [ArticleData.from_article(a) for a in nomination.articles()],
             [HookData.from_hook(h) for h in nomination.hooks()],
         )
+
+
+@dataclass(frozen=True)
+class HookSetData:
+    title: str
+    url: str
+    hooks: list[str]
+
+    @staticmethod
+    @cache.memoize(timeout=600)
+    def from_hook_set(hook_set):
+        """Construct a HookSetData from a dyk_tools.HookSet"""
+        return HookSetData(hook_set.title(), hook_set.url(), list(hook_set.get_hooks()))

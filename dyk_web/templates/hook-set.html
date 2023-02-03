@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1><a href="{{ data.url }}">{{ data.title }}</a></h1>
+
+<ul>
+    {% for hook in data.hooks %}
+    <li>{{ hook }}</li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

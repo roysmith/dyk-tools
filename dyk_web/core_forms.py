@@ -7,11 +7,15 @@ class TemplateForm(Form):
     submit = SubmitField(name="submit-template", label="Submit")
 
 
-class PrepForm(Form):
+class HookSetForm(Form):
     name = RadioField(
         choices=[
-            (f"Template:Did you know/Preparation area {i}", i)
+            (f"Template:Did you know/Preparation area {i}", f"Prep {i}")
+            for i in [1, 2, 3, 4, 5, 6, 7]
+        ]
+        + [
+            (f"Template:Did you know/Queue/{i}", f"Queue {i}")
             for i in [1, 2, 3, 4, 5, 6, 7]
         ]
     )
-    submit = SubmitField(name="submit-prep", label="Submit")
+    submit = SubmitField(name="submit-hook-set", label="Submit")
