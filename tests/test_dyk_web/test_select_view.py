@@ -53,26 +53,29 @@ def test_get(client, app, get_pending_nominations):
     assert len(templates) == 1
     template, context = templates[0]
     assert template.name == "select.html"
-    assert "template_form" in context
-    assert "prep_form" in context
+    assert "nomination_form" in context
+    assert "hook_set_form" in context
 
 
-def test_post_template_form_returns_redirect(client, app):
+def test_post_nomination_form_returns_redirect(client, app):
     response = client.post(
         "/select",
         follow_redirects=False,
-        data={"submit-template": True, "name": "foo"},
+        data={"submit-nomination": True, "name": "foo"},
     )
     assert response.status_code == 302
-    assert response.headers["location"] == "/display?template_name=foo"
+    assert response.headers["location"] == "/nomination?title=foo"
 
 
-def test_post_prep_form_returns_redirect(client, app):
+def test_post_hook_set_form_returns_redirect(client, app):
     response = client.post(
         "/select",
         follow_redirects=False,
-        data={"submit-prep": True, "name": "Template:Did you know/Preparation area 1"},
+        data={
+            "submit-hook-set": True,
+            "name": "Template:Did you know/Preparation area 1",
+        },
     )
     assert response.status_code == 302
     location = unquote_plus(response.headers["location"])
-    assert location == "/prep?title=Template:Did you know/Preparation area 1"
+    assert location == "/hook-set?title=Template:Did you know/Preparation area 1"
