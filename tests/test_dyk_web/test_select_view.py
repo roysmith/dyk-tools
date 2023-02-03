@@ -46,7 +46,7 @@ def get_pending_nominations(mocker):
     return gpn
 
 
-def test_get(client, app, get_pending_nominations):
+def test_get(client, app):
     with captured_templates(app) as templates:
         response = client.get("/select")
     assert response.status_code == 200
