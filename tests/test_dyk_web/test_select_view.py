@@ -2,24 +2,6 @@ from urllib.parse import unquote_plus
 
 import pytest
 
-from dyk_web.app import create_app
-
-
-@pytest.fixture
-def app():
-    app = create_app()
-    app.config.update(
-        {
-            "TESTING": True,
-        }
-    )
-    return app
-
-
-@pytest.fixture
-def client(app):
-    return app.test_client()
-
 
 @pytest.fixture(autouse=True)
 def get_pending_nominations(mocker):
