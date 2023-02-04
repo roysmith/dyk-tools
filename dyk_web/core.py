@@ -23,15 +23,6 @@ def select():
     return render_template("select.html", nomination_form=nf, hook_set_form=hsf)
 
 
-def get_pending_nominations():
-    cat = Category(g.site, "Pending DYK nominations")
-    titles = []
-    for nom in cat.articles():
-        title = nom.title()
-        titles.append((title, title.removeprefix("Template:Did you know nominations/")))
-    return titles
-
-
 @bp.route("/nomination")
 def nomination():
     """title query arg is the DYK nomination template, including the Template: prefix."""
@@ -48,3 +39,12 @@ def hook_set():
     hook_set = HookSet(page)
     hook_set_data = HookSetData.from_hook_set(hook_set)
     return render_template("hook-set.html", data=hook_set_data)
+
+
+def get_pending_nominations():
+    cat = Category(g.site, "Pending DYK nominations")
+    titles = []
+    for nom in cat.articles():
+        title = nom.title()
+        titles.append((title, title.removeprefix("Template:Did you know nominations/")))
+    return titles
