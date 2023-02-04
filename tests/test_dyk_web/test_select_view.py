@@ -21,7 +21,7 @@ def test_get(client, app, captured_templates):
     assert "hook_set_form" in context
 
 
-def test_post_nomination_form_returns_redirect(client, app):
+def test_post_nomination_form_returns_redirect(client):
     response = client.post(
         "/select",
         follow_redirects=False,
@@ -31,7 +31,7 @@ def test_post_nomination_form_returns_redirect(client, app):
     assert response.headers["location"] == "/nomination?title=foo"
 
 
-def test_post_hook_set_form_returns_redirect(client, app):
+def test_post_hook_set_form_returns_redirect(client):
     response = client.post(
         "/select",
         follow_redirects=False,
