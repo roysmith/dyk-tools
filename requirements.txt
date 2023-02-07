@@ -1,6 +1,7 @@
 async-timeout==4.0.2
 attrs==22.1.0
 black==22.10.0
+blinker==1.5
 build==0.9.0
 cachelib==0.10.0
 certifi==2022.9.24
@@ -18,6 +19,7 @@ itsdangerous==2.1.2
 Jinja2==3.1.2
 logging-tree==1.9
 MarkupSafe==2.1.1
+more-itertools==9.0.0
 mwoauth==0.3.8
 mwparserfromhell==0.6.4
 mypy-extensions==0.4.3
