@@ -11,6 +11,7 @@ do that.
 from dataclasses import dataclass
 
 from .cache import cache
+from .html_utils import render_hook
 
 
 @dataclass(frozen=True)
@@ -68,9 +69,12 @@ class HookSetData:
     title: str
     url: str
     hooks: list[str]
+    rendered_hooks: list[str]
 
     @staticmethod
     @cache.memoize(timeout=600)
     def from_hook_set(hook_set):
         """Construct a HookSetData from a dyk_tools.HookSet"""
-        return HookSetData(hook_set.title(), hook_set.url(), list(hook_set.get_hooks()))
+        hooks = list(hook_set.get_hooks())
+        rendered_hooks = [render_hook(h) for h in hooks]
+        return HookSetData(hook_set.title(), hook_set.url(), hooks, rendered_hooks)
