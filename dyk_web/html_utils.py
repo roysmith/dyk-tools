@@ -23,3 +23,5 @@ def _render_nodes(wikicode: mwp.wikicode.Wikicode) -> Iterable[str]:
             yield f'<a href="{link}">{text}</a>'
         if isinstance(node, mwp.nodes.Tag):
             yield f"<{node.tag}>{''.join(_render_nodes(node.contents))}</{node.closing_tag}>"
+        if isinstance(node, mwp.nodes.HTMLEntity):
+            yield str(node)

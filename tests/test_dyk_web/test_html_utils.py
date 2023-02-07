@@ -32,6 +32,7 @@ def g(mocker, app):
         ("''italic''", "<i>italic</i>"),
         ("'''''[[foo]]'''''", '<i><b><a href="my url">foo</a></b></i>'),
         ("[[foo|bar]]", '<a href="my url">bar</a>'),
+        ("foo&nbsp;bar", "foo&nbsp;bar"),
     ]
 )
 def testcase(request, Page, Article, g):
