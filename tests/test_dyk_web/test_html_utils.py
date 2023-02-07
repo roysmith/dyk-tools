@@ -15,6 +15,13 @@ def Article(mocker):
     return mocker.patch("dyk_web.html_utils.Article", autospec=True)
 
 
+@pytest.fixture
+def g(mocker, app):
+    with app.app_context() as context:
+        context.g = mocker.Mock()
+        return mocker.patch("dyk_web.html_utils.g")
+
+
 @pytest.fixture(
     params=[
         ("", ""),
@@ -27,7 +34,7 @@ def Article(mocker):
         ("[[foo|bar]]", '<a href="my url">bar</a>'),
     ]
 )
-def testcase(request, Page, Article):
+def testcase(request, Page, Article, g):
     Article(None).url.return_value = "my url"
     TestCase = namedtuple("TestCase", "input output")
     return TestCase(*request.param)
