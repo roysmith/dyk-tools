@@ -1,6 +1,6 @@
 from typing import Iterable
 
-from flask import g
+from flask import g, current_app
 import mwparserfromhell as mwp
 from pywikibot import Page
 
@@ -25,3 +25,6 @@ def _render_nodes(wikicode: mwp.wikicode.Wikicode) -> Iterable[str]:
             yield f"<{node.tag}>{''.join(_render_nodes(node.contents))}</{node.closing_tag}>"
         if isinstance(node, mwp.nodes.HTMLEntity):
             yield str(node)
+        current_app.logger.warning(
+            "Unknown node type (%s) in render_hook()", type(node)
+        )
