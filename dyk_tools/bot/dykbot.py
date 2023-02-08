@@ -15,7 +15,7 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
 from dyk_tools import Nomination
-from dyk_tools.version import version_string
+from dyk_tools import version
 from dyk_tools.db.models import BaseModel, BotLog
 
 
@@ -53,7 +53,7 @@ class App:
 
         self.logger.info("Running on %s", os.uname().nodename)
         self.logger.info("basedir: %s", self.basedir)
-        self.logger.info("version: %s", version_string)
+        self.logger.info("version: %s", version)
         self.logger.info("site: %s", self.site)
         self.logger.info("dry-run: %s", self.args.dry_run)
         self.logger.info("create-db: %s", self.args.create_db)
