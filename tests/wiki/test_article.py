@@ -1,17 +1,17 @@
 import pytest
 import pywikibot
 from dyk_tools import Article
-import dyk_tools.article
+import dyk_tools.wiki.article
 
 
 @pytest.fixture(autouse=True)
 def MockCategory(mocker):
-    return mocker.patch("dyk_tools.article.Category", autospec=True)
+    return mocker.patch("dyk_tools.wiki.article.Category", autospec=True)
 
 
 @pytest.fixture(autouse=True)
 def clear_cache():
-    dyk_tools.article.get_biography_infobox_templates.cache_clear()
+    dyk_tools.wiki.article.get_biography_infobox_templates.cache_clear()
 
 
 @pytest.fixture
@@ -86,7 +86,7 @@ class TestHasPersonInfobox:
 
     @pytest.fixture()
     def MockCharacterPages(self, mocker, make_page):
-        mock = mocker.patch("dyk_tools.article.Page", autospec=True)
+        mock = mocker.patch("dyk_tools.wiki.article.Page", autospec=True)
         mock.__eq__ = lambda o1, o2: o1.title() == o2.title()
         mock.__hash__ = lambda o: hash(o.title())
         mock.side_effect = [

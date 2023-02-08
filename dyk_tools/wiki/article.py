@@ -8,7 +8,7 @@ from pywikibot import Page, Category
 
 logger = logging.getLogger("dyk_tools.article")
 
-from dyk_tools.us_states import STATES
+from dyk_tools.wiki.us_states import STATES
 
 
 @functools.cache

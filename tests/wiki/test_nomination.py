@@ -120,7 +120,7 @@ class TestArticles:
     def test_articles_with_one_link_returns_list_with_one_article(self, mocker, page):
         # Set up the Page mock for Nomination.articles() to create instances of
         backend_mock_page_class = mocker.patch(
-            "dyk_tools.nomination.Page", autospec=True
+            "dyk_tools.wiki.nomination.Page", autospec=True
         )
 
         # Set up the mock template for Nomination.articles() to examine
@@ -140,7 +140,7 @@ class TestArticles:
     def test_articles_with_n_links_returns_list_with_n_articles(self, mocker, page):
         # Set up the Page mock for Nomination.articles() to create instances of
         backend_mock_page_class = mocker.patch(
-            "dyk_tools.nomination.Page", autospec=True
+            "dyk_tools.wiki.nomination.Page", autospec=True
         )
 
         # Set up the mock template for Nomination.articles() to examine
