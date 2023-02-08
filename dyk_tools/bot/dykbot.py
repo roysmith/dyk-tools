@@ -3,11 +3,9 @@
 import argparse
 from configparser import ConfigParser
 from datetime import datetime
-from itertools import islice
 import logging
 import os
 from pathlib import Path
-import time
 
 from pywikibot import Site, Category
 from pywikibot.exceptions import NoPageError
