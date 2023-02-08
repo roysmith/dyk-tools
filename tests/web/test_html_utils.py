@@ -4,17 +4,17 @@ import pytest
 from more_itertools import consume
 import mwparserfromhell as mwp
 
-from dyk_web.html_utils import render_hook, _render_nodes
+from dyk_tools.web.html_utils import render_hook, _render_nodes
 
 
 @pytest.fixture
 def Page(mocker):
-    return mocker.patch("dyk_web.html_utils.Page", autospec=True)
+    return mocker.patch("dyk_tools.web.html_utils.Page", autospec=True)
 
 
 @pytest.fixture
 def Article(mocker):
-    return mocker.patch("dyk_web.html_utils.Article", autospec=True)
+    return mocker.patch("dyk_tools.web.html_utils.Article", autospec=True)
 
 
 @pytest.fixture(

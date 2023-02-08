@@ -4,8 +4,8 @@ from typing import Iterable
 from flask import Blueprint, render_template, request, redirect, url_for, g, current_app
 from pywikibot import Page, Category
 from dyk_tools import Nomination, Article, HookSet
-from dyk_web.core_forms import NominationForm, HookSetForm
-from dyk_web.data import NominationData, HookSetData
+from .core_forms import NominationForm, HookSetForm
+from .data import NominationData, HookSetData
 
 
 bp = Blueprint("core", __name__)

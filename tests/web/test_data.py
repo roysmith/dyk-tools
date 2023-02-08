@@ -1,7 +1,7 @@
 from textwrap import dedent
 
 from dyk_tools import Hook, Article, Nomination
-from dyk_web.data import HookData, ArticleData, NominationData
+from dyk_tools.web.data import HookData, ArticleData, NominationData
 
 
 class Test_HookData:

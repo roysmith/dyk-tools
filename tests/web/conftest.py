@@ -3,7 +3,7 @@ from contextlib import contextmanager
 import pytest
 from flask import template_rendered
 
-from dyk_web.app import create_app
+from dyk_tools.web.app import create_app
 
 
 # Based on example in https://flask.palletsprojects.com/en/2.2.x/signals/

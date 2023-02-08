@@ -2,23 +2,23 @@ from urllib.parse import unquote_plus
 
 import pytest
 
-from dyk_web.core import queue_sequence, prep_sequence, hook_set_choices
+from dyk_tools.web.core import queue_sequence, prep_sequence, hook_set_choices
 
 
 @pytest.fixture  # (autouse=True)
 def mock_pending_nominations(mocker):
-    return mocker.patch("dyk_web.core.pending_nominations", autospec=True)
+    return mocker.patch("dyk_tools.web.core.pending_nominations", autospec=True)
 
 
 @pytest.fixture
 def mock_hook_set_choices(mocker):
-    return mocker.patch("dyk_web.core.hook_set_choices", autospec=True)
+    return mocker.patch("dyk_tools.web.core.hook_set_choices", autospec=True)
 
 
 @pytest.fixture
 def core_page(mocker, site):
     """Returns a mock pywikibot.Page."""
-    mock_Page = mocker.patch("dyk_web.core.Page", autospec=True)
+    mock_Page = mocker.patch("dyk_tools.web.core.Page", autospec=True)
     return mock_Page(site)
 
 
@@ -99,8 +99,8 @@ class TestQueueSequence:
 
 class TestHookSetChoices:
     def test_returns_correct_page_names(self, mocker, site):
-        queue_sequence = mocker.patch("dyk_web.core.queue_sequence", autospec=True)
-        prep_sequence = mocker.patch("dyk_web.core.prep_sequence", autospec=True)
+        queue_sequence = mocker.patch("dyk_tools.web.core.queue_sequence", autospec=True)
+        prep_sequence = mocker.patch("dyk_tools.web.core.prep_sequence", autospec=True)
         queue_sequence.return_value = [3, 4, 5, 6, 7, 1, 2]
         prep_sequence.return_value = [5, 6, 7, 1, 2, 3, 4]
 

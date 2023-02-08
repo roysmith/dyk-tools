@@ -1,3 +1,4 @@
-import dyk_web.app
+from dyk_tools.web.app import create_app
 
-app = dyk_web.app.create_app()
+app = create_app()
+
