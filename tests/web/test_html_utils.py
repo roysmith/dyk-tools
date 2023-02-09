@@ -49,3 +49,12 @@ def test__render_nodes_logs_on_unknown_node(mocker, app, caplog):
         context.g = mocker.Mock()
         consume(_render_nodes(wikicode))
     assert "Unknown node type" in caplog.text
+
+
+def test__render_nodes_does_not_log_with_no_unknown_node(mocker, app, caplog, Page):
+    text = r"""that '''[[Edward B. Barry]]''' demerited "humming"?"""
+    wikicode = mwp.parse(text)
+    with app.app_context() as context:
+        context.g = mocker.Mock()
+        consume(_render_nodes(wikicode))
+    assert "Unknown node type" not in caplog.text
