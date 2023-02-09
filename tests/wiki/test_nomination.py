@@ -212,7 +212,7 @@ class TestHooks:
 
 
 class TestMarkProcessed:
-    def test_mark_processed_adds_categories(self, mocker, page):
+    def test_mark_processed_adds_categories(self, page):
         page.get.return_value = dedent(
             """\
             {{DYKsubpage
@@ -230,7 +230,7 @@ class TestMarkProcessed:
         assert "Foo" in template_names
         assert "Bar" in template_names
 
-    def test_mark_processed_cleans_out_pre_existing_categories(self, mocker, page):
+    def test_mark_processed_cleans_out_pre_existing_categories(self, page):
         page.get.return_value = dedent(
             """\
             {{DYKsubpage
@@ -256,7 +256,7 @@ class TestMarkProcessed:
         assert "Baz" not in template_names
         assert "Other" in template_names
 
-    def test_mark_processed_removes_and_adds_categories(self, mocker, page):
+    def test_mark_processed_removes_and_adds_categories(self, page):
         page.get.return_value = dedent(
             """\
             {{DYKsubpage
