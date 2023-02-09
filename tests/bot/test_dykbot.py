@@ -35,6 +35,14 @@ def test_cli_basedir(mocker):
     assert app.basedir == Path("/foo/bar")
 
 
+def test_correct_task_is_run(mocker):
+    mocker.patch("sys.argv", ["program.py", "create-db"])
+    create_db = mocker.patch("dyk_tools.bot.dykbot.App.create_db", autospec=True)
+    app = App()
+    app.run()
+    create_db.assert_called_once()
+
+
 class TestProcessOneNomination:
     @pytest.fixture
     def app(self, mocker, engine):

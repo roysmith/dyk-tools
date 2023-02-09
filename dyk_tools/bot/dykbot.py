@@ -24,9 +24,13 @@ class IdAdapter(logging.LoggerAdapter):
 
 class App:
     def __init__(self):
+        self.tasks = {
+            "create-db": self.create_db,
+            "add-tags": self.add_tags,
+        }
         self.args = self.process_command_line()
         self.basedir = self.get_basedir()
-        self.nomination_count = 0
+        self.nomination_count = None
 
     def configure_logging(self):
         logging_config_args = {
@@ -54,16 +58,11 @@ class App:
         self.logger.info("version: %s", version)
         self.logger.info("site: %s", self.site)
         self.logger.info("dry-run: %s", self.args.dry_run)
-        self.logger.info("create-db: %s", self.args.create_db)
+        self.logger.info("task: %s", self.args.task)
 
-        if self.args.create_db:
-            self.create_db()
-        else:
-            self.process_nominations()
+        self.tasks[self.args.task]()
         t1 = datetime.utcnow()
-        self.logger.info(
-            "Processed %d nomination(s) in %s", self.nomination_count, t1 - t0
-        )
+        self.logger.info("Task (%s) completed in %s", self.args.task, t1 - t0)
 
     def create_db(self) -> None:
         self.logger.info("Creating %s", list(BaseModel.metadata.tables.keys()))
@@ -108,16 +107,16 @@ class App:
             help="Override mylang config setting",
         )
         parser.add_argument(
-            "--create-db",
-            default=False,
-            action=argparse.BooleanOptionalAction,
-            help="Force creation of database tables and exit",
-        )
-        parser.add_argument(
             "--basedir",
             default=argparse.SUPPRESS,
             help="Directory where for config files (overrides $DYK_TOOLS_BASEDIR)",
         )
+        parser.add_argument(
+            "task",
+            choices=list(self.tasks),
+            help="Task to perform",
+        )
+
         return parser.parse_args()
 
     def get_db_engine(self):
@@ -133,8 +132,9 @@ class App:
         self.logger.info("Database: %s", template.format(**data))
         return create_engine(url)
 
-    def process_nominations(self):
+    def add_tags(self):
         cat = Category(self.site, "Pending DYK nominations")
+        self.nomination_count = 0
         for page in cat.articles(namespaces="Template"):
             nom = Nomination(page)
             try:
@@ -150,7 +150,8 @@ class App:
                 self.logger.info(
                     "Stopping early after %d nominations", self.nomination_count
                 )
-                return
+                break
+        self.logger.info("Processed %d nomination(s)", self.nomination_count)
 
     MANAGED_TAGS = frozenset(["Pending DYK biographies", "Pending DYK American hooks"])
 
