@@ -85,3 +85,12 @@ class Nomination:
             wikicode.append("\n{{%s}}" % tag)
         self.page.text = str(wikicode)
         self.page.save("[[User:DYK-Tools-Bot|DYK-Tools-Bot]] classifying nomination.")
+
+    def clear_tags(self, tags) -> None:
+        wikicode = mwp.parse(self.page.get())
+        for template in wikicode.filter_templates(recursive=False):
+            for tag in tags:
+                if template.name.matches(tag):
+                    wikicode.remove(template)
+        self.page.text = str(wikicode)
+        self.page.save("[[User:DYK-Tools-Bot|DYK-Tools-Bot]] clearing tags.")

@@ -288,3 +288,45 @@ class TestMarkProcessed:
         with pytest.raises(ValueError) as info:
             nomination.mark_processed(["Foo"], ["Bar"])
         info.match(r"{'Foo'} not in managed_tags")
+
+
+class TestClearTags:
+    def test_article_with_no_tags_is_unchanged(self, page):
+        original_text = dedent(
+            """\
+            {{DYKsubpage
+            |blah, blah
+            }}<!--Please do not write below this line or remove this line. Place comments above this line.-->
+            """
+        )
+        page.get.return_value = original_text
+        nomination = Nomination(page)
+
+        nomination.clear_tags(["Foo", "Bar"])
+
+        page.save.assert_called_once()
+        assert page.text == original_text
+
+    def test_tags_in_article_are_deleted(self, page):
+        original_text = dedent(
+            """\
+            {{DYKsubpage
+            |blah, blah
+            }}<!--Please do not write below this line or remove this line. Place comments above this line.-->
+            {{Foo}}
+            {{Bar}}
+            {{Baz}}
+            """
+        )
+        page.get.return_value = original_text
+        nomination = Nomination(page)
+
+        nomination.clear_tags(["Foo", "Bar"])
+
+        page.save.assert_called_once()
+        wikicode = mwp.parse(page.text)
+        templates = wikicode.filter_templates(recursive=False)
+        template_names = {str(t.name) for t in templates}
+        assert "Foo" not in template_names
+        assert "Bar" not in template_names
+        assert "Baz" in template_names
