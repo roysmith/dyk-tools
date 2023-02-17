@@ -48,7 +48,6 @@ class App:
         self.logger.setLevel(self.args.log_level.upper())
 
     def run(self):
-        t0 = datetime.utcnow()
         self.configure_logging()
         self.site = Site(self.args.mylang)
         self.engine = self.get_db_engine()
@@ -64,6 +63,7 @@ class App:
             self.logger.warning("No task specified, exiting")
             return
 
+        t0 = datetime.utcnow()
         self.tasks[self.args.task]()
         t1 = datetime.utcnow()
         self.logger.info("Task (%s) completed in %s", self.args.task, t1 - t0)
