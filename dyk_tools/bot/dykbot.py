@@ -30,7 +30,7 @@ class App:
         }
         self.args = self.process_command_line()
         self.basedir = self.get_basedir()
-        self.nomination_count = None
+        self.nomination_count = 0
 
     def configure_logging(self):
         logging_config_args = {
@@ -59,6 +59,10 @@ class App:
         self.logger.info("site: %s", self.site)
         self.logger.info("dry-run: %s", self.args.dry_run)
         self.logger.info("task: %s", self.args.task)
+
+        if self.args.task is None:
+            self.logger.warning("No task specified, exiting")
+            return
 
         self.tasks[self.args.task]()
         t1 = datetime.utcnow()
@@ -113,6 +117,7 @@ class App:
         )
         parser.add_argument(
             "task",
+            nargs="?",
             choices=list(self.tasks),
             help="Task to perform",
         )
