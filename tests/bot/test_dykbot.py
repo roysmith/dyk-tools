@@ -49,6 +49,7 @@ class TestProcessOneNomination:
         mocker.patch("sys.argv", ["program.py"])
         app = App()
         app.logger = logging.getLogger("dykbot")
+        app.logger.setLevel(logging.DEBUG)
         app.args = mocker.Mock()
         app.args.dry_run = False
         app.engine = engine
