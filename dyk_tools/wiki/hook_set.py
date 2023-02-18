@@ -5,6 +5,8 @@ from typing import Iterable
 import mwparserfromhell as mwp
 from pywikibot import Page
 
+from .hook import Hook
+
 
 @dataclass(frozen=True)
 class HookSet:
@@ -16,7 +18,7 @@ class HookSet:
     def url(self) -> str:
         return self.page.full_url()
 
-    def get_hooks(self) -> Iterable[str]:
+    def get_hooks(self) -> Iterable[Hook]:
         START_END = re.compile(
             r"""^(.*<!--\s*Hooks\s*-->)
             (.*)
@@ -28,4 +30,5 @@ class HookSet:
             return []
         for line in m.group(2).splitlines():
             if line.startswith("* ..."):
-                yield line.removeprefix("* ...")
+                wikitext = line.removeprefix("* ...")
+                yield Hook("", wikitext)

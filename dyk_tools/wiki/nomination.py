@@ -6,6 +6,7 @@ from pywikibot import Page
 import mwparserfromhell as mwp
 
 from .article import Article
+from .hook import Hook
 
 APPROVALS = ["File:Symbol confirmed.svg", "File:Symbol voting keep.svg"]
 DISAPPROVALS = [
@@ -14,12 +15,6 @@ DISAPPROVALS = [
     "File:Symbol delete vote.svg",
     "File:Symbol redirect vote 4.svg",
 ]
-
-
-@dataclass(frozen=True)
-class Hook:
-    tag: str
-    text: str
 
 
 @dataclass(frozen=True)

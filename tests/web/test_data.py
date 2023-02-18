@@ -10,7 +10,7 @@ class Test_HookData:
         assert hook_data.tag == "tag"
         assert hook_data.text == "text"
 
-    def test_from_hook(self):
+    def test_from_hook(self, site):
         hook = Hook("tag", "text")
         hook_data = HookData.from_hook(hook)
         assert hook_data.tag == "tag"
@@ -49,7 +49,7 @@ class Test_NominationData:
         assert nomination_data.articles == [article_data1, article_data2]
         assert nomination_data.hooks == [hook_data1]
 
-    def test_from_nomination(self, mocker):
+    def test_from_nomination(self, mocker, site):
         article1 = mocker.Mock(spec=Article)
         article1.title.return_value = "title1"
         article1.url.return_value = "url1"

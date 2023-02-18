@@ -39,7 +39,7 @@ def nomination():
 def hook_set():
     page = Page(g.site, request.args["title"])
     hook_set = HookSet(page)
-    hook_set_data = HookSetData.from_hook_set(hook_set)
+    hook_set_data = HookSetData.from_hook_set(hook_set, page.site)
     return render_template("hook-set.html", data=hook_set_data)
 
 
