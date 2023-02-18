@@ -6,14 +6,15 @@ from dyk_tools.web.data import HookData, ArticleData, NominationData
 
 class Test_HookData:
     def test_construction(self):
-        hook_data = HookData("foo", "bar")
-        assert hook_data.tag == "foo"
-        assert hook_data.text == "bar"
+        hook_data = HookData("tag", "text")
+        assert hook_data.tag == "tag"
+        assert hook_data.text == "text"
 
     def test_from_hook(self):
         hook = Hook("tag", "text")
         hook_data = HookData.from_hook(hook)
-        assert hook_data == HookData("tag", "text")
+        assert hook_data.tag == "tag"
+        assert hook_data.text == "text"
 
 
 class Test_ArticleData:
