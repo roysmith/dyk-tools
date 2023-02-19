@@ -1,7 +1,7 @@
-from dyk_tools.wiki.nomination import Nomination
-from dyk_tools.wiki.hook import Hook
 from dyk_tools.wiki.article import Article
+from dyk_tools.wiki.hook import Hook
 from dyk_tools.wiki.hook_set import HookSet
+from dyk_tools.wiki.nomination import Nomination
 
 try:
     import dyk_tools._version
@@ -15,8 +15,8 @@ else:
 __all__ = [
     "Article",
     "Hook",
-    "Nomination",
     "HookSet",
+    "Nomination",
     "version",
     "version_tuple",
 ]
