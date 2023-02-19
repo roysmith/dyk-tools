@@ -289,6 +289,19 @@ class TestMarkProcessed:
             nomination.mark_processed(["Foo"], ["Bar"])
         info.match(r"{'Foo'} not in managed_tags")
 
+    def test_mark_processed_generates_correct_edit_summary(self, page):
+        page.get.return_value = dedent(
+            """
+            {{DYKsubpage}}
+            """
+        )
+        page.site.username.return_value = "Me"
+        nomination = Nomination(page)
+
+        nomination.mark_processed(["Foo"], ["Foo"])
+
+        page.save.assert_called_once_with("[[User:Me|Me]] classifying nomination.")
+
 
 class TestClearTags:
     def test_article_with_no_tags_is_unchanged(self, page):
@@ -330,3 +343,16 @@ class TestClearTags:
         assert "Foo" not in template_names
         assert "Bar" not in template_names
         assert "Baz" in template_names
+
+    def test_clear_tags_generates_correct_edit_summary(self, page):
+        page.get.return_value = dedent(
+            """
+            {{DYKsubpage}}
+            """
+        )
+        page.site.username.return_value = "Me"
+        nomination = Nomination(page)
+
+        nomination.clear_tags(["Foo"])
+
+        page.save.assert_called_once_with("[[User:Me|Me]] clearing tags.")
