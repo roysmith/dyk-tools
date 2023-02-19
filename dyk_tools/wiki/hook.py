@@ -35,3 +35,21 @@ class Hook:
                 yield str(node)
             else:
                 logger.warning("Unknown node type (%s=%s)", type(node), node)
+
+    def targets(self) -> Iterable[str]:
+        """Iterates over the bolded links in a hook.  In theory, a hook must
+        have at least one such hook, but nothing actually enforces that, so
+        it's possible for this to return an empty iterator.
+
+        Note that this returns the titles as strings, so:
+
+          "... that '''[[Foo]]'''?" => ["Foo"]
+
+        """
+        wikicode = parse(self.text)
+        for node in wikicode.filter_wikilinks():
+            ancestors = wikicode.get_ancestors(node)
+            if ancestors:
+                outer = ancestors[-1]
+                if isinstance(outer, Tag) and outer.tag == "b":
+                    yield node.title

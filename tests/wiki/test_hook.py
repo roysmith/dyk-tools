@@ -15,6 +15,9 @@ def Article(mocker):
     return mocker.patch("dyk_tools.wiki.hook.Article", autospec=True)
 
 
+TestCase = namedtuple("TestCase", "input output")
+
+
 def test_construct():
     hook = Hook("tag", "text")
     assert hook.tag == "tag"
@@ -37,7 +40,6 @@ class TestRender:
     )
     def testcase(self, request, Page, Article):
         Article(None).url.return_value = "my url"
-        TestCase = namedtuple("TestCase", "input output")
         return TestCase(*request.param)
 
     def test_returns_correct_string(self, site, testcase):
@@ -55,3 +57,26 @@ class TestRender:
         hook = Hook("", r"that '''[[Edward B. Barry]]''' demerited 'humming'?")
         hook.render(site)
         assert "Unknown node type" not in caplog.text
+
+
+class TestTargets:
+    @pytest.fixture(
+        params=[
+            ("'''[[Foo]]'''", ["Foo"]),
+            ("", []),
+            ("[[Foo]]", []),
+            ("''[[Foo]]''", []),
+            ("'''''[[Foo]]'''''", ["Foo"]),
+            ("'''[external]'''", []),
+            ("... that '''[[One]]''' and '''[[Two]]'''", ["One", "Two"]),
+            ("'''[[Foo|Bar]]'''", ["Foo"]),
+            ("x \"'''[[Playin' Fiddle]]'''\" x", ["Playin' Fiddle"]),
+            ("the '''''[[Capitol]]'''''{{'s}} motto", ["Capitol"]),
+        ]
+    )
+    def testcase(self, request):
+        return TestCase(*request.param)
+
+    def test_finds_targets(self, site, testcase):
+        hook = Hook("", testcase.input)
+        assert list(hook.targets()) == testcase.output
