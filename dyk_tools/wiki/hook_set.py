@@ -23,7 +23,7 @@ class HookSet:
             r"""^(.*<!--\s*Hooks\s*-->)
             (.*)
             (<!--\s*HooksEnd\s*-->.*)$""",
-            flags=re.S | re.X,
+            flags=re.DOTALL | re.VERBOSE,
         )
         m = START_END.search(self.page.text)
         if not m:
