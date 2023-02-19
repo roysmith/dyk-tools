@@ -50,7 +50,13 @@ class Nomination:
 
         Returns a list of Hook instances."""
         wikitext = self.page.get()
-        pattern = re.compile(r"(?:'''(\w+)''':?)? *(\.\.\. that .*?\?)")
+        # https://stackoverflow.com/questions/75502022
+        pattern = re.compile(
+            r"""(?:'''(\w+)''':?)?
+            (?:\ *)
+            (\.\.\.\ that\ .*?\?)""",
+            flags=re.VERBOSE,
+        )
         return [Hook(text, tag) for tag, text in pattern.findall(wikitext)]
 
     def is_biography(self) -> bool:
