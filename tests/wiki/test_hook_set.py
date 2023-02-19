@@ -61,3 +61,30 @@ class TestHooks:
         hook_set = HookSet(page)
         hooks = list(hook_set.hooks())
         assert len(hooks) == 3
+
+
+class TestTargets:
+    def test_with_no_hooks_returns_no_targets(self, page):
+        page.text = dedent(
+            """
+            <!--Hooks-->
+            <!--HooksEnd-->
+            """
+        )
+        hook_set = HookSet(page)
+        targets = list(hook_set.targets())
+        assert targets == []
+
+    def test_with_mutiple_hooks__returns_targets(self, page):
+        page.text = dedent(
+            """
+            <!--Hooks-->
+            * ... that '''[[foo]]''' and '''[[bar]]'''?
+            * ... that '''[[baz|display]]'''?
+            * ... that there's no targets in this one
+            <!--HooksEnd-->
+            """
+        )
+        hook_set = HookSet(page)
+        targets = list(hook_set.targets())
+        assert targets == ["foo", "bar", "baz"]

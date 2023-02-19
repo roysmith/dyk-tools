@@ -32,3 +32,8 @@ class HookSet:
             if line.startswith("* ..."):
                 wikitext = line.removeprefix("* ...")
                 yield Hook(wikitext)
+
+    def targets(self) -> Iterable[str]:
+        for hook in self.hooks():
+            for target in hook.targets():
+                yield target
