@@ -18,7 +18,7 @@ class HookSet:
     def url(self) -> str:
         return self.page.full_url()
 
-    def get_hooks(self) -> Iterable[Hook]:
+    def hooks(self) -> Iterable[Hook]:
         START_END = re.compile(
             r"""^(.*<!--\s*Hooks\s*-->)
             (.*)

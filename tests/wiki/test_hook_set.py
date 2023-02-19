@@ -36,7 +36,7 @@ class TestNomination:
         assert hook_set.url() == "blah"
 
 
-class TestGetHooks:
+class TestHooks:
     def test_no_hooks(self, page):
         page.text = dedent(
             """
@@ -45,7 +45,7 @@ class TestGetHooks:
             """
         )
         hook_set = HookSet(page)
-        assert list(hook_set.get_hooks()) == []
+        assert list(hook_set.hooks()) == []
 
     def test_has_hooks_and_image(self, page):
         page.text = dedent(
@@ -59,5 +59,5 @@ class TestGetHooks:
             """
         )
         hook_set = HookSet(page)
-        hooks = list(hook_set.get_hooks())
+        hooks = list(hook_set.hooks())
         assert len(hooks) == 3

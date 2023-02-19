@@ -74,6 +74,6 @@ class HookSetData:
     @cache.memoize(timeout=600)
     def from_hook_set(hook_set, site):
         """Construct a HookSetData from a dyk_tools.HookSet"""
-        hooks = list(hook_set.get_hooks())
+        hooks = list(hook_set.hooks())
         rendered_hooks = [h.render(site) for h in hooks]
         return HookSetData(hook_set.title(), hook_set.url(), hooks, rendered_hooks)
