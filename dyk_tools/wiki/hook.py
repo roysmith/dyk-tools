@@ -14,8 +14,8 @@ logger = logging.getLogger("dyk_tools.hook")
 
 @dataclass(frozen=True)
 class Hook:
-    tag: str
     text: str
+    tag: str = ""
 
     def render(self, site: Site) -> str:
         wikicode = parse(self.text)

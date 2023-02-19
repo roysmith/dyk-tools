@@ -179,21 +179,21 @@ class TestHooks:
         page.get.return_value = """
             ... that this is a hook?"""
         nomination = Nomination(page)
-        assert nomination.hooks() == [Hook("", "... that this is a hook?")]
+        assert nomination.hooks() == [Hook("... that this is a hook?")]
 
     def test_hooks_returns_tag_and_text(self, page):
         page.get.return_value = """
             '''ALT0''' ... that blah?
             """
         nomination = Nomination(page)
-        assert nomination.hooks() == [Hook("ALT0", "... that blah?")]
+        assert nomination.hooks() == [Hook("... that blah?", "ALT0")]
 
     def test_hooks_returns_tag_and_text_with_colon_after_tag(self, page):
         page.get.return_value = """
             '''ALT0''': ... that blah?
             """
         nomination = Nomination(page)
-        assert nomination.hooks() == [Hook("ALT0", "... that blah?")]
+        assert nomination.hooks() == [Hook("... that blah?", "ALT0")]
 
     def test_hooks_returns_multiple_hooks(self, page):
         page.get.return_value = """
@@ -205,9 +205,9 @@ class TestHooks:
             """
         nomination = Nomination(page)
         assert nomination.hooks() == [
-            Hook("", "... that this is a hook?"),
-            Hook("", "... that this is also a hook?"),
-            Hook("ALT1", "... that foo?"),
+            Hook("... that this is a hook?"),
+            Hook("... that this is also a hook?"),
+            Hook("... that foo?", "ALT1"),
         ]
 
 

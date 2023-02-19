@@ -31,4 +31,4 @@ class HookSet:
         for line in m.group(2).splitlines():
             if line.startswith("* ..."):
                 wikitext = line.removeprefix("* ...")
-                yield Hook("", wikitext)
+                yield Hook(wikitext)

@@ -18,10 +18,16 @@ def Article(mocker):
 TestCase = namedtuple("TestCase", "input output")
 
 
-def test_construct():
-    hook = Hook("tag", "text")
-    assert hook.tag == "tag"
-    assert hook.text == "text"
+class TestConstruct:
+    def test_with_tag(self):
+        hook = Hook("text", "tag")
+        assert hook.text == "text"
+        assert hook.tag == "tag"
+
+    def test_no_tag(self):
+        hook = Hook("text")
+        assert hook.text == "text"
+        assert hook.tag == ""
 
 
 class TestRender:
@@ -43,18 +49,18 @@ class TestRender:
         return TestCase(*request.param)
 
     def test_returns_correct_string(self, site, testcase):
-        hook = Hook("", testcase.input)
+        hook = Hook(testcase.input)
         assert hook.render(site) == testcase.output
 
     def test_logs_on_unknown_node(self, mocker, site, caplog):
         parse = mocker.patch("dyk_tools.wiki.hook.parse", autospec=True)
         parse("").nodes = [None]
-        hook = Hook(None, "")
+        hook = Hook("")
         hook.render(site)
         assert "Unknown node type" in caplog.text
 
     def test_does_not_log_with_no_unknown_node(self, mocker, site, caplog, Page):
-        hook = Hook("", r"that '''[[Edward B. Barry]]''' demerited 'humming'?")
+        hook = Hook(r"that '''[[Edward B. Barry]]''' demerited 'humming'?")
         hook.render(site)
         assert "Unknown node type" not in caplog.text
 
@@ -78,5 +84,5 @@ class TestTargets:
         return TestCase(*request.param)
 
     def test_finds_targets(self, site, testcase):
-        hook = Hook("", testcase.input)
+        hook = Hook(testcase.input)
         assert list(hook.targets()) == testcase.output

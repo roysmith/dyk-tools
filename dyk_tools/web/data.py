@@ -15,13 +15,13 @@ from .cache import cache
 
 @dataclass(frozen=True)
 class HookData:
-    tag: str
     text: str
+    tag: str
 
     @staticmethod
     def from_hook(hook):
         """Construct a HookData from a dyk_tools.Hook"""
-        return HookData(hook.tag, hook.text)
+        return HookData(hook.text, hook.tag)
 
 
 @dataclass(frozen=True)

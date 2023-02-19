@@ -6,15 +6,15 @@ from dyk_tools.web.data import HookData, ArticleData, NominationData
 
 class Test_HookData:
     def test_construction(self):
-        hook_data = HookData("tag", "text")
-        assert hook_data.tag == "tag"
+        hook_data = HookData("text", "tag")
         assert hook_data.text == "text"
+        assert hook_data.tag == "tag"
 
     def test_from_hook(self, site):
-        hook = Hook("tag", "text")
+        hook = Hook("text", "tag")
         hook_data = HookData.from_hook(hook)
-        assert hook_data.tag == "tag"
         assert hook_data.text == "text"
+        assert hook_data.tag == "tag"
 
 
 class Test_ArticleData:
@@ -39,7 +39,7 @@ class Test_NominationData:
     def test_construction(self):
         article_data1 = ArticleData("title1", "url1", True, True)
         article_data2 = ArticleData("title2", "url2", False, False)
-        hook_data1 = HookData("tag", "text")
+        hook_data1 = HookData("text", "tag")
         nomination_data = NominationData(
             "title", "url", True, [article_data1, article_data2], [hook_data1]
         )
@@ -65,7 +65,7 @@ class Test_NominationData:
         nomination.url.return_value = "url"
         nomination.is_approved.return_value = True
         nomination.articles.return_value = [article1, article2]
-        nomination.hooks.return_value = [Hook("tag", "text")]
+        nomination.hooks.return_value = [Hook("text", "tag")]
         nomination_data = NominationData.from_nomination.uncached(nomination)
         assert nomination_data == NominationData(
             "title",
@@ -75,5 +75,5 @@ class Test_NominationData:
                 ArticleData("title1", "url1", True, True),
                 ArticleData("title2", "url2", False, False),
             ],
-            [HookData("tag", "text")],
+            [HookData("text", "tag")],
         )
