@@ -2,7 +2,7 @@ from urllib.parse import unquote_plus
 
 import pytest
 
-from dyk_tools.web.core import queue_sequence, prep_sequence, hook_set_choices
+from dyk_tools.web.core import hook_set_choices
 
 
 @pytest.fixture  # (autouse=True)
@@ -85,24 +85,11 @@ class TestHookSet:
         assert "data" in context
 
 
-class TestPrepSequence:
-    def test_returns_int(self, site, core_page):
-        core_page.extract.return_value = "3"
-        assert list(prep_sequence(site)) == [3, 4, 5, 6, 7, 1, 2]
-
-
-class TestQueueSequence:
-    def test_returns_int(self, site, core_page):
-        core_page.extract.return_value = "5"
-        assert list(queue_sequence(site)) == [5, 6, 7, 1, 2, 3, 4]
-
-
 class TestHookSetChoices:
     def test_returns_correct_page_names(self, mocker, site):
-        queue_sequence = mocker.patch("dyk_tools.web.core.queue_sequence", autospec=True)
-        prep_sequence = mocker.patch("dyk_tools.web.core.prep_sequence", autospec=True)
-        queue_sequence.return_value = [3, 4, 5, 6, 7, 1, 2]
-        prep_sequence.return_value = [5, 6, 7, 1, 2, 3, 4]
+        HookSet = mocker.patch("dyk_tools.web.core.HookSet", autospec=True)
+        HookSet.queue_sequence.return_value = [3, 4, 5, 6, 7, 1, 2]
+        HookSet.prep_sequence.return_value = [5, 6, 7, 1, 2, 3, 4]
 
         choices = hook_set_choices(site)
         assert choices == [

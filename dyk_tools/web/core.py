@@ -54,32 +54,10 @@ def pending_nominations():
 
 def hook_set_choices(site) -> list[(str, str)]:
     choices = []
-    for i in queue_sequence(site):
+    for i in HookSet.queue_sequence(site):
         choices.append((f"Template:Did you know/Queue/{i}", f"Queue {i}"))
-    for i in prep_sequence(site):
+    for i in HookSet.prep_sequence(site):
         choices.append(
             (f"Template:Did you know/Preparation area {i}", f"Prep area {i}")
         )
     return choices
-
-
-def queue_sequence(site) -> Iterable[int]:
-    page = Page(site, "Template:Did you know/Queue/Next")
-    start = int(page.extract())
-    return hook_set_sequence(start)
-
-
-def prep_sequence(site) -> Iterable[int]:
-    page = Page(site, "Template:Did you know/Queue/NextPrep")
-    start = int(page.extract())
-    return hook_set_sequence(start)
-
-
-def hook_set_sequence(i) -> Iterable[int]:
-    """Returns a list of 7 integers starting at i and wrapping around
-    from 7 to 1 (not 0), like the hook sets are numbered.
-
-    """
-    for count in range(7):
-        yield i
-        i = (i + 1) if i < 7 else 1

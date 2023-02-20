@@ -37,3 +37,25 @@ class HookSet:
         for hook in self.hooks():
             for target in hook.targets():
                 yield target
+
+    @staticmethod
+    def queue_sequence(site) -> Iterable[int]:
+        page = Page(site, "Template:Did you know/Queue/Next")
+        start = int(page.extract())
+        return HookSet.hook_set_sequence(start)
+
+    @staticmethod
+    def prep_sequence(site) -> Iterable[int]:
+        page = Page(site, "Template:Did you know/Queue/NextPrep")
+        start = int(page.extract())
+        return HookSet.hook_set_sequence(start)
+
+    @staticmethod
+    def hook_set_sequence(i) -> Iterable[int]:
+        """Iterates over 7 integers starting at i and wrapping around
+        from 7 to 1 (not 0), like the hook sets are numbered.
+
+        """
+        for count in range(7):
+            yield i
+            i = (i + 1) if i < 7 else 1

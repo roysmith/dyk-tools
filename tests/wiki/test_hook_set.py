@@ -21,6 +21,13 @@ def make_page(mocker, site):
     return _make_page
 
 
+@pytest.fixture
+def hook_set_page(mocker, site):
+    """Returns a mock pywikibot.Page."""
+    mock_Page = mocker.patch("dyk_tools.wiki.hook_set.Page", autospec=True)
+    return mock_Page(site)
+
+
 class TestHookSet:
     def test_can_be_constructed(self, make_page):
         hook_set = HookSet(make_page("foo"))
@@ -88,3 +95,15 @@ class TestTargets:
         hook_set = HookSet(page)
         targets = list(hook_set.targets())
         assert targets == ["foo", "bar", "baz"]
+
+
+class TestPrepSequence:
+    def test_returns_correct_sequence(self, site, hook_set_page):
+        hook_set_page.extract.return_value = "3"
+        assert list(HookSet.prep_sequence(site)) == [3, 4, 5, 6, 7, 1, 2]
+
+
+class TestQueueSequence:
+    def test_returns_correct_sequence(self, site, hook_set_page):
+        hook_set_page.extract.return_value = "5"
+        assert list(HookSet.queue_sequence(site)) == [5, 6, 7, 1, 2, 3, 4]
