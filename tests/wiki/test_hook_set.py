@@ -21,7 +21,7 @@ def make_page(mocker, site):
     return _make_page
 
 
-class TestNomination:
+class TestHookSet:
     def test_can_be_constructed(self, make_page):
         hook_set = HookSet(make_page("foo"))
 
