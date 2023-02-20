@@ -15,7 +15,7 @@ def Article(mocker):
     return mocker.patch("dyk_tools.wiki.hook.Article", autospec=True)
 
 
-TestCase = namedtuple("TestCase", "input output")
+TCData = namedtuple("TCData", "input output")
 
 
 class TestConstruct:
@@ -46,7 +46,7 @@ class TestRender:
     )
     def testcase(self, request, Page, Article):
         Article(None).url.return_value = "my url"
-        return TestCase(*request.param)
+        return TCData(*request.param)
 
     def test_returns_correct_string(self, site, testcase):
         hook = Hook(testcase.input)
@@ -81,7 +81,7 @@ class TestTargets:
         ]
     )
     def testcase(self, request):
-        return TestCase(*request.param)
+        return TCData(*request.param)
 
     def test_finds_targets(self, site, testcase):
         hook = Hook(testcase.input)
