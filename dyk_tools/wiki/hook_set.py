@@ -33,10 +33,10 @@ class HookSet:
                 wikitext = line.removeprefix("* ...")
                 yield Hook(wikitext)
 
-    def targets(self) -> Iterable[str]:
+    def targets(self) -> Iterable[Page]:
         for hook in self.hooks():
-            for target in hook.targets():
-                yield target
+            for title in hook.targets():
+                yield Page(self.page.site, title)
 
     @staticmethod
     def queue_sequence(site) -> Iterable[int]:

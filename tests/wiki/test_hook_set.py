@@ -82,7 +82,8 @@ class TestTargets:
         targets = list(hook_set.targets())
         assert targets == []
 
-    def test_with_mutiple_hooks__returns_targets(self, page):
+    def test_with_mutiple_hooks__returns_targets(self, mocker, page):
+        mock_Page = mocker.patch("dyk_tools.wiki.hook_set.Page", autospec=True)
         page.text = dedent(
             """
             <!--Hooks-->
@@ -93,8 +94,17 @@ class TestTargets:
             """
         )
         hook_set = HookSet(page)
+
         targets = list(hook_set.targets())
-        assert targets == ["foo", "bar", "baz"]
+
+        mock_Page.assert_has_calls(
+            [
+                mocker.call(page.site, "foo"),
+                mocker.call(page.site, "bar"),
+                mocker.call(page.site, "baz"),
+            ]
+        )
+        assert len(targets) == 3
 
 
 class TestPrepSequence:

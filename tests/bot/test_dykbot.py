@@ -37,10 +37,15 @@ def test_cli_basedir(mocker):
 
 def test_correct_task_is_run(mocker):
     mocker.patch("sys.argv", ["program.py", "create-db"])
-    create_db = mocker.patch("dyk_tools.bot.dykbot.App.create_db", autospec=True)
+    create_db_task = mocker.patch(
+        "dyk_tools.bot.dykbot.App.create_db_task", autospec=True
+    )
+    mocker.patch("dyk_tools.bot.dykbot.Page", autospec=True)
+    mocker.patch("dyk_tools.bot.dykbot.Site", autospec=True)
+    mocker.patch("dyk_tools.bot.dykbot.User", autospec=True)
     app = App()
     app.run()
-    create_db.assert_called_once()
+    create_db_task.assert_called_once()
 
 
 class TestProcessOneNomination:

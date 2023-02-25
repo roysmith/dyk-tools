@@ -2,17 +2,19 @@
 
 import argparse
 from configparser import ConfigParser
-from datetime import datetime
+from datetime import datetime, timedelta
+from itertools import chain
 import logging
 import os
 from pathlib import Path
+from typing import Iterable
 
-from pywikibot import Site, Category
+from pywikibot import Site, Page, Category, User
 from pywikibot.exceptions import NoPageError
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
-from dyk_tools import Nomination
+from dyk_tools import Nomination, HookSet
 from dyk_tools import version
 from dyk_tools.db.models import BaseModel, BotLog
 
@@ -25,8 +27,10 @@ class IdAdapter(logging.LoggerAdapter):
 class App:
     def __init__(self):
         self.tasks = {
-            "create-db": self.create_db,
-            "add-tags": self.add_tags,
+            "create-db": self.create_db_task,
+            "add-tags": self.add_tags_task,
+            "protect": self.protect_task,
+            "unprotect": self.unprotect_task,
         }
         self.args = self.process_command_line()
         self.basedir = self.get_basedir()
@@ -50,9 +54,12 @@ class App:
     def run(self):
         self.configure_logging()
         self.site = Site(self.args.mylang)
+        self.site.login()
+        self.user = User(self.site, self.site.user())
         self.engine = self.get_db_engine()
 
         self.logger.info("Running on %s", os.uname().nodename)
+        self.logger.info("user: %s", self.user)
         self.logger.info("basedir: %s", self.basedir)
         self.logger.info("version: %s", version)
         self.logger.info("site: %s", self.site)
@@ -68,7 +75,7 @@ class App:
         t1 = datetime.utcnow()
         self.logger.info("Task (%s) completed in %s", self.args.task, t1 - t0)
 
-    def create_db(self) -> None:
+    def create_db_task(self) -> None:
         self.logger.info("Creating %s", list(BaseModel.metadata.tables.keys()))
         BaseModel.metadata.create_all(self.engine)
 
@@ -113,7 +120,7 @@ class App:
         parser.add_argument(
             "--basedir",
             default=argparse.SUPPRESS,
-            help="Directory where for config files (overrides $DYK_TOOLS_BASEDIR)",
+            help="Directory for config files (overrides $DYK_TOOLS_BASEDIR)",
         )
         parser.add_argument(
             "task",
@@ -137,7 +144,7 @@ class App:
         self.logger.info("Database: %s", template.format(**data))
         return create_engine(url)
 
-    def add_tags(self):
+    def add_tags_task(self):
         cat = Category(self.site, "Pending DYK nominations")
         self.nomination_count = 0
         for page in cat.articles(namespaces="Template"):
@@ -191,6 +198,81 @@ class App:
             entry = BotLog(title=nom.title(), timestamp_utc=datetime.utcnow())
             session.add(entry)
             session.commit()
+
+    def protect_task(self) -> None:
+        count = 0
+        for target in self.protectable_targets():
+            if self.protect_target(target):
+                count += 1
+            if count >= self.args.max:
+                break
+
+    def protect_target(self, target: Page) -> bool:
+        """Try to protect a target.  Returns True if it does,
+        False on any kind of failure.
+
+        """
+        if not target.exists():
+            self.logger.warning("%s does not exist, skipping", target)
+            return False
+
+        if target.isRedirectPage():
+            self.logger.warning("%s is a redirect, skipping", target)
+            return False
+
+        if self.args.dry_run:
+            self.logger.info("found %s", target)
+        else:
+            self.logger.info("protecting %s", target)
+            self.logger.debug("applicable: %s", target.applicable_protections())
+            username = self.site.username()
+            target.protect(
+                f"[[User:{username}|{username}]] adding move protection",
+                {"move": "sysop"},
+            )
+        return True
+
+    def protectable_targets(self) -> Iterable[Page]:
+        hook_set_titles = chain(
+            ["Template:Did you know"],
+            [f"Template:Did you know/Queue/{i}" for i in range(1, 8)],
+        )
+        for t in hook_set_titles:
+            hook_set = HookSet(Page(self.site, t))
+            for target in hook_set.targets():
+                yield target
+
+    def unprotect_task(self) -> None:
+        count = 0
+        for target in self.unprotectable_targets():
+            if self.unprotect_target(target):
+                count += 1
+            if count >= self.args.max:
+                break
+
+    def unprotect_target(self, target: Page) -> bool:
+        self.logger.info("unprotecting %s", target)
+        username = self.site.username()
+        target.protect(
+            f"[[User:{username}|{username}]] removing move protection",
+            {"move": ""},
+        )
+
+    def unprotectable_targets(self) -> Iterable[Page]:
+        current_targets = set(self.protectable_targets())
+        end_time = self.site.server_time() - timedelta(days=9)
+        for event in self.user.logevents(logtype="protect", end=end_time):
+            if "adding move protection" not in event["comment"]:
+                self.logger.warning("unrecognized log event (id=%s)", event["logid"])
+                continue
+            page = Page(self.site, event["title"])
+            if not page.exists():
+                self.logger.warning("%s doesn't exist", page)
+                continue
+            if page in current_targets:
+                self.logger.debug("%s still need protection, skipping")
+                continue
+            yield page
 
 
 def main():
