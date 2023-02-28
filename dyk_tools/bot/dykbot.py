@@ -203,15 +203,13 @@ class App:
     def protect_task(self) -> None:
         if "protect" not in self.user.rights() and not self.args.dry_run:
             self.logger.error("%s rights: %s", self.user, self.user.rights())
-            self.logger.error(
-                "'%s' does not have protect right, exiting", self.args.task
-            )
+            self.logger.error("'%s' does not have protect right, exiting", self.user)
             return
         count = 0
         for target in self.protectable_targets():
             if self.protect_target(target):
                 count += 1
-            if count >= self.args.max:
+            if self.args.max and count >= self.args.max:
                 break
 
     def protect_target(self, target: Page) -> bool:
@@ -252,15 +250,13 @@ class App:
     def unprotect_task(self) -> None:
         if "unprotect" not in self.user.rights() and not self.args.dry_run:
             self.logger.error("%s rights: %s", self.user, self.user.rights())
-            self.logger.error(
-                "'%s' does not have unprotect right, exiting", self.args.task
-            )
+            self.logger.error("'%s' does not have unprotect right, exiting", self.user)
             return
         count = 0
         for target in self.unprotectable_targets():
             if self.unprotect_target(target):
                 count += 1
-            if count >= self.args.max:
+            if self.args.max and count >= self.args.max:
                 break
 
     def unprotect_target(self, target: Page) -> bool:
