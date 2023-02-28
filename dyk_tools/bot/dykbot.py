@@ -34,7 +34,6 @@ class App:
         }
         self.args = self.process_command_line()
         self.basedir = self.get_basedir()
-        self.nomination_count = 0
 
     def configure_logging(self):
         logging_config_args = {
@@ -112,7 +111,7 @@ class App:
         parser.add_argument(
             "--max",
             type=int,
-            help="Maximum number of nominations to touch",
+            help="Maximum number of operations to perform (useful for testing)",
         )
         parser.add_argument(
             "--mylang",
@@ -147,11 +146,12 @@ class App:
 
     def add_tags_task(self):
         cat = Category(self.site, "Pending DYK nominations")
-        self.nomination_count = 0
+        count = 0
         for page in cat.articles(namespaces="Template"):
             nom = Nomination(page)
             try:
-                self.process_one_nomination(nom)
+                if self.process_one_nomination(nom):
+                    count += 1
             except NoPageError as ex:
                 self.logger.error(
                     "NoPageError while processing [[%s]] (article=[[%s]]), skipping",
@@ -159,19 +159,17 @@ class App:
                     ex.page.title(),
                 )
                 continue
-            if self.args.max and self.nomination_count >= self.args.max:
-                self.logger.info(
-                    "Stopping early after %d nominations", self.nomination_count
-                )
+            if self.args.max and count >= self.args.max:
                 break
-        self.logger.info("Processed %d nomination(s)", self.nomination_count)
+        self.logger.info("Processed %d nomination(s)", count)
 
     MANAGED_TAGS = frozenset(["Pending DYK biographies", "Pending DYK American hooks"])
 
-    def process_one_nomination(self, nom):
+    def process_one_nomination(self, nom) -> bool:
+        """Process one nomination.  Return True if it wasn't skipped."""
         if self.nomination_is_previously_processed(nom):
             self.logger.debug("skipping [[%s]]", nom.title())
-            return
+            return False
         flags = []
         tags = []
         if nom.is_approved():
@@ -183,10 +181,10 @@ class App:
             flags.append("American")
             tags.append("Pending DYK American hooks")
         self.logger.info("processing [[%s]] (flags=%s)", nom.title(), flags)
-        self.nomination_count += 1
         if not self.args.dry_run:
             nom.mark_processed(tags, self.MANAGED_TAGS)
             self.insert_log_entry(nom)
+        return True
 
     def nomination_is_previously_processed(self, nom) -> bool:
         with Session(self.engine) as session:
@@ -211,6 +209,7 @@ class App:
                 count += 1
             if self.args.max and count >= self.args.max:
                 break
+        self.logger.info("Protected %d page(s)", count)
 
     def protect_target(self, target: Page) -> bool:
         """Try to protect a target.  Returns True if it does,
@@ -258,6 +257,7 @@ class App:
                 count += 1
             if self.args.max and count >= self.args.max:
                 break
+        self.logger.info("Unprotected %d page(s)", count)
 
     def unprotect_target(self, target: Page) -> bool:
         self.logger.info("unprotecting %s", target)
