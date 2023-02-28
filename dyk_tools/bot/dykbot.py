@@ -59,7 +59,7 @@ class App:
         self.engine = self.get_db_engine()
 
         self.logger.info("Running on %s", os.uname().nodename)
-        self.logger.info("PYWIKIBOT_DIR: %s", os.environ["PYWIKIBOT_DIR"])
+        self.logger.info("PYWIKIBOT_DIR: %s", os.environ.get("PYWIKIBOT_DIR"))
         self.logger.info("user: %s (%s)", self.user, self.user.groups())
         self.logger.info("basedir: %s", self.basedir)
         self.logger.info("version: %s", version)
