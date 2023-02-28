@@ -248,9 +248,9 @@ class App:
                 yield target
 
     def unprotect_task(self) -> None:
-        if "unprotect" not in self.user.rights() and not self.args.dry_run:
+        if "protect" not in self.user.rights() and not self.args.dry_run:
             self.logger.error("%s rights: %s", self.user, self.user.rights())
-            self.logger.error("'%s' does not have unprotect right, exiting", self.user)
+            self.logger.error("'%s' does not have protect right, exiting", self.user)
             return
         count = 0
         for target in self.unprotectable_targets():
