@@ -60,7 +60,7 @@ class App:
 
         self.logger.info("Running on %s", os.uname().nodename)
         self.logger.info("PYWIKIBOT_DIR: %s", os.environ["PYWIKIBOT_DIR"])
-        self.logger.info("user: %s %)", self.user, self.user.groups())
+        self.logger.info("user: %s (%s)", self.user, self.user.groups())
         self.logger.info("basedir: %s", self.basedir)
         self.logger.info("version: %s", version)
         self.logger.info("site: %s", self.site)
