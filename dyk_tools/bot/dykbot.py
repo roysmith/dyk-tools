@@ -59,6 +59,7 @@ class App:
         self.engine = self.get_db_engine()
 
         self.logger.info("Running on %s", os.uname().nodename)
+        self.logger.info("PYWIKIBOT_DIR: %s", os.environ["PYWIKIBOT_DIR"])
         self.logger.info("user: %s", self.user)
         self.logger.info("basedir: %s", self.basedir)
         self.logger.info("version: %s", version)
@@ -200,6 +201,11 @@ class App:
             session.commit()
 
     def protect_task(self) -> None:
+        if "sysop" not in self.user.rights() and not self.args.dry_run:
+            self.logger.error(
+                "'%s' (without dry-run) requires sysop rights, exiting", self.args.task
+            )
+            return
         count = 0
         for target in self.protectable_targets():
             if self.protect_target(target):
@@ -243,6 +249,11 @@ class App:
                 yield target
 
     def unprotect_task(self) -> None:
+        if "sysop" not in self.user.rights() and not self.args.dry_run:
+            self.logger.error(
+                "'%s' (without dry-run) requires sysop rights, exiting", self.args.task
+            )
+            return
         count = 0
         for target in self.unprotectable_targets():
             if self.unprotect_target(target):
