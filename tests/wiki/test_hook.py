@@ -78,6 +78,9 @@ class TestTargets:
             ("'''[[Foo|Bar]]'''", ["Foo"]),
             ("x \"'''[[Playin' Fiddle]]'''\" x", ["Playin' Fiddle"]),
             ("the '''''[[Capitol]]'''''{{'s}} motto", ["Capitol"]),
+            ("[[Article|'''pipe''']]", []),
+            ("'''[[Article#section|pipe]]''',", ["Article#section"]),
+            ("'''[[Art? icle]]'''", ["Art? icle"]),
         ]
     )
     def testcase(self, request):
