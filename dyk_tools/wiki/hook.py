@@ -43,7 +43,8 @@ class Hook:
 
         Note that this returns the titles as strings, so:
 
-          "... that '''[[Foo]]'''?" => ["Foo"]
+          "'''[[Foo]]'''" => ["Foo"]
+          "'''[[Foo#bar]]'''" => ["Foo#bar"]
 
         """
         wikicode = parse(self.text)
