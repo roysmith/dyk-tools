@@ -239,7 +239,7 @@ class App:
             self.logger.debug("applicable: %s", target.applicable_protections())
             username = self.site.username()
             target.protect(
-                f"[[User:{username}|{username}]] adding move protection",
+                f"[[User:{username}/Protect Task]]",
                 {"move": "sysop"},
             )
         return True
@@ -267,7 +267,7 @@ class App:
         self.logger.info("unprotecting %s", target)
         username = self.site.username()
         target.protect(
-            f"[[User:{username}|{username}]] removing move protection",
+            f"[[User:{username}/Unprotect Task]]",
             {"move": ""},
         )
 
