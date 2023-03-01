@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+from collections import namedtuple
 from configparser import ConfigParser
 from datetime import datetime, timedelta
 from itertools import chain
@@ -24,13 +25,16 @@ class IdAdapter(logging.LoggerAdapter):
         return "[%s] %s" % (self.extra["id"], msg), kwargs
 
 
+Task = namedtuple("Task", ["method", "rights"])
+
+
 class App:
     def __init__(self):
         self.tasks = {
-            "create-db": self.create_db_task,
-            "add-tags": self.add_tags_task,
-            "protect": self.protect_task,
-            "unprotect": self.unprotect_task,
+            "create-db": Task(self.create_db_task, []),
+            "add-tags": Task(self.add_tags_task, []),
+            "protect": Task(self.protect_task, ["protect"]),
+            "unprotect": Task(self.unprotect_task, ["protect"]),
         }
         self.args = self.process_command_line()
         self.basedir = self.get_basedir()
@@ -70,8 +74,16 @@ class App:
             self.logger.warning("No task specified, exiting")
             return
 
+        task = self.tasks[self.args.task]
+        if not self.args.dry_run:
+            for right in task.rights:
+                if right not in self.user.rights():
+                    self.logger.error("%s rights: %s", self.user, self.user.rights())
+                    self.logger.error("missing '%s', exiting", right)
+                    return
+
         t0 = datetime.utcnow()
-        self.tasks[self.args.task]()
+        task.method()
         t1 = datetime.utcnow()
         self.logger.info("Task (%s) completed in %s", self.args.task, t1 - t0)
 
@@ -199,10 +211,6 @@ class App:
             session.commit()
 
     def protect_task(self) -> None:
-        if "protect" not in self.user.rights() and not self.args.dry_run:
-            self.logger.error("%s rights: %s", self.user, self.user.rights())
-            self.logger.error("'%s' does not have protect right, exiting", self.user)
-            return
         count = 0
         for target in self.protectable_targets():
             if self.protect_target(target):
@@ -247,10 +255,6 @@ class App:
                 yield target
 
     def unprotect_task(self) -> None:
-        if "protect" not in self.user.rights() and not self.args.dry_run:
-            self.logger.error("%s rights: %s", self.user, self.user.rights())
-            self.logger.error("'%s' does not have protect right, exiting", self.user)
-            return
         count = 0
         for target in self.unprotectable_targets():
             if self.unprotect_target(target):
