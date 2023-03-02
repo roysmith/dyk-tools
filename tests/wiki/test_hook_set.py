@@ -4,7 +4,7 @@ from textwrap import dedent
 import pywikibot
 import mwparserfromhell as mwp
 
-from dyk_tools import HookSet
+from dyk_tools import Hook, HookSet
 
 
 @pytest.fixture
@@ -61,13 +61,26 @@ class TestHooks:
             {{main page image/DYK|whatever}}
             * ... that foo?
             * ... that bar?
+            * ... that "where?" did '''[[Robert Peary]]''' explore?
+            * ... that '''''[[The Immune]]''''' is a thriller?
+            * ... that '''[[The Big Bang (1)|The Big Bang Theory]]'''{{-?}}
             * ...
             <!--HooksEnd-->
             """
         )
         hook_set = HookSet(page)
-        hooks = list(hook_set.hooks())
-        assert len(hooks) == 3
+        hooks = set(hook_set.hooks())
+        expected_hooks = set(
+            [
+                Hook(" that foo?"),
+                Hook(" that bar?"),
+                Hook(" that \"where?\" did '''[[Robert Peary]]''' explore?"),
+                Hook(" that '''''[[The Immune]]''''' is a thriller?"),
+                Hook(" that '''[[The Big Bang (1)|The Big Bang Theory]]'''{{-?}}"),
+                Hook(""),
+            ]
+        )
+        assert hooks == expected_hooks
 
 
 class TestTargets:
