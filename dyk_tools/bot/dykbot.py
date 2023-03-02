@@ -275,15 +275,12 @@ class App:
         current_targets = set(self.protectable_targets())
         end_time = self.site.server_time() - timedelta(days=9)
         for event in self.user.logevents(logtype="protect", end=end_time):
-            if "adding move protection" not in event["comment"]:
-                self.logger.warning("unrecognized log event (id=%s)", event["logid"])
-                continue
             page = Page(self.site, event["title"])
             if not page.exists():
                 self.logger.warning("%s doesn't exist", page)
                 continue
             if page in current_targets:
-                self.logger.debug("%s still need protection, skipping")
+                self.logger.debug("%s still needs protection, skipping", page)
                 continue
             yield page
 
