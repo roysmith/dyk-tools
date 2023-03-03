@@ -275,6 +275,8 @@ class App:
         current_targets = set(self.protectable_targets())
         end_time = self.site.server_time() - timedelta(days=9)
         for event in self.user.logevents(logtype="protect", end=end_time):
+            if event["action"] != "protect":
+                continue
             page = Page(self.site, event["title"])
             if not page.exists():
                 self.logger.warning("%s doesn't exist", page)
