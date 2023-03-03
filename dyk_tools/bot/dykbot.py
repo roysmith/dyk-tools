@@ -257,13 +257,13 @@ class App:
     def unprotect_task(self) -> None:
         count = 0
         for target in self.unprotectable_targets():
-            if self.unprotect_target(target):
-                count += 1
+            self.unprotect_target(target)
+            count += 1
             if self.args.max and count >= self.args.max:
                 break
         self.logger.info("Unprotected %d page(s)", count)
 
-    def unprotect_target(self, target: Page) -> bool:
+    def unprotect_target(self, target: Page) -> None:
         self.logger.info("unprotecting %s", target)
         username = self.site.username()
         target.protect(
