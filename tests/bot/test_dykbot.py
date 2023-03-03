@@ -3,9 +3,9 @@ import logging
 from pathlib import Path
 import pytest
 
+from pywikibot.logentries import LogEntry
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
-
 
 from dyk_tools.bot.dykbot import App
 from dyk_tools.db.models import BaseModel, BotLog
@@ -118,7 +118,7 @@ class TestUnprotectableTargets:
         return app
 
     @pytest.mark.parametrize(
-        "logevents, protectables, expected",
+        "eventdata, protectables, expected",
         [
             (
                 [],
@@ -126,50 +126,40 @@ class TestUnprotectableTargets:
                 [],
             ),
             (
-                [
-                    {"title": "foo", "action": "protect"},
-                ],
+                [(1, "foo", "protect")],
                 [],
                 ["foo"],
             ),
             (
-                [
-                    {"title": "foo", "action": "protect"},
-                    {"title": "bar", "action": "protect"},
-                ],
+                [(11, "foo", "protect"), (12, "bar", "protect")],
                 [],
                 ["foo", "bar"],
             ),
             (
-                [
-                    {"title": "t1", "action": "protect"},
-                    {"title": "t2", "action": "protect"},
-                    {"title": "t3", "action": "protect"},
-                ],
+                [(21, "t1", "protect"), (22, "t2", "protect"), (23, "t3", "protect")],
                 ["t1"],
                 ["t2", "t3"],
             ),
             (
-                [
-                    {"title": "t1", "action": "unprotect"},
-                    {"title": "t2", "action": "protect"},
-                    {"title": "t3", "action": "protect"},
-                ],
+                [(31, "t1", "unprotect"), (32, "t2", "protect"), (33, "t3", "protect")],
                 [],
                 ["t2", "t3"],
             ),
             (
-                [
-                    {"title": "t1", "action": "unprotect"},
-                    {"title": "t2", "action": "protect"},
-                    {"title": "t3", "action": "protect"},
-                ],
+                [(41, "t1", "unprotect"), (42, "t2", "protect"), (43, "t3", "protect")],
                 ["t2"],
                 ["t3"],
             ),
         ],
     )
-    def test_return_value(self, app, site, Page, logevents, protectables, expected):
+    def test_return_value(self, app, site, Page, eventdata, protectables, expected):
+        logevents = [
+            LogEntry(
+                {"logid": d[0], "title": d[1], "action": d[2]},
+                site,
+            )
+            for d in eventdata
+        ]
         app.user.logevents.return_value = logevents
         app.protectable_targets.return_value = [
             Page(site, title) for title in protectables
