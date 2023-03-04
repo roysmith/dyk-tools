@@ -118,7 +118,7 @@ class TestUnprotectableTargets:
         return app
 
     @pytest.mark.parametrize(
-        "eventdata, protectables, expected",
+        "events, protectables, expected",
         [
             (
                 [],
@@ -126,50 +126,69 @@ class TestUnprotectableTargets:
                 [],
             ),
             (
-                [(1, "foo", "protect")],
+                [
+                    {"logid": 1, "title": "t1", "action": "protect", "user": "u1"},
+                ],
                 [],
-                ["foo"],
+                ["t1"],
             ),
             (
-                [(11, "foo", "protect"), (12, "bar", "protect")],
+                [
+                    {"logid": 11, "title": "t1", "action": "protect", "user": "u1"},
+                    {"logid": 12, "title": "t2", "action": "protect", "user": "u1"},
+                ],
                 [],
-                ["foo", "bar"],
+                ["t1", "t2"],
             ),
             (
-                [(21, "t1", "protect"), (22, "t2", "protect"), (23, "t3", "protect")],
+                [
+                    {"logid": 21, "title": "t1", "action": "protect", "user": "u1"},
+                    {"logid": 22, "title": "t2", "action": "protect", "user": "u1"},
+                    {"logid": 23, "title": "t3", "action": "protect", "user": "u1"},
+                ],
                 ["t1"],
                 ["t2", "t3"],
             ),
             (
-                [(31, "t1", "unprotect"), (32, "t2", "protect"), (33, "t3", "protect")],
+                [
+                    {"logid": 31, "title": "t1", "action": "unprotect", "user": "u1"},
+                    {"logid": 32, "title": "t2", "action": "protect", "user": "u1"},
+                    {"logid": 33, "title": "t3", "action": "protect", "user": "u1"},
+                ],
                 [],
                 ["t2", "t3"],
             ),
             (
-                [(41, "t1", "unprotect"), (42, "t2", "protect"), (43, "t3", "protect")],
+                [
+                    {"logid": 41, "title": "t1", "action": "unprotect", "user": "u1"},
+                    {"logid": 42, "title": "t2", "action": "protect", "user": "u1"},
+                    {"logid": 43, "title": "t3", "action": "protect", "user": "u1"},
+                ],
                 ["t2"],
                 ["t3"],
             ),
             (
-                [(51, "t1", "unprotect"), (52, "t1", "protect"), (53, "t2", "protect")],
+                [
+                    {"logid": 51, "title": "t1", "action": "unprotect", "user": "u1"},
+                    {"logid": 52, "title": "t1", "action": "protect", "user": "u1"},
+                    {"logid": 53, "title": "t2", "action": "protect", "user": "u1"},
+                ],
                 [],
                 ["t2"],
             ),
             (
-                [(61, "t1", "protect"), (62, "t1", "unprotect"), (63, "t2", "protect")],
+                [
+                    {"logid": 61, "title": "t1", "action": "protect", "user": "u1"},
+                    {"logid": 62, "title": "t1", "action": "unprotect", "user": "u1"},
+                    {"logid": 63, "title": "t2", "action": "protect", "user": "u1"},
+                ],
                 [],
                 ["t1", "t2"],
             ),
         ],
     )
-    def test_return_value(self, app, site, Page, eventdata, protectables, expected):
-        logevents = [
-            LogEntry(
-                {"logid": d[0], "title": d[1], "action": d[2]},
-                site,
-            )
-            for d in eventdata
-        ]
+    def test_return_value(self, app, site, Page, events, protectables, expected):
+        logevents = [LogEntry(event, site) for event in events]
         app.user.logevents.return_value = logevents
         app.protectable_targets.return_value = [
             Page(site, title) for title in protectables
