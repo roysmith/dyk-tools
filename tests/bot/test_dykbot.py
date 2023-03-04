@@ -150,6 +150,16 @@ class TestUnprotectableTargets:
                 ["t2"],
                 ["t3"],
             ),
+            (
+                [(51, "t1", "unprotect"), (52, "t1", "protect"), (53, "t2", "protect")],
+                [],
+                ["t2"],
+            ),
+            (
+                [(61, "t1", "protect"), (62, "t1", "unprotect"), (63, "t2", "protect")],
+                [],
+                ["t1", "t2"],
+            ),
         ],
     )
     def test_return_value(self, app, site, Page, eventdata, protectables, expected):

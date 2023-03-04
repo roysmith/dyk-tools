@@ -272,9 +272,19 @@ class App:
         )
 
     def unprotectable_targets(self) -> Iterable[Page]:
+        """Examine the bot's protection log for targets that need to be
+        unprotected.  A target qualifies if the most recent action for that
+        page in the log is 'protect' and it is not included in any of
+        the active hook sets.
+
+        """
         current_targets = set(self.protectable_targets())
+        seen_titles = set()
         end_time = self.site.server_time() - timedelta(days=9)
         for event in self.user.logevents(logtype="protect", end=end_time):
+            if event["title"] in seen_titles:
+                continue
+            seen_titles.add(event["title"])
             if event["action"] != "protect":
                 continue
             page = Page(self.site, event["title"])
