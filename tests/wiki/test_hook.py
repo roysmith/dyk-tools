@@ -81,6 +81,7 @@ class TestTargets:
             ("[[Article|'''pipe''']]", []),
             ("'''[[Article#section|pipe]]''',", ["Article#section"]),
             ("'''[[Art? icle]]'''", ["Art? icle"]),
+            ("'''[[Talk:Foo]]'''", ["Talk:Foo"]),
         ]
     )
     def testcase(self, request):
