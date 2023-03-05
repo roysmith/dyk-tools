@@ -274,8 +274,8 @@ class App:
     def unprotectable_targets(self) -> Iterable[Page]:
         """Examine the bot's protection log for targets that need to be
         unprotected.  A target qualifies if the most recent action for that
-        page in the log is 'protect' and it is not included in any of
-        the active hook sets.
+        page in the log is 'protect' by the bot user and it is not included
+        in any of the active hook sets.
 
         """
         current_targets = set(self.protectable_targets())
@@ -293,6 +293,10 @@ class App:
                 continue
             if page in current_targets:
                 self.logger.debug("%s still needs protection, skipping", page)
+                continue
+            page_events = self.site.logevents(logtype="protect", page=page, total=1)
+            last_event = next(page_events, None)
+            if last_event["user"] != self.user.username:
                 continue
             yield page
 
