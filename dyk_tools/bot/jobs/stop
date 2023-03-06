@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+
+jobdir=$DYK_TOOLS_BASEDIR/src/dyk_tools/bot/jobs
+
+toolforge-jobs delete add-tags-en
+toolforge-jobs delete protect-test
+toolforge-jobs delete unprotect-test

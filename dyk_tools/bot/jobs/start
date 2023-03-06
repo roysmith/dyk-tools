@@ -1,4 +1,4 @@
-The bash scripts in this directory need to be run as toolforge cron jobs.  For example:
+#!/usr/bin/bash
 
 jobdir=$DYK_TOOLS_BASEDIR/src/dyk_tools/bot/jobs
 
