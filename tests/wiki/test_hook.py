@@ -1,5 +1,3 @@
-from collections import namedtuple
-
 import pytest
 
 from dyk_tools.wiki.hook import Hook
@@ -15,9 +13,6 @@ def Article(mocker):
     return mocker.patch("dyk_tools.wiki.hook.Article", autospec=True)
 
 
-TCData = namedtuple("TCData", "input output")
-
-
 class TestConstruct:
     def test_with_tag(self):
         hook = Hook("text", "tag")
@@ -31,8 +26,9 @@ class TestConstruct:
 
 
 class TestRender:
-    @pytest.fixture(
-        params=[
+    @pytest.mark.parametrize(
+        "input, result",
+        [
             ("", ""),
             ("foo", "foo"),
             ("[[foo]]", '<a href="my url">foo</a>'),
@@ -42,15 +38,12 @@ class TestRender:
             ("'''''[[foo]]'''''", '<i><b><a href="my url">foo</a></b></i>'),
             ("[[foo|bar]]", '<a href="my url">bar</a>'),
             ("foo&nbsp;bar", "foo&nbsp;bar"),
-        ]
+        ],
     )
-    def testcase(self, request, Page, Article):
+    def test_returns_correct_string(self, site, Article, Page, input, result):
         Article(None).url.return_value = "my url"
-        return TCData(*request.param)
-
-    def test_returns_correct_string(self, site, testcase):
-        hook = Hook(testcase.input)
-        assert hook.render(site) == testcase.output
+        hook = Hook(input)
+        assert hook.render(site) == result
 
     def test_logs_on_unknown_node(self, mocker, site, caplog):
         parse = mocker.patch("dyk_tools.wiki.hook.parse", autospec=True)
@@ -66,8 +59,9 @@ class TestRender:
 
 
 class TestTargets:
-    @pytest.fixture(
-        params=[
+    @pytest.mark.parametrize(
+        "input, result",
+        [
             ("'''[[Foo]]'''", ["Foo"]),
             ("", []),
             ("[[Foo]]", []),
@@ -82,11 +76,8 @@ class TestTargets:
             ("'''[[Article#section|pipe]]''',", ["Article#section"]),
             ("'''[[Art? icle]]'''", ["Art? icle"]),
             ("'''[[Talk:Foo]]'''", ["Talk:Foo"]),
-        ]
+        ],
     )
-    def testcase(self, request):
-        return TCData(*request.param)
-
-    def test_finds_targets(self, site, testcase):
-        hook = Hook(testcase.input)
-        assert list(hook.targets()) == testcase.output
+    def test_finds_targets(self, site, input, result):
+        hook = Hook(input)
+        assert list(hook.targets()) == result
