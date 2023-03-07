@@ -76,8 +76,27 @@ class TestTargets:
             ("'''[[Article#section|pipe]]''',", ["Article#section"]),
             ("'''[[Art? icle]]'''", ["Art? icle"]),
             ("'''[[Talk:Foo]]'''", ["Talk:Foo"]),
+            ("'''[[Foo|Bar]]'''", ["Foo"]),
         ],
     )
     def test_finds_targets(self, site, input, result):
+        site.expand_text.side_effect = lambda s: s
         hook = Hook(input)
-        assert list(hook.targets()) == result
+        targets = hook.targets(site)
+        assert list(targets) == result
+
+    @pytest.mark.parametrize(
+        "input, result",
+        [
+            ("'''{{HMS|Melpomene|1794|6}}'''", ["HMS Melpomene (1794)"]),
+        ],
+    )
+    def test_expands_templates(self, site, input, result):
+        site.expand_text.return_value = (
+            "'''[[HMS Melpomene (1794)|HMS&nbsp;''Melpomene'']]'''"
+        )
+
+        hook = Hook(input)
+        targets = hook.targets(site)
+        l = list(targets)
+        assert l == result

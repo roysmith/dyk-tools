@@ -84,7 +84,7 @@ class TestHooks:
 
 
 class TestTargets:
-    def test_with_no_hooks_returns_no_targets(self, page):
+    def test_with_no_hooks_returns_no_targets(self, site, page):
         page.text = dedent(
             """
             <!--Hooks-->
@@ -106,6 +106,7 @@ class TestTargets:
             <!--HooksEnd-->
             """
         )
+        page.site.expand_text.side_effect = lambda s: s
         hook_set = HookSet(page)
 
         targets = list(hook_set.targets())

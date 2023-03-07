@@ -36,10 +36,12 @@ class Hook:
             else:
                 logger.warning("Unknown node type (%s=%s)", type(node), node)
 
-    def targets(self) -> Iterable[str]:
+    def targets(self, site) -> Iterable[str]:
         """Iterates over the bolded links in a hook.  In theory, a hook must
         have at least one such hook, but nothing actually enforces that, so
         it's possible for this to return an empty iterator.
+
+        Templates in the hook are explanded on ''site''.
 
         Note that this returns the titles as strings, so:
 
@@ -47,7 +49,8 @@ class Hook:
           "'''[[Foo#bar]]'''" => ["Foo#bar"]
 
         """
-        wikicode = parse(self.text)
+        expanded_text = site.expand_text(self.text)
+        wikicode = parse(expanded_text)
         for node in wikicode.filter_wikilinks():
             ancestors = wikicode.get_ancestors(node)
             if ancestors:

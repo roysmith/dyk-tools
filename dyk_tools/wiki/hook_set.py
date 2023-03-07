@@ -35,7 +35,7 @@ class HookSet:
 
     def targets(self) -> Iterable[Page]:
         for hook in self.hooks():
-            for title in hook.targets():
+            for title in hook.targets(self.page.site):
                 yield Page(self.page.site, title)
 
     @staticmethod
