@@ -28,3 +28,14 @@ To install:
 locally: git commit, git push
 on bastion: git pull
 on krb host: pip install -e .
+
+Connecting to the toolforge SQL database from a local development machine:
+
+1) Set up a port tunnel with something like:
+    ssh -t  dev.toolforge.org -L 3306:tools.db.svc.wikimedia.cloud:3306
+
+2) Connect through the tunnel:
+    mysql --defaults-file=replica.my.cnf --host=127.0.0.1  --port=3306
+    Note that --host=localhost does NOT work.  On my machine, it results in:
+      ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/tmp/mysql.sock' (2)
+    Not clear what's going on there, but just use 127.0.0.1 and it works.
