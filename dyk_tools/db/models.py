@@ -24,4 +24,4 @@ class BotLog(BaseModel):
     timestamp_utc: Mapped[datetime]
 
     # 190 prefix length avoids 767 byte index limit.
-    __table_args__ = (Index("ix_title", "title", mysql_length=190),)
+    __table_args__ = (Index("ix_bot_log_title", "title", mysql_length=190),)
