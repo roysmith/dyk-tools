@@ -1,5 +1,6 @@
 import pytest
 from textwrap import dedent
+from unittest.mock import Mock
 
 import pywikibot
 import mwparserfromhell as mwp
@@ -8,40 +9,18 @@ import mwparserfromhell as mwp
 from dyk_tools import Article, Nomination, Hook
 
 
-def icon(mocker, name):
-    svg = mocker.Mock(spec=pywikibot.FilePage)
+def icon(name):
+    svg = Mock(spec=pywikibot.FilePage)
     svg.title.return_value = f"File:{name}.svg"
     return svg
 
 
-@pytest.fixture
-def dyk_tick(mocker):
-    return icon(mocker, "Symbol confirmed")
-
-
-@pytest.fixture
-def dyk_tick_agf(mocker):
-    return icon(mocker, "Symbol voting keep")
-
-
-@pytest.fixture
-def dyk_query(mocker):
-    return icon(mocker, "Symbol question")
-
-
-@pytest.fixture
-def dyk_query_no(mocker):
-    return icon(mocker, "Symbol possible vote")
-
-
-@pytest.fixture
-def dyk_no(mocker):
-    return icon(mocker, "Symbol delete vote")
-
-
-@pytest.fixture
-def dyk_again(mocker):
-    return icon(mocker, "Symbol redirect vote 4")
+DYK_TICK = icon("Symbol confirmed")
+DYK_TICK_AGF = icon("Symbol voting keep")
+DYK_QUERY = icon("Symbol question")
+DYK_QUERY_NO = icon("Symbol possible vote")
+DYK_NO = icon("Symbol delete vote")
+DYK_AGAIN = icon("Symbol redirect vote 4")
 
 
 class TestNomination:
@@ -63,52 +42,23 @@ class TestUrl:
         assert nomination.url() == "blah"
 
 
-class TestIsApproved:
-    def test_is_approved_returns_false_with_no_images(self, page):
-        page.imagelinks.return_value = []
-        nomination = Nomination(page)
-        assert nomination.is_approved() is False
-
-    def test_is_approved_returns_true_with_tick(self, page, dyk_tick):
-        page.imagelinks.return_value = [dyk_tick]
-        nomination = Nomination(page)
-        assert nomination.is_approved() is True
-
-    def test_is_approved_returns_true_with_tick_agf(self, page, dyk_tick_agf):
-        page.imagelinks.return_value = [dyk_tick_agf]
-        nomination = Nomination(page)
-        assert nomination.is_approved() is True
-
-    def test_is_approved_returns_false_with_query(self, page, dyk_query):
-        page.imagelinks.return_value = [dyk_query]
-        nomination = Nomination(page)
-        assert nomination.is_approved() is False
-
-    def test_is_approved_returns_false_with_query_override(
-        self, page, dyk_tick, dyk_query
-    ):
-        page.imagelinks.return_value = [dyk_tick, dyk_query]
-        nomination = Nomination(page)
-        assert nomination.is_approved() is False
-
-    def test_is_approved_returns_false_with_query_no_override(
-        self, page, dyk_tick, dyk_query_no
-    ):
-        page.imagelinks.return_value = [dyk_tick, dyk_query_no]
-        nomination = Nomination(page)
-        assert nomination.is_approved() is False
-
-    def test_is_approved_returns_false_with_no_override(self, page, dyk_tick, dyk_no):
-        page.imagelinks.return_value = [dyk_tick, dyk_no]
-        nomination = Nomination(page)
-        assert nomination.is_approved() is False
-
-    def test_is_approved_returns_false_with_again_override(
-        self, page, dyk_tick, dyk_again
-    ):
-        page.imagelinks.return_value = [dyk_tick, dyk_again]
-        nomination = Nomination(page)
-        assert nomination.is_approved() is False
+@pytest.mark.parametrize(
+    "images, result",
+    [
+        ([], False),
+        ([DYK_TICK], True),
+        ([DYK_TICK_AGF], True),
+        ([DYK_QUERY], False),
+        ([DYK_TICK, DYK_QUERY], False),
+        ([DYK_TICK, DYK_QUERY_NO], False),
+        ([DYK_TICK, DYK_NO], False),
+        ([DYK_TICK, DYK_AGAIN], False),
+    ],
+)
+def test_is_approved(page, images, result):
+    page.imagelinks.return_value = images
+    nomination = Nomination(page)
+    assert nomination.is_approved() is result
 
 
 class TestArticles:
