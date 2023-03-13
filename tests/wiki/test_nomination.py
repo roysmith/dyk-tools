@@ -9,18 +9,15 @@ import mwparserfromhell as mwp
 from dyk_tools import Article, Nomination, Hook
 
 
-def icon(name):
-    svg = Mock(spec=pywikibot.FilePage)
-    svg.title.return_value = f"File:{name}.svg"
-    return svg
+DYK_TICK = "[[File:Symbol confirmed.svg|16px]]"
+DYK_TICK_AGF = "[[File:Symbol voting keep.svg|16px]]"
+DYK_QUERY = "[[File:Symbol question.svg|16px]]"
+DYK_QUERY_NO = "[[File:Symbol possible vote.svg|16px]]"
+DYK_NO = "[[File:Symbol delete vote.svg|16px]]"
+DYK_AGAIN = "[[File:Symbol redirect vote 4.svg|16px]]"
 
-
-DYK_TICK = icon("Symbol confirmed")
-DYK_TICK_AGF = icon("Symbol voting keep")
-DYK_QUERY = icon("Symbol question")
-DYK_QUERY_NO = icon("Symbol possible vote")
-DYK_NO = icon("Symbol delete vote")
-DYK_AGAIN = icon("Symbol redirect vote 4")
+DYK_TICK_LOWER_CASE_FILE = "[[file:Symbol confirmed.svg|16px]]"
+DYK_TICK_LOWER_CASE_SYMBOL = "[[File:symbol confirmed.svg|16px]]"
 
 
 class TestNomination:
@@ -43,20 +40,28 @@ class TestUrl:
 
 
 @pytest.mark.parametrize(
-    "images, result",
+    "text, result",
     [
-        ([], False),
-        ([DYK_TICK], True),
-        ([DYK_TICK_AGF], True),
-        ([DYK_QUERY], False),
-        ([DYK_TICK, DYK_QUERY], False),
-        ([DYK_TICK, DYK_QUERY_NO], False),
-        ([DYK_TICK, DYK_NO], False),
-        ([DYK_TICK, DYK_AGAIN], False),
+        ("", False),
+        (f"{DYK_TICK}", True),
+        (f"{DYK_TICK_AGF}", True),
+        (f"{DYK_QUERY}", False),
+        (f"{DYK_TICK}\n{DYK_QUERY}", False),
+        (f"{DYK_TICK}\n{DYK_QUERY_NO}", False),
+        (f"{DYK_TICK}\n{DYK_NO}", False),
+        (f"{DYK_TICK}\n{DYK_AGAIN}", False),
+        (f"{DYK_TICK_LOWER_CASE_FILE}", True),
+        pytest.param(
+            f"{DYK_TICK_LOWER_CASE_SYMBOL}",
+            True,
+            marks=pytest.mark.xfail(
+                reason="https://github.com/earwig/mwparserfromhell/issues/302"
+            ),
+        ),
     ],
 )
-def test_is_approved(page, images, result):
-    page.imagelinks.return_value = images
+def test_is_approved(page, text, result):
+    page.get.return_value = text
     nomination = Nomination(page)
     assert nomination.is_approved() is result
 

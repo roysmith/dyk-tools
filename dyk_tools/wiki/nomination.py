@@ -31,13 +31,21 @@ class Nomination:
         return self.page.full_url()
 
     def is_approved(self) -> bool:
-        state = False
-        for image in self.page.imagelinks():
-            if image.title() in APPROVALS:
-                state = True
-            if image.title() in DISAPPROVALS:
-                state = False
-        return state
+        """Return True if the last status icon is an approval.
+
+        Traditionally, the icon's file link includes a trailing '|16px'.  Although some
+        implementations require that, this does not.  It's unclear if that's the right
+        thing, and may change in the future.
+
+        """
+        approved = False
+        wikicode = mwp.parse(self.page.get())
+        for link in wikicode.filter_wikilinks():
+            if any(link.title.matches(t) for t in APPROVALS):
+                approved = True
+            if any(link.title.matches(t) for t in DISAPPROVALS):
+                approved = False
+        return approved
 
     def articles(self) -> List[Article]:
         articles = []
