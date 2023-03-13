@@ -8,7 +8,10 @@ import mwparserfromhell as mwp
 from .article import Article
 from .hook import Hook
 
-APPROVALS = ["File:Symbol confirmed.svg", "File:Symbol voting keep.svg"]
+APPROVALS = [
+    "File:Symbol confirmed.svg",
+    "File:Symbol voting keep.svg",
+]
 DISAPPROVALS = [
     "File:Symbol question.svg",
     "File:Symbol possible vote.svg",
