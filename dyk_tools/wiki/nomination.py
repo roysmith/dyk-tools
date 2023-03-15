@@ -8,6 +8,7 @@ import mwparserfromhell as mwp
 from .article import Article
 from .hook import Hook
 
+
 APPROVALS = [
     "File:Symbol confirmed.svg",
     "File:Symbol voting keep.svg",
@@ -39,7 +40,7 @@ class Nomination:
 
         """
         approved = False
-        wikicode = mwp.parse(self.page.get())
+        wikicode = mwp.parse(self.page.expand_text())
         for link in wikicode.filter_wikilinks():
             if any(link.title.matches(t) for t in APPROVALS):
                 approved = True

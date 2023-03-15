@@ -61,7 +61,7 @@ class TestUrl:
     ],
 )
 def test_is_approved(page, text, result):
-    page.get.return_value = text
+    page.expand_text.return_value = text
     nomination = Nomination(page)
     assert nomination.is_approved() is result
 
