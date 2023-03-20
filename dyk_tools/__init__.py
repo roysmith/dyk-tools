@@ -3,6 +3,8 @@ from dyk_tools.wiki.hook import Hook
 from dyk_tools.wiki.hook_set import HookSet
 from dyk_tools.wiki.nomination import Nomination
 
+from dyk_tools.wiki.nomination_list import NominationList
+
 try:
     import dyk_tools._version
 except ModuleNotFoundError:
@@ -17,6 +19,7 @@ __all__ = [
     "Hook",
     "HookSet",
     "Nomination",
+    "NominationList",
     "version",
     "version_tuple",
 ]
