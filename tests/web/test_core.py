@@ -66,6 +66,7 @@ class TestSelect:
 class TestNomination:
     def test_get(self, client, app, captured_templates, core_page):
         core_page.get.return_value = ""
+        core_page.expand_text.return_value = ""
         with captured_templates(app) as templates:
             response = client.get("/nomination?title=foo")
         assert response.status_code == 200
