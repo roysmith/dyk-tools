@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Unapproved</h1>
+
+<ul>
+    {% for nom in unapproved_noms %}
+    <li><a href="{{ nom.url() }}">{{ nom.title() }}</a></li>
+    {% endfor %}
+</ul>
+
+{% endblock %}
