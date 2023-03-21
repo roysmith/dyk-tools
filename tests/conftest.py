@@ -29,25 +29,5 @@ def page(mocker, site):
 
 
 @pytest.fixture
-def page1(mocker, site):
-    return mocker.MagicMock(spec=pywikibot.Page, site=site)
-
-
-@pytest.fixture
-def page2(mocker, site):
-    return mocker.MagicMock(spec=pywikibot.Page, site=site)
-
-
-@pytest.fixture
-def page3(mocker, site):
-    return mocker.MagicMock(spec=pywikibot.Page, site=site)
-
-
-@pytest.fixture
-def page4(mocker, site):
-    return mocker.MagicMock(spec=pywikibot.Page, site=site)
-
-
-@pytest.fixture
 def cat1(mocker):
     return mocker.MagicMock(spec=pywikibot.Category)()
