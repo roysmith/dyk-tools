@@ -26,8 +26,3 @@ def page(mocker, site):
     """Returns a mock pywikibot.Page."""
     mock_Page = mocker.patch("pywikibot.Page", autospec=True)
     return mock_Page(site)
-
-
-@pytest.fixture
-def cat1(mocker):
-    return mocker.MagicMock(spec=pywikibot.Category)()

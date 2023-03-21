@@ -72,11 +72,15 @@ class TestHasBirthCategory:
         article = Article(page)
         assert article.has_birth_category() == False
 
-    def test_has_birth_category_returns_true_with_birth_category(self, make_page, cat1):
+    def test_has_birth_category_returns_true_with_birth_category(
+        self, make_page, MockCategory
+    ):
+        cat = MockCategory(None, None)
+        cat.title.return_value = "1944 births"
         page = make_page("Page 1")
-        page.categories.return_value = [cat1]
+        page.categories.return_value = [cat]
         article = Article(page)
-        cat1.title.return_value = "1944 births"
+
         assert article.has_birth_category() == True
 
 
