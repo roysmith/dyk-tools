@@ -1,5 +1,9 @@
+from dataclasses import dataclass
+from unittest.mock import Mock, MagicMock
 import pytest
 import pywikibot
+import typing
+
 from dyk_tools import Article
 import dyk_tools.wiki.article
 
@@ -12,6 +16,20 @@ def MockCategory(mocker):
 @pytest.fixture(autouse=True)
 def clear_cache():
     dyk_tools.wiki.article.get_biography_infobox_templates.cache_clear()
+
+
+@dataclass()
+class MockPage:
+    source: typing.Any
+    _title: str
+
+    def __post_init__(self):
+        self.get = Mock()
+        self.extract = Mock()
+        self.categories = Mock(return_value=[])
+
+    def title(self):
+        return self._title
 
 
 @pytest.fixture
@@ -118,77 +136,58 @@ class TestHasPersonInfobox:
 
 
 class TestIsAmerican:
-    def test_has_american_short_description_returns_false_with_no_short_description(
-        self, page1
+    @pytest.mark.parametrize(
+        "text, expected_result",
+        [
+            ("", False),
+            ("short description|An American thing", False),
+            ("{{short description|An American thing}}", True),
+        ],
+    )
+    def test_american_short_description(self, site, text, expected_result):
+        page = MockPage(site, "Test page")
+        page.get.return_value = text
+        article = Article(page)
+
+        result = article.has_american_short_description()
+
+        assert result == expected_result
+
+    @pytest.mark.parametrize(
+        "text, expected_result",
+        [
+            ("", False),
+            ("Blah is an american thing", True),
+            ("Blah is a south american thing", False),
+            ("Blah is an American thing", True),
+            ("I am british", False),
+            ("Blah blah blah. And is an american too", False),
+            ("This is not an american thing.", False),
+        ],
+    )
+    def test_american_short_description(self, site, text, expected_result):
+        page = MockPage(site, "Test page")
+        page.extract.return_value = text
+        article = Article(page)
+
+        result = article.is_american()
+
+        assert result == expected_result
+
+    @pytest.mark.parametrize(
+        "category_title, expected_result",
+        [("Things in the united states", True), ("Things in lower slobbovia", False)],
+    )
+    def test_american_category(
+        self, site, MockCategory, category_title, expected_result
     ):
-        page1.get.return_value = ""
-        article = Article(page1)
-        assert article.has_american_short_description() == False
-
-    def test_has_american_short_description_returns_true_with_american(self, page1):
-        page1.get.return_value = """
-            {{short description|An American thing}}
-            """
-        article = Article(page1)
-        assert article.has_american_short_description() == True
-
-    def test_is_american_returns_false_with_blank_intro(self, page1):
-        page1.extract.return_value = ""
-        article = Article(page1)
-        assert article.is_american() == False
-
-    def test_is_american_returns_true_with_is_an_american_in_first_sentence(
-        self, page1
-    ):
-        page1.extract.return_value = "Blah is an american thing"
-        article = Article(page1)
-        assert article.is_american() == True
-
-    def test_is_american_returns_false_with_south_american(self, page1):
-        page1.extract.return_value = "Blah is a south american thing"
-        article = Article(page1)
-        assert article.is_american() == False
-
-    def test_is_american_returns_true_with_is_an_upper_case_american_in_first_sentence(
-        self, page1
-    ):
-        page1.extract.return_value = "Blah is an American thing"
-        article = Article(page1)
-        assert article.is_american() == True
-
-    def test_is_american_returns_false_with_non_american_intro(self, page1):
-        page1.extract.return_value = "I am british"
-        article = Article(page1)
-        assert article.is_american() == False
-
-    def test_is_american_returns_false_with_is_an_american_in_second_sentence(
-        self, page1
-    ):
-        page1.extract.return_value = "Blah blah blah. And is an american too"
-        article = Article(page1)
-        assert article.is_american() == False
-
-    def test_is_american_returns_false_with_just_american_in_first_sentence(
-        self, page1
-    ):
-        page1.extract.return_value = "This is not an american thing."
-        article = Article(page1)
-        assert article.is_american() == False
-
-    def test_is_american_returns_true_with_united_states_category(
-        self, MockCategory, page1
-    ):
+        page = MockPage(site, "Test page")
         cat = MockCategory(None, None)
-        cat.title.return_value = "Things in the united states"
-        page1.categories.return_value = [cat]
-        page1.extract.return_value = ""
-        article = Article(page1)
-        assert article.is_american() == True
+        cat.title.return_value = category_title
+        page.categories.return_value = [cat]
+        page.extract.return_value = ""
+        article = Article(page)
 
-    def test_is_american_returns_true_with_other_category(self, MockCategory, page1):
-        cat = MockCategory(None, None)
-        cat.title.return_value = "Things in lower slobbovia"
-        page1.categories.return_value = [cat]
-        page1.extract.return_value = ""
-        article = Article(page1)
-        assert article.is_american() == False
+        result = article.is_american()
+
+        assert result == expected_result
