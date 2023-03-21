@@ -23,7 +23,7 @@ def test_construct(page):
     assert nomlist.page.title() == "Foo"
 
 
-def test_nominations(mocker, site, page):
+def test_nominations(mocker, page):
     page.get.return_value = dedent(
         """
         ===Articles created/expanded on December 31===
