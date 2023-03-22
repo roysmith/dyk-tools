@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum, auto
 
 from pywikibot import Page
 import mwparserfromhell as mwp
@@ -34,28 +35,43 @@ class NominationList:
         if not title.lower().startswith("template:did you know nominations/"):
             raise ValueError(f"'{title}' is not a valid DYK nomination page title")
         wikicode = mwp.parse(self.page.get())
+        count = self._remove_transclusion(title, wikicode)
+        self.page.text = str(wikicode)
+        self.page.save(summary=message)
+        return count
+
+    def _remove_transclusion(self, title, wikicode):
+        """Remove the transcluded title from the wikicode, which is
+        mutated in-place.
+
+        """
+
+        class State(Enum):
+            # If (as is the most common case) a deleted transclusion is by itself on a
+            # line, we don't want to leave behind an empty line.  To handle this, we
+            # maintain a small state machine which recognizes a "newline, template,
+            # newline" sequence allowing us to delete the second newline.  We can't
+            # mutate the wikicode while we're iterating through it, so we just keep
+            # track of what nodes need to be deleted and delete them all in a second
+            # pass.
+            START = auto()
+            NEWLINE = auto()
+            TEMPLATE = auto()
+
         count = 0
-        # If (as is the most common case) a deleted transclusion is by itself on a line,
-        # we don't want to leave behind an empty line.  To handle this, we maintain a
-        # small state machine which recognizes a "newline, template, newline" sequence
-        # allowing us to delete the second newline.  We can't mutate the wikicode while
-        # we're iterating through it, so we just keep track of what nodes need to be
-        # deleted and delete them all in a second pass.
-        state = ""
+        state = State.START
         nodes_to_remove = []
         for node in wikicode.ifilter(recursive=False):
             if isinstance(node, mwp.nodes.Text) and node.value == "\n":
-                if state == "template":
+                if state == State.TEMPLATE:
                     nodes_to_remove.append(node)
-                state = "newline"
+                state = State.NEWLINE
             elif isinstance(node, mwp.nodes.Template) and node.name.matches(title):
-                state = "template" if state == "newline" else ""
+                state = State.TEMPLATE if state == State.NEWLINE else State.START
                 nodes_to_remove.append(node)
                 count += 1
             else:
-                state = ""
+                state = State.START
         for node in nodes_to_remove:
             wikicode.remove(node)
-        self.page.text = str(wikicode)
-        self.page.save(summary=message)
         return count
