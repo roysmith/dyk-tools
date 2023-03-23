@@ -7,6 +7,10 @@ import mwparserfromhell as mwp
 from .nomination import Nomination
 
 
+class NominationListError(RuntimeError):
+    pass
+
+
 @dataclass(frozen=True)
 class NominationList:
     page: Page
@@ -18,31 +22,37 @@ class NominationList:
         ):
             yield Nomination(Page(self.page, t.name))
 
-    def remove_nomination(self, old_page: Page, message: str) -> int:
+    def remove_nomination(self, nomination: Page, message: str) -> int:
         """Remove a nomination transclusion and save the NominationList
         back to the wiki, using ''message'' as the edit summary.
 
-        Returns the number of transclusions which were removed.  The current
-        implementation will remove all instances if old_page is transcluded more than
-        once.  It's unclear if this is the desired behavior, and may change in the
-        future.
+        Returns the Heading node for the section where the title was found.
 
-        Raises ValueError if old_page.title() doesn't look like a legitimate
-        DYK nomination template.
+        Raises NominationListError if any of:
+          * Nomination.title() doesn't look like a legitimate DYK nomination
+          * Nomination isn't found in the list
+          * Nomination is transcluded more than once
+          * The list is incorrectly structured
 
         """
-        title = old_page.title()
+        title = nomination.title()
         if not title.lower().startswith("template:did you know nominations/"):
-            raise ValueError(f"'{title}' is not a valid DYK nomination page title")
+            raise NominationListError(
+                f"'{title}' is not a valid DYK nomination page title"
+            )
         wikicode = mwp.parse(self.page.get())
-        count = self._remove_transclusion(title, wikicode)
+        heading = self._remove_transclusion(title, wikicode)
         self.page.text = str(wikicode)
         self.page.save(summary=message)
-        return count
+        return heading
 
     def _remove_transclusion(self, title, wikicode):
-        """Remove the transcluded title from the wikicode, which is
-        mutated in-place.
+        """Remove the transcluded title from the wikicode, which is mutated
+        in-place.  Returns the Heading node for the section where the title
+        was found.
+
+        Keeping track of the state is really messy.  It would be nice if this
+        could be simplified.
 
         """
 
@@ -59,19 +69,33 @@ class NominationList:
             TEMPLATE = auto()
 
         count = 0
+        current_heading_node = None
+        heading_node = None
         state = State.START
         nodes_to_remove = []
         for node in wikicode.ifilter(recursive=False):
-            if isinstance(node, mwp.nodes.Text) and node.value == "\n":
+            if isinstance(node, mwp.nodes.Heading):
+                current_heading_node = node
+                state = State.START
+            elif isinstance(node, mwp.nodes.Text) and node.value == "\n":
                 if state == State.TEMPLATE:
                     nodes_to_remove.append(node)
                 state = State.NEWLINE
             elif isinstance(node, mwp.nodes.Template) and node.name.matches(title):
-                state = State.TEMPLATE if state == State.NEWLINE else State.START
-                nodes_to_remove.append(node)
-                count += 1
+                if current_heading_node and current_heading_node.level == 3:
+                    state = State.TEMPLATE if state == State.NEWLINE else State.START
+                    nodes_to_remove.append(node)
+                    if heading_node is None:
+                        heading_node = current_heading_node
+                    count += 1
+                else:
+                    raise NominationListError(f"'{title}' not in an L3 section")
             else:
                 state = State.START
+        if count == 0:
+            raise NominationListError(f"'{title}' not found")
+        if count > 1:
+            raise NominationListError(f"'{title}' has multiple transclusions")
         for node in nodes_to_remove:
             wikicode.remove(node)
-        return count
+        return heading_node

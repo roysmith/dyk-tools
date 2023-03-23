@@ -3,7 +3,7 @@ from dyk_tools.wiki.hook import Hook
 from dyk_tools.wiki.hook_set import HookSet
 from dyk_tools.wiki.nomination import Nomination
 
-from dyk_tools.wiki.nomination_list import NominationList
+from dyk_tools.wiki.nomination_list import NominationList, NominationListError
 
 try:
     import dyk_tools._version
@@ -20,6 +20,7 @@ __all__ = [
     "HookSet",
     "Nomination",
     "NominationList",
+    "NominationListError",
     "version",
     "version_tuple",
 ]
