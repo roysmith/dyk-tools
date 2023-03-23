@@ -46,33 +46,83 @@ def test_nominations(mocker, page):
     ]
 
 
-def test_remove_nomination(mocker, site, page):
-    page.get.return_value = dedent(
-        """
-        ===Articles created/expanded on December 31===
-        {{Template:Did you know nominations/Nom 1}}
-        {{Template:Did you know nominations/Nom 2}}
-        ===Articles created/expanded on January 15===
-        {{Template:Did you know nominations/Nom 3}}
-        """
-    )
+@pytest.mark.parametrize(
+    "input_text, remove_title, expected_count, expected_text",
+    [
+        (
+            """
+            ===Articles created/expanded on December 31===
+            {{Template:Did you know nominations/Nom 1}}
+            {{Template:Did you know nominations/Nom 2}}
+            ===Articles created/expanded on January 15===
+            {{Template:Did you know nominations/Nom 3}}
+            """,
+            "Template:Did you know nominations/Nom 1",
+            1,
+            """
+            ===Articles created/expanded on December 31===
+            {{Template:Did you know nominations/Nom 2}}
+            ===Articles created/expanded on January 15===
+            {{Template:Did you know nominations/Nom 3}}
+            """,
+        ),
+        (
+            """
+            ===Articles created/expanded on December 31===
+            {{Template:Did you know nominations/Nom 1}}
+            {{Template:Did you know nominations/Nom 2}}
+            ===Articles created/expanded on January 15===
+            {{Template:Did you know nominations/Nom 3}}
+            """,
+            "Template:Did you know nominations/Nom 9",
+            0,
+            """
+            ===Articles created/expanded on December 31===
+            {{Template:Did you know nominations/Nom 1}}
+            {{Template:Did you know nominations/Nom 2}}
+            ===Articles created/expanded on January 15===
+            {{Template:Did you know nominations/Nom 3}}
+            """,
+        ),
+        (
+            """
+            ===Articles created/expanded on December 31===
+            {{Template:Did you know nominations/Nom 1}}
+            {{Template:Did you know nominations/Nom 2}}
+            {{Template:Did you know nominations/Nom 2}}
+            ===Articles created/expanded on January 15===
+            {{Template:Did you know nominations/Nom 3}}
+            """,
+            "Template:Did you know nominations/Nom 2",
+            2,
+            """
+            ===Articles created/expanded on December 31===
+            {{Template:Did you know nominations/Nom 1}}
+            ===Articles created/expanded on January 15===
+            {{Template:Did you know nominations/Nom 3}}
+            """,
+        ),
+    ],
+)
+def test_remove_nomination(
+    mocker,
+    site,
+    page,
+    input_text,
+    remove_title,
+    expected_count,
+    expected_text,
+):
+    page.get.return_value = dedent(input_text)
     mocker.patch("dyk_tools.wiki.nomination_list.Page", new=MockPage)
     nomlist = NominationList(page)
-    old_nom_page = MockPage(site, "Template:Did you know nominations/Nom 1")
+    old_nom_page = MockPage(site, remove_title)
 
     count = nomlist.remove_nomination(old_nom_page, "test message")
 
     nomlist.page.save.assert_called_once_with(summary="test message")
-    assert count == 1
-    expected_text = dedent(
-        """
-        ===Articles created/expanded on December 31===
-        {{Template:Did you know nominations/Nom 2}}
-        ===Articles created/expanded on January 15===
-        {{Template:Did you know nominations/Nom 3}}
-        """
-    )
-    assert nomlist.page.text == expected_text
+    assert count == expected_count
+    assert nomlist.page.text == dedent(expected_text)
 
 
 def test_remove_nomination_raises_on_invalid_template(mocker, site, page):
