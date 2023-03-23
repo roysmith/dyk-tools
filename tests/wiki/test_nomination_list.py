@@ -66,6 +66,19 @@ def test_nominations(mocker, page):
                 {{Template:Did you know nominations/Nom 3}}
             """,
         ),
+        (
+            """\
+                ===Articles created/expanded on April 1===
+                {{Did you know nominations/Nom 1}}
+                {{Did you know nominations/Nom 2}}
+            """,
+            "Template:Did you know nominations/Nom 1",
+            "Articles created/expanded on April 1",
+            """\
+                ===Articles created/expanded on April 1===
+                {{Did you know nominations/Nom 2}}
+            """,
+        ),
     ],
 )
 def test_remove_nomination(
@@ -121,6 +134,15 @@ def test_remove_nomination(
                 ===Articles created/expanded on December 31===
                 {{Template:Did you know nominations/Nom}}
                 {{Template:Did you know nominations/Nom}}
+            """,
+            "Template:Did you know nominations/Nom",
+            "'Template:Did you know nominations/Nom' has multiple transclusions",
+        ),
+        (
+            """\
+                ===Articles created/expanded on December 31===
+                {{Template:Did you know nominations/Nom}}
+                {{Did you know nominations/Nom}}
             """,
             "Template:Did you know nominations/Nom",
             "'Template:Did you know nominations/Nom' has multiple transclusions",

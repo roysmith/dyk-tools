@@ -34,6 +34,10 @@ class NominationList:
           * Nomination is transcluded more than once
           * The list is incorrectly structured
 
+        Note that nomination.title() must include the "Template:" namespace, but
+        transclusions in the NominationList are recognized with or without
+        the leading "Template:".
+
         """
         title = nomination.title()
         if not title.lower().startswith("template:did you know nominations/"):
@@ -68,11 +72,19 @@ class NominationList:
             NEWLINE = auto()
             TEMPLATE = auto()
 
+        # Derived from mwparserfromhell's Wikicode.matches()
+        normalize = (
+            lambda s: (s[0].upper() + s[1:]).replace("_", " ").removeprefix("Template:")
+            if s
+            else s
+        )
+
         count = 0
         current_heading_node = None
         heading_node = None
         state = State.START
         nodes_to_remove = []
+        base_title = normalize(title)
         for node in wikicode.ifilter(recursive=False):
             if isinstance(node, mwp.nodes.Heading):
                 current_heading_node = node
@@ -81,7 +93,10 @@ class NominationList:
                 if state == State.TEMPLATE:
                     nodes_to_remove.append(node)
                 state = State.NEWLINE
-            elif isinstance(node, mwp.nodes.Template) and node.name.matches(title):
+            elif (
+                isinstance(node, mwp.nodes.Template)
+                and normalize(node.name) == base_title
+            ):
                 if current_heading_node and current_heading_node.level == 3:
                     state = State.TEMPLATE if state == State.NEWLINE else State.START
                     nodes_to_remove.append(node)
