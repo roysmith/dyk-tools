@@ -48,6 +48,7 @@ class NominationList:
             )
         wikicode = parse(self.page.get())
         heading = self._remove_transclusion(title, wikicode)
+        self._delete_empty_section(heading, wikicode)
         self.page.text = str(wikicode)
         self.page.save(summary=message)
         return heading
@@ -113,3 +114,13 @@ class NominationList:
         for node in nodes_to_remove:
             wikicode.remove(node)
         return heading_node
+
+    def _delete_empty_section(self, heading: Heading, wikicode: Wikicode) -> None:
+        nodes_to_remove = []
+        for section in wikicode.get_sections(levels=[3]):
+            nodes = section.nodes
+            if nodes[0].title == heading.title and len(nodes) == 2 and nodes[1] == "\n":
+                nodes_to_remove.append(nodes[0])
+                nodes_to_remove.append(nodes[1])
+        for node in nodes_to_remove:
+            wikicode.remove(node)

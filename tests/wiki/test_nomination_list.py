@@ -79,6 +79,20 @@ def test_nominations(mocker, page):
                 {{Did you know nominations/Nom 2}}
             """,
         ),
+        (
+            """\
+                ===Articles created/expanded on February 1===
+                {{Did you know nominations/Nom 1}}
+                ===Articles created/expanded on February 2===
+                {{Did you know nominations/Nom 2}}
+            """,
+            "Template:Did you know nominations/Nom 1",
+            "Articles created/expanded on February 1",
+            """\
+                ===Articles created/expanded on February 2===
+                {{Did you know nominations/Nom 2}}
+            """,
+        ),
     ],
 )
 def test_remove_nomination(
