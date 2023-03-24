@@ -24,7 +24,7 @@ class NominationList:
         ):
             yield Nomination(Page(self.page, t.name))
 
-    def remove_nomination(self, nomination: Page, message: str) -> int:
+    def remove_nomination(self, nomination: Page, message: str) -> Heading:
         """Remove a nomination transclusion and save the NominationList
         back to the wiki, using ''message'' as the edit summary.
 
