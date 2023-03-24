@@ -2,7 +2,9 @@ from dataclasses import dataclass
 from enum import Enum, auto
 
 from pywikibot import Page
-import mwparserfromhell as mwp
+from mwparserfromhell import parse
+from mwparserfromhell.wikicode import Wikicode
+from mwparserfromhell.nodes import Heading, Template, Text
 
 from .nomination import Nomination
 
@@ -16,7 +18,7 @@ class NominationList:
     page: Page
 
     def nominations(self) -> list[Nomination]:
-        wikicode = mwp.parse(self.page.get())
+        wikicode = parse(self.page.get())
         for t in wikicode.filter_templates(
             recursive=False, matches="template:did you know nominations/"
         ):
@@ -44,13 +46,13 @@ class NominationList:
             raise NominationListError(
                 f"'{title}' is not a valid DYK nomination page title"
             )
-        wikicode = mwp.parse(self.page.get())
+        wikicode = parse(self.page.get())
         heading = self._remove_transclusion(title, wikicode)
         self.page.text = str(wikicode)
         self.page.save(summary=message)
         return heading
 
-    def _remove_transclusion(self, title, wikicode):
+    def _remove_transclusion(self, title: str, wikicode: Wikicode) -> Heading:
         """Remove the transcluded title from the wikicode, which is mutated
         in-place.  Returns the Heading node for the section where the title
         was found.
@@ -86,17 +88,14 @@ class NominationList:
         nodes_to_remove = []
         base_title = normalize(title)
         for node in wikicode.ifilter(recursive=False):
-            if isinstance(node, mwp.nodes.Heading):
+            if isinstance(node, Heading):
                 current_heading_node = node
                 state = State.START
-            elif isinstance(node, mwp.nodes.Text) and node.value == "\n":
+            elif isinstance(node, Text) and node.value == "\n":
                 if state == State.TEMPLATE:
                     nodes_to_remove.append(node)
                 state = State.NEWLINE
-            elif (
-                isinstance(node, mwp.nodes.Template)
-                and normalize(node.name) == base_title
-            ):
+            elif isinstance(node, Template) and normalize(node.name) == base_title:
                 if current_heading_node and current_heading_node.level == 3:
                     state = State.TEMPLATE if state == State.NEWLINE else State.START
                     nodes_to_remove.append(node)
