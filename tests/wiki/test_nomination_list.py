@@ -177,7 +177,7 @@ def test_remove_nomination_raises_on_errors(
 
 
 @pytest.mark.parametrize(
-    "input_text, nom_title, section_title, expected_text",
+    "input_text, nom_title, section_title, current_date, expected_text",
     [
         (
             """\
@@ -186,6 +186,7 @@ def test_remove_nomination_raises_on_errors(
             """,
             "Did you know nominations/Nom 2",
             "Articles created/expanded on December 31",
+            date(2023, 1, 1),
             """\
                 ===Articles created/expanded on December 31===
                 {{Did you know nominations/Nom 1}}
@@ -199,6 +200,7 @@ def test_remove_nomination_raises_on_errors(
             """,
             "Did you know nominations/Nom 2",
             "Articles created/expanded on October 31",
+            date(2023, 1, 1),
             """\
                 ===Articles created/expanded on October 31===
                 {{Did you know nominations/Nom 2}}
@@ -206,13 +208,37 @@ def test_remove_nomination_raises_on_errors(
                 {{Did you know nominations/Nom 1}}
             """,
         ),
+        (
+            """\
+                ===Articles created/expanded on December 31===
+                {{Did you know nominations/Nom 1}}
+            """,
+            "Did you know nominations/Nom 2",
+            "Articles created/expanded on October 31",
+            date(2022, 11, 1),
+            """\
+                ===Articles created/expanded on December 31===
+                {{Did you know nominations/Nom 1}}
+                ===Articles created/expanded on October 31===
+                {{Did you know nominations/Nom 2}}
+            """,
+        ),
     ],
 )
 def test_insert_nomination(
-    mocker, site, page, input_text, nom_title, section_title, expected_text
+    mocker,
+    site,
+    page,
+    input_text,
+    nom_title,
+    section_title,
+    current_date,
+    expected_text,
 ):
     page.get.return_value = dedent(input_text)
     mocker.patch("dyk_tools.wiki.nomination_list.Page", new=MockPage)
+    _today = mocker.patch("dyk_tools.wiki.nomination_list._today", autospec=True)
+    _today.return_value = current_date
     nomlist = NominationList(page)
     nom_page = MockPage(site, nom_title)
     heading = mwp.nodes.Heading(section_title, 3)
