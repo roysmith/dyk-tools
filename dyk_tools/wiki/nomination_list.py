@@ -1,5 +1,7 @@
 from dataclasses import dataclass
+from datetime import date, datetime, timedelta, timezone
 from enum import Enum, auto
+import re
 
 from pywikibot import Page
 from mwparserfromhell import parse
@@ -7,6 +9,30 @@ from mwparserfromhell.wikicode import Wikicode
 from mwparserfromhell.nodes import Heading, Template, Text
 
 from .nomination import Nomination
+
+
+_months = {
+    "january": 1,
+    "february": 2,
+    "march": 3,
+    "april": 4,
+    "may": 5,
+    "june": 6,
+    "july": 7,
+    "august": 8,
+    "september": 9,
+    "october": 10,
+    "november": 11,
+    "december": 12,
+}
+
+
+def _today() -> date:
+    """This is mostly broken out as a discrete function to make
+    it easy to mock in unittests.
+
+    """
+    return datetime.now(timezone.utc).date()
 
 
 class NominationListError(RuntimeError):
@@ -124,3 +150,60 @@ class NominationList:
                 nodes_to_remove.append(nodes[1])
         for node in nodes_to_remove:
             wikicode.remove(node)
+
+    def insert_nomination(
+        self, nomination: Page, heading: Heading, message: str
+    ) -> None:
+        """Transclude a nomination and save the NominationList
+        back to the wiki, using ''message'' as the edit summary.
+
+        The nomination is added to the section indicated by heading.  If
+        no such heading is found, a new section is created in the correct
+        chronological order.
+
+        """
+        wikicode = parse(self.page.get())
+        insertion_date = self.intuit_year_date(str(heading.title))
+        done = False
+        for section in wikicode.get_sections(levels=[3]):
+            section_date = self.intuit_year_date(str(section.nodes[0].title))
+            if section_date == insertion_date:
+                section.append(f"{{{{{(nomination.title())}}}}}\n")
+                done = True
+                break
+            if section_date > insertion_date:
+                wikicode.insert_before(
+                    section, f"{heading}\n{{{{{(nomination.title())}}}}}\n"
+                )
+                done = True
+                break
+        if not done:
+            wikicode.append(str(heading) + "\n")
+            wikicode.append(f"{{{{{(nomination.title())}}}}}\n")
+
+        self.page.text = str(wikicode)
+        self.page.save(summary=message)
+
+    @staticmethod
+    def intuit_year_date(header_text: str) -> date:
+        """Given a string such as 'Articles created/expanded on February 5',
+        return a datetime.date.  The current year is assumed; if that results
+        in a time in the future, 1 year is subtracted.
+
+        Fie on whoever thought expressing dates like this was a good idea.
+
+        """
+        if m := re.match(r"Articles created/expanded on (\w+) (\d+)$", header_text):
+            month_str = m[1]
+            day_str = m[2]
+        else:
+            raise NominationListError(f"Unparsable header: '{header_text}'")
+        month = _months.get(month_str.lower())
+        if month is None:
+            raise NominationListError(f"Unknown month in header: '{header_text}'")
+        day = int(day_str)
+        today = _today()
+        header_date = date(today.year, month, day)
+        if header_date > today:
+            header_date = date(today.year - 1, month, day)
+        return header_date

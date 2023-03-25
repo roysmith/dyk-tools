@@ -1,9 +1,11 @@
 from dataclasses import dataclass
+from datetime import date
 from textwrap import dedent
 import typing
 
 import pytest
 import pywikibot
+import mwparserfromhell as mwp
 
 from dyk_tools import Nomination, NominationList, NominationListError
 
@@ -172,3 +174,67 @@ def test_remove_nomination_raises_on_errors(
 
     with pytest.raises(NominationListError, match=message):
         nomlist.remove_nomination(nom_page, "")
+
+
+@pytest.mark.parametrize(
+    "input_text, nom_title, section_title, expected_text",
+    [
+        (
+            """\
+                ===Articles created/expanded on December 31===
+                {{Did you know nominations/Nom 1}}
+            """,
+            "Did you know nominations/Nom 2",
+            "Articles created/expanded on December 31",
+            """\
+                ===Articles created/expanded on December 31===
+                {{Did you know nominations/Nom 1}}
+                {{Did you know nominations/Nom 2}}
+            """,
+        ),
+        (
+            """\
+                ===Articles created/expanded on December 31===
+                {{Did you know nominations/Nom 1}}
+            """,
+            "Did you know nominations/Nom 2",
+            "Articles created/expanded on October 31",
+            """\
+                ===Articles created/expanded on October 31===
+                {{Did you know nominations/Nom 2}}
+                ===Articles created/expanded on December 31===
+                {{Did you know nominations/Nom 1}}
+            """,
+        ),
+    ],
+)
+def test_insert_nomination(
+    mocker, site, page, input_text, nom_title, section_title, expected_text
+):
+    page.get.return_value = dedent(input_text)
+    mocker.patch("dyk_tools.wiki.nomination_list.Page", new=MockPage)
+    nomlist = NominationList(page)
+    nom_page = MockPage(site, nom_title)
+    heading = mwp.nodes.Heading(section_title, 3)
+    nomlist.insert_nomination(nom_page, heading, "test message")
+
+    nomlist.page.save.assert_called_once_with(summary="test message")
+    assert nomlist.page.text == dedent(expected_text)
+
+
+@pytest.mark.parametrize(
+    "input, current_date, expected_result",
+    [
+        ("Articles created/expanded on March 24", date(2023, 4, 1), date(2023, 3, 24)),
+        ("Articles created/expanded on march 24", date(2023, 4, 1), date(2023, 3, 24)),
+        ("Articles created/expanded on July 1", date(2023, 4, 1), date(2022, 7, 1)),
+        ("Articles created/expanded on April 1", date(2023, 4, 1), date(2023, 4, 1)),
+    ],
+)
+def test_intuit_year_date(mocker, input, current_date, expected_result):
+    _today = mocker.patch("dyk_tools.wiki.nomination_list._today", autospec=True)
+    _today.return_value = current_date
+
+    result = NominationList.intuit_year_date(input)
+
+    assert result == expected_result
