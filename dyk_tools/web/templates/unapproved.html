@@ -2,12 +2,45 @@
 
 {% block content %}
 
-<h1>Unapproved</h1>
+<h1>{{ title }}</h1>
+<div class="accordion" id="accordionExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingOne">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                {{ approved_noms|length }} Approved Nomination(s)
+            </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse collapsed" aria-labelledby="headingOne"
+            data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+                <ul>
+                    {% for nom in approved_noms %}
+                    <li><a href="{{ nom.url() }}">{{ nom.title() }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingTwo">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                {{ unapproved_noms|length }} Unapproved Nomination(s)
+            </button>
+        </h2>
+        <div id="collapseTwo" class="accordion-collapse collapse collapsed" aria-labelledby="headingTwo"
+            data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+                <ul>
+                    {% for nom in unapproved_noms %}
+                    <li><a href="{{ nom.url() }}">{{ nom.title() }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 
-<ul>
-    {% for nom in unapproved_noms %}
-    <li><a href="{{ nom.url() }}">{{ nom.title() }}</a></li>
-    {% endfor %}
-</ul>
 
 {% endblock %}

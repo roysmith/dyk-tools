@@ -4,7 +4,7 @@ from typing import Iterable
 from flask import Blueprint, render_template, request, redirect, url_for, g, current_app
 import mwparserfromhell as mwp
 from pywikibot import Page, Category
-from dyk_tools import Nomination, Article, HookSet
+from dyk_tools import Nomination, NominationList, Article, HookSet
 from .core_forms import NominationForm, HookSetForm
 from .data import NominationData, HookSetData
 
@@ -66,15 +66,19 @@ def hook_set_choices(site) -> list[(str, str)]:
 
 @bp.route("/unapproved")
 def unapproved():
-    page = Page(g.site, "Template talk:Did you know/Approved")
-    wikicode = mwp.parse(page.get())
-    noms = []
-    for template in wikicode.filter_templates():
-        title = template.name
-        if title.startswith("Template:Did you know nominations/"):
-            current_app.logger.info(f"{title=}")
-            nom = Nomination(Page(g.site, title))
-            if not nom.is_approved():
-                noms.append(nom)
+    title = "Template talk:Did you know/Approved"
+    nom_list = NominationList(Page(g.site, title))
+    approved_noms = []
+    unapproved_noms = []
+    for nom in nom_list.nominations():
+        if nom.is_approved():
+            approved_noms.append(nom)
+        else:
+            unapproved_noms.append(nom)
 
-    return render_template("unapproved.html", unapproved_noms=noms)
+    return render_template(
+        "unapproved.html",
+        title=title,
+        approved_noms=approved_noms,
+        unapproved_noms=unapproved_noms,
+    )
