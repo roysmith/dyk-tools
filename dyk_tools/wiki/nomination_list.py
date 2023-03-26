@@ -48,7 +48,7 @@ class NominationList:
         for t in wikicode.filter_templates(
             recursive=False, matches="template:did you know nominations/"
         ):
-            yield Nomination(Page(self.page, t.name))
+            yield Nomination(Page(self.page.site, t.name))
 
     def remove_nomination(self, nomination: Page, message: str) -> Heading:
         """Remove a nomination transclusion and save the NominationList
