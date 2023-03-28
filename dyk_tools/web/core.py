@@ -1,5 +1,7 @@
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
 from typing import Iterable
+
 
 from flask import Blueprint, render_template, request, redirect, url_for, g, current_app
 import mwparserfromhell as mwp
@@ -70,11 +72,20 @@ def unapproved():
     nom_list = NominationList(Page(g.site, title))
     approved_noms = []
     unapproved_noms = []
-    for nom in nom_list.nominations():
-        if nom.is_approved():
-            approved_noms.append(nom)
-        else:
-            unapproved_noms.append(nom)
+
+    def _is_approved(nom):
+        return nom.is_approved()
+
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        future_to_nom = {
+            executor.submit(_is_approved, nom): nom for nom in nom_list.nominations()
+        }
+        for future in as_completed(future_to_nom):
+            nom = future_to_nom[future]
+            if future.result():
+                approved_noms.append(nom)
+            else:
+                unapproved_noms.append(nom)
 
     return render_template(
         "unapproved.html",
