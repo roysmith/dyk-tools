@@ -1,6 +1,6 @@
 import pytest
 from textwrap import dedent
-from unittest.mock import Mock
+from unittest.mock import Mock, PropertyMock
 
 import pywikibot
 import mwparserfromhell as mwp
@@ -58,10 +58,16 @@ class TestUrl:
                 reason="https://github.com/earwig/mwparserfromhell/issues/302"
             ),
         ),
+        (f"{{{{DYK checklist|status=y}}}}", True),
+        (f"{{{{DYK checklist|status=y}}}}\n{DYK_TICK}", True),
+        (f"{{{{DYK checklist|status=y}}}}\n{DYK_QUERY}", False),
+        (f"{{{{DYK checklist|status=y}}}}\n{{{{DYK checklist|status=y}}}}", True),
+        (f"{{{{DYK checklist|status=y}}}}\n{{{{DYK checklist|status=n}}}}", False),
+        (f"{{{{DYK checklist|status=n}}}}\n{{{{DYK checklist|status=y}}}}", True),
     ],
 )
 def test_is_approved(page, text, result):
-    page.expand_text.return_value = text
+    type(page).text = PropertyMock(return_value=text)
     nomination = Nomination(page)
     assert nomination.is_approved() is result
 

@@ -64,9 +64,9 @@ class TestSelect:
 
 
 class TestNomination:
-    def test_get(self, client, app, captured_templates, core_page):
+    def test_get(self, mocker, client, app, captured_templates, core_page):
         core_page.get.return_value = ""
-        core_page.expand_text.return_value = ""
+        type(core_page).text = mocker.PropertyMock(return_value="text")
         with captured_templates(app) as templates:
             response = client.get("/nomination?title=foo")
         assert response.status_code == 200

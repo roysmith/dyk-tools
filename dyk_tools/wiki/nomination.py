@@ -4,6 +4,7 @@ from typing import List
 
 from pywikibot import Page
 import mwparserfromhell as mwp
+from mwparserfromhell.nodes import Template, Wikilink
 
 from .article import Article
 from .hook import Hook
@@ -32,7 +33,12 @@ class Nomination:
         return self.page.full_url()
 
     def is_approved(self) -> bool:
-        """Return True if the last status icon is an approval.
+        """Return True if the last status indication is an approval.
+
+        A checkmark icon counts as an approval.  Any of the other listed images count
+        as a disapproval.  If there is a {{DYK checklist}} template, the status field
+        is examined; a value of "y" counts as an approval; any other value
+        counts as a disapproval.
 
         Traditionally, the icon's file link includes a trailing '|16px'.  Although some
         implementations require that, this does not.  It's unclear if that's the right
@@ -40,12 +46,22 @@ class Nomination:
 
         """
         approved = False
-        wikicode = mwp.parse(self.page.expand_text())
-        for link in wikicode.filter_wikilinks():
-            if any(link.title.matches(t) for t in APPROVALS):
-                approved = True
-            if any(link.title.matches(t) for t in DISAPPROVALS):
-                approved = False
+        wikicode = mwp.parse(self.page.text)
+        for node in wikicode.ifilter():
+            if isinstance(node, Wikilink):
+                if any(node.title.matches(t) for t in APPROVALS):
+                    approved = True
+                if any(node.title.matches(t) for t in DISAPPROVALS):
+                    approved = False
+            if isinstance(node, Template) and node.name.matches("DYK checklist"):
+                if (
+                    node.has("status")
+                    and node.get("status").value.lower().strip() == "y"
+                ):
+                    approved = True
+                else:
+                    approved = False
+
         return approved
 
     def articles(self) -> List[Article]:
