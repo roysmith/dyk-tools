@@ -207,3 +207,39 @@ class NominationList:
         if header_date > today:
             header_date = date(today.year - 1, month, day)
         return header_date
+
+    def find_nomination(self, nomination: Nomination) -> Wikicode:
+        """Find a nomination transclusion.
+
+        Returns the section where the nomination was found.  Returns
+        None if the nomination is not found
+
+        Note that nomination.title() must include the "Template:" namespace, but
+        transclusions in the NominationList are recognized with or without
+        the leading "Template:".
+
+        """
+
+        def normalize(title):
+            if ":" in title:
+                namespace, base_title = title.split(":", 1)
+            else:
+                namespace = ""
+                base_title = title
+            if namespace in ["template", "Template"]:
+                namespace = ""
+            if namespace:
+                namespace = namespace[0].upper() + namespace[1:]
+            page = base_title[0].upper() + base_title[1:]
+            if namespace:
+                return f"{namespace}:{base_title}"
+            else:
+                return base_title
+
+        normalized_title = normalize(nomination.title())
+        wikicode = parse(self.page.get())
+        for section in wikicode.get_sections(levels=[3]):
+            for template in section.filter_templates(recursive=False):
+                if normalize(template.name) == normalized_title:
+                    return section
+        return None

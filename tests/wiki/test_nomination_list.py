@@ -264,3 +264,66 @@ def test_intuit_year_date(mocker, input, current_date, expected_result):
     result = NominationList.intuit_year_date(input)
 
     assert result == expected_result
+
+
+@pytest.mark.parametrize(
+    "input_text, nom_title, expected_section_title",
+    [
+        (
+            """\
+                ===Articles created/expanded on December 31===
+                {{Template:Did you know nominations/Nom 1}}
+                {{Template:Did you know nominations/Nom 2}}
+                ===Articles created/expanded on January 15===
+                {{Template:Did you know nominations/Nom 3}}
+            """,
+            "Template:Did you know nominations/Nom 1",
+            "Articles created/expanded on December 31",
+        ),
+        (
+            """\
+                ===Articles created/expanded on April 1===
+                {{Did you know nominations/Nom 1}}
+                {{Did you know nominations/Nom 2}}
+            """,
+            "Template:Did you know nominations/Nom 1",
+            "Articles created/expanded on April 1",
+        ),
+        (
+            """\
+                ===Articles created/expanded on February 1===
+                {{Did you know nominations/Nom 1}}
+                ===Articles created/expanded on February 2===
+                {{Did you know nominations/Nom 2}}
+            """,
+            "Template:Did you know nominations/Nom 1",
+            "Articles created/expanded on February 1",
+        ),
+        (
+            """\
+                ===Articles created/expanded on February 1===
+                {{Did you know nominations/Nom 1}}
+                ===Articles created/expanded on February 2===
+                {{Did you know nominations/Nom 2}}
+            """,
+            "Template:Did you know nominations/Nom 3",
+            None,
+        ),
+    ],
+)
+def test_find_nomination(
+    mocker, site, page, input_text, nom_title, expected_section_title
+):
+    page.get.return_value = dedent(input_text)
+    mocker.patch("dyk_tools.wiki.nomination_list.Page", new=MockPage)
+    nomlist = NominationList(page)
+    old_nom_page = MockPage(site, nom_title)
+
+    section = nomlist.find_nomination(old_nom_page)
+
+    if expected_section_title is None:
+        assert section is None
+    else:
+        heading = section.nodes[0]
+        assert heading.title == expected_section_title
+        assert heading.level == 3
