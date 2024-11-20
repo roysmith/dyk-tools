@@ -3,5 +3,5 @@
 jobdir=$DYK_TOOLS_BASEDIR/src/dyk_tools/bot/jobs
 
 toolforge-jobs run add-tags-en --command $jobdir/add-tags-en.bash --image tf-python39 --schedule "*/5 * * * *"
-toolforge-jobs run protect-test --command $jobdir/protect-test.bash --image tf-python39 --schedule "8,18,28,38,48,58 * * * *"
-toolforge-jobs run unprotect-test --command $jobdir/unprotect-test.bash --image tf-python39 --schedule "1,11,21,31,41,51 * * * *"
+# toolforge-jobs run protect-test --command $jobdir/protect-test.bash --image tf-python39 --schedule "8,18,28,38,48,58 * * * *"
+# toolforge-jobs run unprotect-test --command $jobdir/unprotect-test.bash --image tf-python39 --schedule "1,11,21,31,41,51 * * * *"
