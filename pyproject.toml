@@ -7,12 +7,17 @@ name = "dyk_tools"
 dynamic = ["version"]
 dependencies = [
   "Flask",
+  "Flask-Caching",
   "mwoauth",
   "mwparserfromhell",
+  "PyMySQL",
+  "pytest",
   "pytest-mock",
   "pytest-socket",
   "pywikibot",
   "sh",
+  "SQLAlchemy",
+  "toml",
   "ujson",
   "WTforms",
 ]
