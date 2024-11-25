@@ -150,7 +150,10 @@ class App:
 
         data = dict(configparser["client"])
         data["dbname"] = f"{data['user']}__dyk_tools_bot_{self.site.code}"
-        template = "{scheme}://{user}:{password}@{host}/{dbname}"
+        if 'url' in data:
+            template = "{url}"
+        else:
+            template = "{scheme}://{user}:{password}@{host}/{dbname}"
         url = template.format(**data)
         data["password"] = "******"
         self.logger.info("Database: %s", template.format(**data))
