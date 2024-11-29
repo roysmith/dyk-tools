@@ -85,7 +85,7 @@ class TestArticles:
         )
 
         # Set up the mock template for Nomination.articles() to examine
-        template = mocker.Mock(spec=pywikibot.Page)()
+        template = mocker.Mock(spec=pywikibot.page.Page)()
         template.title.return_value = "Template:DYK nompage links"
 
         page.templatesWithParams.return_value = [
@@ -105,7 +105,7 @@ class TestArticles:
         )
 
         # Set up the mock template for Nomination.articles() to examine
-        template = mocker.Mock(spec=pywikibot.Page)()
+        template = mocker.Mock(spec=pywikibot.page.Page)()
         template.title.return_value = "Template:DYK nompage links"
 
         page.templatesWithParams.return_value = [
