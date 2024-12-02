@@ -1,6 +1,7 @@
 from urllib.parse import unquote_plus
 
 import pytest
+import pywikibot
 
 from dyk_tools.web.core import hook_set_choices
 
@@ -25,12 +26,14 @@ def core_page(mocker, site):
 class TestSelect:
     def test_get(
         self,
+        mocker,
         client,
         app,
         captured_templates,
         mock_pending_nominations,
         mock_hook_set_choices,
     ):
+        mocker.patch("dyk_tools.web.app.Site", autospec=pywikibot.site.APISite)
         with captured_templates(app) as templates:
             response = client.get("/select")
         assert response.status_code == 200
@@ -40,7 +43,8 @@ class TestSelect:
         assert "nomination_form" in context
         assert "hook_set_form" in context
 
-    def test_post_nomination_form_returns_redirect(self, client):
+    def test_post_nomination_form_returns_redirect(self, mocker, client):
+        mocker.patch("dyk_tools.web.app.Site", autospec=pywikibot.site.APISite)
         response = client.post(
             "/select",
             follow_redirects=False,
@@ -49,7 +53,8 @@ class TestSelect:
         assert response.status_code == 302
         assert response.headers["location"] == "/nomination?title=foo"
 
-    def test_post_hook_set_form_returns_redirect(self, client):
+    def test_post_hook_set_form_returns_redirect(self, mocker, client):
+        mocker.patch("dyk_tools.web.app.Site", autospec=pywikibot.site.APISite)
         response = client.post(
             "/select",
             follow_redirects=False,
@@ -65,6 +70,7 @@ class TestSelect:
 
 class TestNomination:
     def test_get(self, mocker, client, app, captured_templates, core_page):
+        mocker.patch("dyk_tools.web.app.Site", autospec=pywikibot.site.APISite)
         core_page.get.return_value = ""
         type(core_page).text = mocker.PropertyMock(return_value="text")
         with captured_templates(app) as templates:
@@ -76,7 +82,8 @@ class TestNomination:
 
 
 class TestHookSet:
-    def test_get(self, client, app, captured_templates, core_page):
+    def test_get(self, mocker, client, app, captured_templates, core_page):
+        mocker.patch("dyk_tools.web.app.Site", autospec=pywikibot.site.APISite)
         core_page.text = ""
         with captured_templates(app) as templates:
             response = client.get("/hook-set?title=foo")
