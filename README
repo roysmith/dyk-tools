@@ -1,10 +1,15 @@
-Initial setup:
-  mkdir dyk-tools
-  cd dyk-tools
-  git clone <source-repo> src
-  python3 -m venv venv --prompt dyk-tools
-  . venv/bin/activate
-  pip install -r src/requirements.txt
+Initial toolforge setup:
+  verify you have a $HOME/replica.my.cnf file
+  mkdir -p $HOME/www/python
+  cd $HOME/www/python
+  git clone https://github.com/roysmith/dyk-tools.git src
+  webservice --backend=kubernetes python3.11 shell
+    (on the k8s host)
+    cd $HOME/www/python
+    python3 -m venv venv
+    . venv/bin/activate
+    cd src
+    pip install .
 
 
 Create an empty config file:
