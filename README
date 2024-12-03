@@ -14,8 +14,6 @@ Initial toolforge setup:
 
 Create an empty config file:
   touch $HOME/.pywikibot/user-config.py file
-
-The installer may have created $HOME/.pywikibot with the wrong mode, so you need to do:
   chmod u+x $HOME/.pywikibot
 
 
