@@ -6,9 +6,9 @@ import re
 import mwparserfromhell
 from pywikibot import Page, Category
 
-logger = logging.getLogger("dyk_tools.article")
-
 from dyk_tools.wiki.us_states import STATES
+
+logger = logging.getLogger("dyk_tools.article")
 
 
 @functools.cache
