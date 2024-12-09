@@ -1,3 +1,7 @@
+"""Functionality related to articles.
+
+"""
+
 from dataclasses import dataclass
 import functools
 import logging
