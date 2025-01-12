@@ -2,10 +2,10 @@ from dyk_tools.wiki.article import Article
 from dyk_tools.wiki.hook import Hook
 from dyk_tools.wiki.hook_set import HookSet
 from dyk_tools.wiki.nomination import Nomination
-
 from dyk_tools.wiki.nomination_list import NominationList, NominationListError
 
 try:
+    # Optional build-time data from setuptools-scm
     import dyk_tools._version
 except ModuleNotFoundError:
     version = "unknown"
