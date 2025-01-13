@@ -32,4 +32,4 @@ dykbot = "dyk_tools.bot:dykbot.main"
 packages = ["dyk_tools"]
 
 [tool.setuptools_scm]
-write_to = "dyk_tools/_version.py"
+version_file = "dyk_tools/_version.py"
