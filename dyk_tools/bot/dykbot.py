@@ -135,6 +135,11 @@ class App:
             help="Directory for config files (overrides $DYK_TOOLS_BASEDIR)",
         )
         parser.add_argument(
+            "--nom",
+            default=None,
+            help="Process a single nomination (for use with add-tags)",
+        )
+        parser.add_argument(
             "task",
             nargs="?",
             choices=list(self.tasks),
@@ -160,12 +165,18 @@ class App:
         return create_engine(url)
 
     def add_tags_task(self):
-        cat = Category(self.site, "Pending DYK nominations")
+        force = False
+        if self.args.nom:
+            noms = [Page(self.site, self.args.nom)]
+            force = True
+        else:
+            cat = Category(self.site, "Pending DYK nominations")
+            noms = cat.articles(namespaces="Template")
         count = 0
-        for page in cat.articles(namespaces="Template"):
+        for page in noms:
             nom = Nomination(page)
             try:
-                if self.process_one_nomination(nom):
+                if self.process_one_nomination(nom, force):
                     count += 1
             except NoPageError as ex:
                 self.logger.error(
@@ -173,6 +184,7 @@ class App:
                     nom.title(),
                     ex.page.title(),
                 )
+                raise
                 continue
             if self.args.max and count >= self.args.max:
                 break
@@ -180,9 +192,9 @@ class App:
 
     MANAGED_TAGS = frozenset(["Pending DYK biographies", "Pending DYK American hooks"])
 
-    def process_one_nomination(self, nom) -> bool:
+    def process_one_nomination(self, nom: Nomination, force: bool = False) -> bool:
         """Process one nomination.  Return True if it wasn't skipped."""
-        if self.nomination_is_previously_processed(nom):
+        if (not force) and self.nomination_is_previously_processed(nom):
             self.logger.debug("skipping [[%s]]", nom.title())
             return False
         flags = []
