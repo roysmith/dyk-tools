@@ -37,7 +37,8 @@ mw.hook('wikipage.content').add(function ( $content ) {
                         console.log('Failed to read from clipboard', error);
                         return;
                     }
-                    const match = oldClipText.match(/^{{ping|(?<oldUserNames>[^}]*)}}$/);
+                    const match = oldClipText.match(/^{{ping\|(?<oldUserNames>[^}]*)}}$/);
+                    console.log('match=', match);
                     let newClipText = '';
                     if (match) {
                         newClipText = '{{ping|' + match.groups.oldUserNames + '|' + userName + '}}';
@@ -47,8 +48,8 @@ mw.hook('wikipage.content').add(function ( $content ) {
                     }
 
                     try {
-                        await navigator.clipboard.writeText('{{ping|' + $this.text() + '}}');
-                        console.log('copied to clipboard');
+                        await navigator.clipboard.writeText(newClipText);
+                        console.log('copied to clipboard', newClipText);
                     } catch (error) {
                         console.log('Failed to copy!', error);
                         return;
