@@ -22,6 +22,23 @@ mw.hook('wikipage.content').add(function ( $content ) {
     console.log( $content );
     console.log( $users );
 
+    const $pingBox = $('<textarea id="ping-box" rows="6"></textarea>' );
+    $pingBox.insertBefore( '#firstHeading' );
+    $pingBox.append('===[[', pageName, ']]===\n');
+
+    const $copyButton = $('<button id="copy-button">Copy</button>')
+        .on( 'click', async function () {
+            const $text = $( '#ping-box' ).val();
+            try {
+                await navigator.clipboard.writeText($text);
+                console.log('copied to clipboard', $text);
+            } catch (error) {
+                console.log('Failed to copy!', error);
+                return;
+            }
+        } );
+    $copyButton.insertAfter('#ping-box');
+
     $users.each(function () {
         const $this = $( this );
         const $button = $( '<button>' )
@@ -29,31 +46,9 @@ mw.hook('wikipage.content').add(function ( $content ) {
                 .on( 'click', async function () {
                     console.log( 'ping' );
                     const userName = $this.text();
-                    let oldClipText = '';
-                    try {
-                        oldClipText = await navigator.clipboard.readText();
-                        console.log('read from clipboard', oldClipText);
-                    } catch (error) {
-                        console.log('Failed to read from clipboard', error);
-                        return;
-                    }
-                    const match = oldClipText.match(/^{{ping\|(?<oldUserNames>[^}]*)}}$/);
-                    console.log('match=', match);
-                    let newClipText = '';
-                    if (match) {
-                        newClipText = '{{ping|' + match.groups.oldUserNames + '|' + userName + '}}';
-                    }
-                    else {
-                        newClipText = '{{ping|' + userName + '}}';
-                    }
+                    $pingBox.append('{{ping|' + userName + '}}\n');
 
-                    try {
-                        await navigator.clipboard.writeText(newClipText);
-                        console.log('copied to clipboard', newClipText);
-                    } catch (error) {
-                        console.log('Failed to copy!', error);
-                        return;
-                    }
+
                 });
         $button.insertAfter( $this );
     } );
