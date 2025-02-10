@@ -26,10 +26,34 @@ mw.hook('wikipage.content').add(function ( $content ) {
         const $this = $( this );
         const $button = $( '<button>' )
                 .text( 'ping' )
-                .on( 'click', function () {
+                .on( 'click', async function () {
                     console.log( 'ping' );
-                    $this.text( '@' + $this.text() );
-                } );
+                    const userName = $this.text();
+                    let oldClipText = '';
+                    try {
+                        oldClipText = await navigator.clipboard.readText();
+                        console.log('read from clipboard', oldClipText);
+                    } catch (error) {
+                        console.log('Failed to read from clipboard', error);
+                        return;
+                    }
+                    const match = oldClipText.match(/^{{ping|(?<oldUserNames>[^}]*)}}$/);
+                    let newClipText = '';
+                    if (match) {
+                        newClipText = '{{ping|' + match.groups.oldUserNames + '|' + userName + '}}';
+                    }
+                    else {
+                        newClipText = '{{ping|' + userName + '}}';
+                    }
+
+                    try {
+                        await navigator.clipboard.writeText('{{ping|' + $this.text() + '}}');
+                        console.log('copied to clipboard');
+                    } catch (error) {
+                        console.log('Failed to copy!', error);
+                        return;
+                    }
+                });
         $button.insertAfter( $this );
     } );
 });
