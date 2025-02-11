@@ -27,7 +27,10 @@ mw.hook('wikipage.content').add(function ( $content ) {
 
     const $pingBox = $('<textarea id="ping-box" rows="6"></textarea>' );
     $pingBox.insertBefore( '#firstHeading' );
-    $pingBox.append('===[[', pageName, ']]===\n');
+    const templateName = $( '#firstHeading > span.mw-page-title-main' )
+        .text()
+        .replace('Did you know nominations/', '');
+    $pingBox.append('===[[', pageName, '|', templateName, ']]===\n');
 
     const $copyButton = $('<button id="copy-button">Copy</button>')
         .on( 'click', async function () {
