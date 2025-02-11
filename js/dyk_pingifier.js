@@ -1,6 +1,9 @@
  "use strict";
  
-// import { cdxIconBellOutline } from '@wikimedia/codex-icons';
+// User:RoySmith/dyk-pingifier.js
+// Distributed under the MIT license
+// Source at https://github.com/roysmith/dyk-tools/
+
 
 mw.hook('wikipage.content').add(function ( $content ) {
     console.log('try.js loaded');
