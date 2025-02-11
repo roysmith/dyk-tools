@@ -1,4 +1,4 @@
- "use strict";
+"use strict";
  
 // User:RoySmith/dyk-pingifier.js
 // Distributed under the MIT license
@@ -48,7 +48,7 @@ mw.hook('wikipage.content').add(function ( $content ) {
                 .text( 'ping' )
                 .on( 'click', async function () {
                     console.log( 'ping' );
-                    const userName = $this.text();
+                    const userName = $this.attr('title');
                     $pingBox.append('{{ping|' + userName + '}}\n');
 
 
