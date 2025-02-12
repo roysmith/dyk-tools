@@ -17,12 +17,6 @@ mw.hook('wikipage.content').add(function ($content) {
     if (!dykNomPattern.test(pageName)) {
         return;
     }
-    const userSubpagePattern = new RegExp('^/wiki/User:[^/]+$');
-    const $users = $content.find('a')
-        .filter(function (index) {
-            return userSubpagePattern.test($(this).attr('href'));
-        });
-
 
     const $pingBox = $('<textarea id="ping-box" rows="6"></textarea>');
     $pingBox.insertBefore('#firstHeading');
@@ -50,6 +44,11 @@ mw.hook('wikipage.content').add(function ($content) {
         });
     $linksButton.insertAfter('#ping-box');
 
+    const userSubpagePattern = new RegExp('^/wiki/User:[^/]+$');
+    const $users = $content.find('a')
+        .filter(function (index) {
+            return userSubpagePattern.test($(this).attr('href'));
+        });
     $users.each(function () {
         const $this = $(this);
         const $button = $('<button>')
