@@ -22,8 +22,7 @@ mw.hook('wikipage.content').add(function ( $content ) {
         .filter(function (index) {
             return userSubpagePattern.test($(this).attr('href'));
         });
-    console.log( $content );
-    console.log( $users );
+
     
     const $pingBox = $('<textarea id="ping-box" rows="6"></textarea>' );
     $pingBox.insertBefore( '#firstHeading' );
@@ -47,7 +46,6 @@ mw.hook('wikipage.content').add(function ( $content ) {
     
     const $linksButton = $('<button id="links-button">Links</button>')
     .on( 'click', async function () {
-        console.log('links', this);
         $pingBox.append('links\n');
     });
     $linksButton.insertAfter('#ping-box');
@@ -57,14 +55,11 @@ mw.hook('wikipage.content').add(function ( $content ) {
         const $button = $( '<button>' )
         .text( 'ping' )
         .on( 'click', async function () {
-            console.log( 'ping' );
-                    const userName = $this.attr('href')
-                    .replace(/^\/wiki\/User:/, '')
-                    .replace(/_/g, ' ');
-                    $pingBox.append('{{ping|' + userName + '}}\n');
-
-
-                });
+            const userName = $this.attr('href')
+            .replace(/^\/wiki\/User:/, '')
+            .replace(/_/g, ' ');
+            $pingBox.append('{{ping|' + userName + '}}\n');
+         });
         $button.insertAfter( $this );
     } );
 });
