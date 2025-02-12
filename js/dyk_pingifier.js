@@ -51,7 +51,9 @@ mw.hook('wikipage.content').add(function ( $content ) {
                 .text( 'ping' )
                 .on( 'click', async function () {
                     console.log( 'ping' );
-                    const userName = $this.attr('title');
+                    const userName = $this.attr('href')
+                    .replace(/^\/wiki\/User:/, '')
+                    .replace(/_/g, ' ');
                     $pingBox.append('{{ping|' + userName + '}}\n');
 
 
