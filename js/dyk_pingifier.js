@@ -24,33 +24,40 @@ mw.hook('wikipage.content').add(function ( $content ) {
         });
     console.log( $content );
     console.log( $users );
-
+    
     const $pingBox = $('<textarea id="ping-box" rows="6"></textarea>' );
     $pingBox.insertBefore( '#firstHeading' );
     const templateName = $( '#firstHeading > span.mw-page-title-main' )
-        .text()
-        .replace('Did you know nominations/', '');
+    .text()
+    .replace('Did you know nominations/', '');
     $pingBox.append('===[[', pageName, '|', templateName, ']]===\n');
-
+    
     const $copyButton = $('<button id="copy-button">Copy</button>')
-        .on( 'click', async function () {
-            const $text = $( '#ping-box' ).val();
-            try {
-                await navigator.clipboard.writeText($text);
-                console.log('copied to clipboard', $text);
-            } catch (error) {
-                console.log('Failed to copy!', error);
-                return;
-            }
-        } );
+    .on( 'click', async function () {
+        const $text = $( '#ping-box' ).val();
+        try {
+            await navigator.clipboard.writeText($text);
+            console.log('copied to clipboard', $text);
+        } catch (error) {
+            console.log('Failed to copy!', error);
+            return;
+        }
+    } );
     $copyButton.insertAfter('#ping-box');
-
+    
+    const $linksButton = $('<button id="links-button">Links</button>')
+    .on( 'click', async function () {
+        console.log('links', this);
+        $pingBox.append('links\n');
+    });
+    $linksButton.insertAfter('#ping-box');
+    
     $users.each(function () {
         const $this = $( this );
         const $button = $( '<button>' )
-                .text( 'ping' )
-                .on( 'click', async function () {
-                    console.log( 'ping' );
+        .text( 'ping' )
+        .on( 'click', async function () {
+            console.log( 'ping' );
                     const userName = $this.attr('href')
                     .replace(/^\/wiki\/User:/, '')
                     .replace(/_/g, ' ');
