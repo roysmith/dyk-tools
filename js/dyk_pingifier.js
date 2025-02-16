@@ -10,9 +10,43 @@ class Pingifier {
         this.mw = mw;
         this.updateTimes = {};
     }
+
+    /**
+     * 
+     * @param {string} html UTF-8 encoded HTML from {{Did you know/Queue/LocalUpdateTimes}}
+     * @return an object mapping queue/prep names to times
+     */
+    static parseLocalUpdateTimes(localUpdateTimes) {
+        const queuePattern = new RegExp('(?<tag>Queue \\d)');
+        const prepPattern = new RegExp('(?<tag>Prep \\d)');
+        let updateTimes = {};
+        $(localUpdateTimes).find('table.wikitable > tbody > tr').each(function ($row) {
+            const $cells = $($(this).find('td'));
+            if ($cells.length < 1) {
+                return;
+            }
+            // This is ugly; it hard-wires that UTC is in column 3.  We really
+            // should parse the table headers to see which is the right column.
+            const time = $cells[3].innerHTML.replace('<br>', '&nbsp;').trim();
+            const tags = $($cells[0]).text();
+            var found = tags.match(queuePattern);
+            if (found) {
+                updateTimes[found.groups.tag] = time;
+            }
+            found = tags.match(prepPattern);
+            if (found) {
+                updateTimes[found.groups.tag] = time;
+            }
+        });
+        return updateTimes;
+    }
 }
 
-exports.Pingifier = Pingifier;
+// dyk_pingifier.js:45 Uncaught ReferenceError: module is not defined
+// module.exports = { Pingifier };
+
+// Uncaught SyntaxError: Unexpected token 'export' (at dyk_pingifier.js:48:1)
+// export Pingifier;
 
 
 mw.hook('wikipage.content').add(async function ($content) {
@@ -35,29 +69,8 @@ mw.hook('wikipage.content').add(async function ($content) {
         .replace('Did you know nominations/', '');
     $pingBox.append('===[[', pageName, '|', templateName, ']]===\n');
 
-    $.get('/wiki/Template:Did_you_know/Queue/LocalUpdateTimes', function (localUpdateTimes) {
-        const queuePattern = new RegExp('(?<tag>Queue \\d)');
-        const prepPattern = new RegExp('(?<tag>Prep \\d)');
-        $(localUpdateTimes).find('table.wikitable > tbody > tr').each(function ($row) {
-            const cells = $($(this).find('td'));
-            if (cells.length < 1) {
-                return;
-            }
-            const time = cells[3].innerHTML.replace('<br>', '&nbsp;').trim();
-            const tags = $(cells[0]).text();
-            var found = tags.match(queuePattern);
-            if (found) {
-                console.log('found queue', found.groups.tag);
-                updateTimes[found.groups.tag] = time;
-            }
-            found = tags.match(prepPattern);
-            if (found) {
-                console.log('found prep', found.groups.tag);
-                updateTimes[found.groups.tag] = time;
-            }
-        });
-        console.log(updateTimes);
-    });
+    const html = await $.get({ 'url': '/wiki/Template:Did_you_know/Queue/LocalUpdateTimes' });
+    const updateTimes = parseLocalUpdateTimes(html);
 
     const $copyButton = $('<button id="copy-button">Copy</button>')
         .on('click', async function () {
