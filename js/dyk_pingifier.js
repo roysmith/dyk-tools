@@ -42,11 +42,10 @@ class Pingifier {
     }
 }
 
-// dyk_pingifier.js:45 Uncaught ReferenceError: module is not defined
-// module.exports = { Pingifier };
+if (typeof (module) != 'undefined') {
+    module.exports = { Pingifier };
+}
 
-// Uncaught SyntaxError: Unexpected token 'export' (at dyk_pingifier.js:48:1)
-// export Pingifier;
 
 
 mw.hook('wikipage.content').add(async function ($content) {
@@ -70,7 +69,7 @@ mw.hook('wikipage.content').add(async function ($content) {
     $pingBox.append('===[[', pageName, '|', templateName, ']]===\n');
 
     const html = await $.get({ 'url': '/wiki/Template:Did_you_know/Queue/LocalUpdateTimes' });
-    const updateTimes = parseLocalUpdateTimes(html);
+    const updateTimes = Pingifier.parseLocalUpdateTimes(html);
 
     const $copyButton = $('<button id="copy-button">Copy</button>')
         .on('click', async function () {
