@@ -107,9 +107,9 @@ mw.hook('wikipage.content').add(async function ($content) {
         const $button = $('<button>')
             .text('ping')
             .on('click', async function () {
-                const userName = $this.attr('href')
+                const userName = decodeURI($this.attr('href')
                     .replace(/^\/wiki\/User:/, '')
-                    .replace(/_/g, ' ');
+                    .replace(/_/g, ' '));
                 $pingBox.append('{{ping|' + userName + '}}\n');
             });
         $button.insertAfter($this);
