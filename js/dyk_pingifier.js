@@ -97,14 +97,32 @@ class Pingifier {
             });
         $l2Button.insertAfter('#ping-box');
     }
-}
 
+    addPingButtons() {
+        const userSubpagePattern = new RegExp('^/wiki/User:[^/]+$');
+        const pingifier = this;
+        const $users = this.$('a')
+            .filter(function (index) {
+                return userSubpagePattern.test(pingifier.$(this).attr('href'));
+            });
+        $users.each(function () {
+            const $this = $(this);
+            const $button = $('<button>')
+                .text('ping')
+                .on('click', async function () {
+                    const userName = decodeURI($this.attr('href')
+                        .replace(/^\/wiki\/User:/, '')
+                        .replace(/_/g, ' '));
+                    pingifier.$pingBox.append('{{ping|' + userName + '}}\n');
+                });
+            $button.insertAfter($this);
+        });
+    }
+}
 
 if (typeof (module) != 'undefined') {
     module.exports = { Pingifier };
 }
-
-
 
 mw.hook('wikipage.content').add(async function ($content) {
     console.log('try.js loaded');
@@ -124,22 +142,6 @@ mw.hook('wikipage.content').add(async function ($content) {
     pingifier.addPingBox();
     pingifier.addCopyButton();
     pingifier.addL2Button();
-
-    const userSubpagePattern = new RegExp('^/wiki/User:[^/]+$');
-    const $users = $content.find('a')
-        .filter(function (index) {
-            return userSubpagePattern.test($(this).attr('href'));
-        });
-    $users.each(function () {
-        const $this = $(this);
-        const $button = $('<button>')
-            .text('ping')
-            .on('click', async function () {
-                const userName = decodeURI($this.attr('href')
-                    .replace(/^\/wiki\/User:/, '')
-                    .replace(/_/g, ' '));
-                pingifier.$pingBox.append('{{ping|' + userName + '}}\n');
-            });
-        $button.insertAfter($this);
-    });
+    pingifier.addPingBox();
+    pingifier.addPingButtons();
 });
