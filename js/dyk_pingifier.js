@@ -9,6 +9,7 @@ class Pingifier {
         this.$ = $;
         this.mw = mw;
         this.updateTimes = {};
+        this.$pingBox = null;
     }
 
     /**
@@ -40,7 +41,64 @@ class Pingifier {
         });
         return updateTimes;
     }
+
+    async initializeLocalUpdateTimes() {
+        const html = await this.$.get({ 'url': '/wiki/Template:Did_you_know/Queue/LocalUpdateTimes' });
+        this.updateTimes = Pingifier.parseLocalUpdateTimes(html);
+    }
+
+    addPingBox() {
+        this.$pingBox = this.$('<textarea id="ping-box" rows="8"></textarea>');
+        this.$pingBox.insertBefore('#firstHeading');
+        const templateName = this.$('#firstHeading > span.mw-page-title-main')
+            .text()
+            .replace('Did you know nominations/', '');
+        this.$pingBox.append('===[[', this.mw.config.get('wgPageName'), '|', templateName, ']]===\n');
+    }
+
+    addCopyButton() {
+        const $copyButton = this.$('<button id="copy-button">Copy</button>')
+            .on('click', async function () {
+                const $text = this.$('#ping-box').val();
+                try {
+                    await navigator.clipboard.writeText($text);
+                    console.log('copied to clipboard', $text);
+                } catch (error) {
+                    console.log('Failed to copy!', error);
+                    return;
+                }
+            });
+        $copyButton.insertAfter('#ping-box');
+    }
+
+    addL2Button() {
+        const $l2Button = this.$('<button id="l2-button">Add L2 Header</button>')
+            .on('click', this, async function (event) {
+                const params = {
+                    action: 'query',
+                    prop: 'linkshere',
+                    titles: event.data.mw.config.get('wgPageName'),
+                    format: 'json',
+                };
+                const api = new event.data.mw.Api();
+                api.get(params)
+                    .done(function (data) {
+                        const id = event.data.mw.config.get('wgArticleId');
+                        data.query.pages[id].linkshere.forEach(function (pageData) {
+                            const title = pageData.title;
+                            const titlePattern = new RegExp('^Template:Did you know/Queue/(?<n>\\d+)$');
+                            const match = title.match(titlePattern);
+                            if (match) {
+                                const key = 'Queue ' + match.groups.n;
+                                event.data.$pingBox.prepend('==[[', title, '|', key, ']] (', event.data.updateTimes[key], ')==\n\n');
+                            };
+                        })
+                    });
+            });
+        $l2Button.insertAfter('#ping-box');
+    }
 }
+
 
 if (typeof (module) != 'undefined') {
     module.exports = { Pingifier };
@@ -61,53 +119,11 @@ mw.hook('wikipage.content').add(async function ($content) {
         return;
     }
 
-    const $pingBox = $('<textarea id="ping-box" rows="8"></textarea>');
-    $pingBox.insertBefore('#firstHeading');
-    const templateName = $('#firstHeading > span.mw-page-title-main')
-        .text()
-        .replace('Did you know nominations/', '');
-    $pingBox.append('===[[', pageName, '|', templateName, ']]===\n');
-
-    const html = await $.get({ 'url': '/wiki/Template:Did_you_know/Queue/LocalUpdateTimes' });
-    const updateTimes = Pingifier.parseLocalUpdateTimes(html);
-
-    const $copyButton = $('<button id="copy-button">Copy</button>')
-        .on('click', async function () {
-            const $text = $('#ping-box').val();
-            try {
-                await navigator.clipboard.writeText($text);
-                console.log('copied to clipboard', $text);
-            } catch (error) {
-                console.log('Failed to copy!', error);
-                return;
-            }
-        });
-    $copyButton.insertAfter('#ping-box');
-
-    const $l2Button = $('<button id="l2-button">Add L2 Header</button>')
-        .on('click', async function () {
-            const params = {
-                action: 'query',
-                prop: 'linkshere',
-                titles: pageName,
-                format: 'json',
-            };
-            const api = new mw.Api();
-            api.get(params)
-                .done(function (data) {
-                    const id = mw.config.get('wgArticleId');
-                    data.query.pages[id].linkshere.forEach(function (pageData) {
-                        const title = pageData.title;
-                        const titlePattern = new RegExp('^Template:Did you know/Queue/(?<n>\\d+)$');
-                        const match = title.match(titlePattern);
-                        if (match) {
-                            const key = 'Queue ' + match.groups.n;
-                            $pingBox.prepend('==[[', title, '|', key, ']] (', updateTimes[key], ')==\n\n');
-                        };
-                    })
-                });
-        });
-    $l2Button.insertAfter('#ping-box');
+    const pingifier = new Pingifier($, mw);
+    await pingifier.initializeLocalUpdateTimes();
+    pingifier.addPingBox();
+    pingifier.addCopyButton();
+    pingifier.addL2Button();
 
     const userSubpagePattern = new RegExp('^/wiki/User:[^/]+$');
     const $users = $content.find('a')
@@ -122,7 +138,7 @@ mw.hook('wikipage.content').add(async function ($content) {
                 const userName = decodeURI($this.attr('href')
                     .replace(/^\/wiki\/User:/, '')
                     .replace(/_/g, ' '));
-                $pingBox.append('{{ping|' + userName + '}}\n');
+                pingifier.$pingBox.append('{{ping|' + userName + '}}\n');
             });
         $button.insertAfter($this);
     });
