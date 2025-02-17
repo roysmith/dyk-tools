@@ -118,6 +118,14 @@ class Pingifier {
             $button.insertAfter($this);
         });
     }
+
+    async init() {
+        await this.initializeLocalUpdateTimes();
+        this.addPingBox();
+        this.addCopyButton();
+        this.addL2Button();
+        this.addPingButtons();
+    }
 }
 
 if (typeof (module) != 'undefined') {
@@ -138,9 +146,5 @@ mw.hook('wikipage.content').add(async function ($content) {
     }
 
     const pingifier = new Pingifier($, mw);
-    await pingifier.initializeLocalUpdateTimes();
-    pingifier.addPingBox();
-    pingifier.addCopyButton();
-    pingifier.addL2Button();
-    pingifier.addPingButtons();
+    pingifier.init();
 });
