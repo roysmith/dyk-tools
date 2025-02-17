@@ -101,7 +101,7 @@ class Pingifier {
     addPingButtons() {
         const userSubpagePattern = new RegExp('^/wiki/User:[^/]+$');
         const pingifier = this;
-        const $users = this.$('a')
+        const $users = this.$('#content a')
             .filter(function (index) {
                 return userSubpagePattern.test(pingifier.$(this).attr('href'));
             });
@@ -142,6 +142,5 @@ mw.hook('wikipage.content').add(async function ($content) {
     pingifier.addPingBox();
     pingifier.addCopyButton();
     pingifier.addL2Button();
-    pingifier.addPingBox();
     pingifier.addPingButtons();
 });
