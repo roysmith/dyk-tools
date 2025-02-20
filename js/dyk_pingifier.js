@@ -5,8 +5,7 @@
 // Source at https://github.com/roysmith/dyk-tools/
 
 class Pingifier {
-    constructor($, mw) {
-        this.$ = $;
+    constructor(mw) {
         this.mw = mw;
         this.updateTimes = {};
         this.$pingBox = null;
@@ -43,23 +42,23 @@ class Pingifier {
     }
 
     async initializeLocalUpdateTimes() {
-        const html = await this.$.get({ 'url': '/wiki/Template:Did_you_know/Queue/LocalUpdateTimes' });
+        const html = await $.get({ 'url': '/wiki/Template:Did_you_know/Queue/LocalUpdateTimes' });
         this.updateTimes = Pingifier.parseLocalUpdateTimes(html);
     }
 
     addPingBox() {
-        this.$pingBox = this.$('<textarea id="ping-box" rows="8"></textarea>');
+        this.$pingBox = $('<textarea id="ping-box" rows="8"></textarea>');
         this.$pingBox.insertBefore('#firstHeading');
-        const templateName = this.$('#firstHeading > span.mw-page-title-main')
+        const templateName = $('#firstHeading > span.mw-page-title-main')
             .text()
             .replace('Did you know nominations/', '');
         this.$pingBox.append('===[[', this.mw.config.get('wgPageName'), '|', templateName, ']]===\n');
     }
 
     addCopyButton() {
-        const $copyButton = this.$('<button id="copy-button">Copy</button>')
+        const $copyButton = $('<button id="copy-button">Copy</button>')
             .on('click', async function () {
-                const $text = this.$('#ping-box').val();
+                const $text = $('#ping-box').val();
                 try {
                     await navigator.clipboard.writeText($text);
                     console.log('copied to clipboard', $text);
@@ -72,7 +71,7 @@ class Pingifier {
     }
 
     addL2Button() {
-        const $l2Button = this.$('<button id="l2-button">Add L2 Header</button>')
+        const $l2Button = $('<button id="l2-button">Add L2 Header</button>')
             .on('click', this, async function (event) {
                 const params = {
                     action: 'query',
@@ -101,9 +100,9 @@ class Pingifier {
     addPingButtons() {
         const userSubpagePattern = new RegExp('^/wiki/User:[^/]+$');
         const pingifier = this;
-        const $users = this.$('div.mw-body-content a')
+        const $users = $('div.mw-body-content a')
             .filter(function (index) {
-                return userSubpagePattern.test(pingifier.$(this).attr('href'));
+                return userSubpagePattern.test($(this).attr('href'));
             });
         $users.each(function () {
             const $this = $(this);
