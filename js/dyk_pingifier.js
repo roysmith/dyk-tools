@@ -144,6 +144,6 @@ mw.hook('wikipage.content').add(async function ($content) {
         return;
     }
 
-    const pingifier = new Pingifier($, mw);
+    const pingifier = new Pingifier(mw);
     pingifier.init();
 });
