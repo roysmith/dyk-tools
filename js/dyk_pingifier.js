@@ -101,13 +101,13 @@ class Pingifier {
     addPingButtons() {
         const userSubpagePattern = new RegExp('^/wiki/User:[^/]+$');
         const pingifier = this;
-        const $users = this.$('#content a')
+        const $users = this.$('div.mw-body-content a')
             .filter(function (index) {
                 return userSubpagePattern.test(pingifier.$(this).attr('href'));
             });
         $users.each(function () {
             const $this = $(this);
-            const $button = $('<button>')
+            const $button = $('<button class="dyk-ping-button">')
                 .text('ping')
                 .on('click', async function () {
                     const userName = decodeURI($this.attr('href')
