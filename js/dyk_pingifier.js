@@ -135,12 +135,6 @@ if (typeof (module) != 'undefined') {
 }
 
 mw.hook('wikipage.content').add(async function ($content) {
-    console.log('try.js loaded');
-    // If the content is not a valid jQuery object, we can't do anything.
-    if (!$content.jquery) {
-        console.log('not a valid jQuery object');
-        return;
-    }
     const pageName = mw.config.get('wgPageName');
     const dykNomPattern = new RegExp('^Template:Did_you_know_nominations/');
     if (!dykNomPattern.test(pageName)) {
