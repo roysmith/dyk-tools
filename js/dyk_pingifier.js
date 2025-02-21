@@ -135,12 +135,7 @@ if (typeof (module) != 'undefined') {
 }
 
 mw.hook('wikipage.content').add(async function ($content) {
-    const pageName = mw.config.get('wgPageName');
-    const dykNomPattern = new RegExp('^Template:Did_you_know_nominations/');
-    if (!dykNomPattern.test(pageName)) {
-        return;
+    if (mw.config.get('wgPageName').match(/^Template:Did_you_know_nominations\//)) {
+        new Pingifier(mw).init();
     }
-
-    const pingifier = new Pingifier(mw);
-    pingifier.init();
 });
