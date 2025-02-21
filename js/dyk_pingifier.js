@@ -18,8 +18,8 @@ class Pingifier {
      */
     static parseLocalUpdateTimes(localUpdateTimes) {
         let updateTimes = {};
-        $(localUpdateTimes).find('table.wikitable > tbody > tr').each(function ($row) {
-            const $cells = $($(this).find('td'));
+        $(localUpdateTimes).find('table.wikitable > tbody > tr').each(function () {
+            const $cells = $(this).find('td');
             if ($cells.length < 1) {
                 return;
             }
