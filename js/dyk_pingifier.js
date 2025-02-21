@@ -17,8 +17,6 @@ class Pingifier {
      * @return an object mapping queue/prep names to times
      */
     static parseLocalUpdateTimes(localUpdateTimes) {
-        const queuePattern = new RegExp('(?<tag>Queue \\d)');
-        const prepPattern = new RegExp('(?<tag>Prep \\d)');
         let updateTimes = {};
         $(localUpdateTimes).find('table.wikitable > tbody > tr').each(function ($row) {
             const $cells = $($(this).find('td'));
@@ -29,11 +27,11 @@ class Pingifier {
             // should parse the table headers to see which is the right column.
             const time = $cells[3].innerHTML.replace('<br>', '&nbsp;').trim();
             const tags = $($cells[0]).text();
-            var found = tags.match(queuePattern);
+            var found = tags.match(/(?<tag>Queue \d)/);
             if (found) {
                 updateTimes[found.groups.tag] = time;
             }
-            found = tags.match(prepPattern);
+            found = tags.match(/(?<tag>Prep \d)/);
             if (found) {
                 updateTimes[found.groups.tag] = time;
             }
