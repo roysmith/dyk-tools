@@ -51,14 +51,12 @@ describe('addPingButtons', () => {
         const pingifier = new Pingifier($, mw);
         pingifier.addPingButtons();
         const $buttons = $(':button.dyk-ping-button');
-        expect($buttons.length).toEqual(4);
-        expect($.map($buttons.prev(), a => $(a).attr('href')))
+        expect($.map($buttons, b => $(b).attr('data-username')))
             .toEqual([
-                "/wiki/User:SL93#top",
-                "/wiki/User:Jackdude101",
-                "/wiki/User:Jackdude101",
-                "/wiki/User:Gatoclass",
+                "SL93",
+                "Jackdude101",
+                "Jackdude101",
+                "Gatoclass"
             ]);
     });
 });
-
