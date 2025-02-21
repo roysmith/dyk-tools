@@ -21,6 +21,7 @@ class Pingifier {
         $(localUpdateTimes).find('table.wikitable > tbody > tr').each(function () {
             const $cells = $(this).find('td');
             if ($cells.length < 1) {
+                // This will happen on the header row.
                 return;
             }
             // This is ugly; it hard-wires that UTC is in column 3.  We really
