@@ -104,6 +104,7 @@ class Pingifier {
             .filter(function (index) {
                 return userSubpagePattern.test($(this).attr('href'));
             });
+        let processedUserNames = new Set();
         $userAnchors.each(function () {
             // It's unclear what adds the '#top' to some usernames.  It appears to
             // have something to do with users who have not set a custom signature.
@@ -111,13 +112,16 @@ class Pingifier {
                 .replace(/^\/wiki\/User:/, '')
                 .replace(/#top$/, '')
                 .replace(/_/g, ' '));
-            const $button = $('<button class="dyk-ping-button">')
-                .attr('data-username', userName)
-                .text('ping')
-                .on('click', async function () {
-                    pingifier.$pingBox.append('{{ping|' + this.dataset.username + '}}\n');
-                });
-            $button.insertAfter($(this));
+            if (!processedUserNames.has(userName)) {
+                const $button = $('<button class="dyk-ping-button">')
+                    .attr('data-username', userName)
+                    .text('ping')
+                    .on('click', async function () {
+                        pingifier.$pingBox.append('{{ping|' + this.dataset.username + '}}\n');
+                    });
+                $button.insertAfter($(this));
+                processedUserNames.add(userName);
+            }
         });
     }
 

@@ -55,7 +55,6 @@ describe('addPingButtons', () => {
             .toEqual([
                 "SL93",
                 "Jackdude101",
-                "Jackdude101",
                 "Gatoclass"
             ]);
     });
