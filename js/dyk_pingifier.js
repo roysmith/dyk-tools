@@ -27,14 +27,16 @@ class Pingifier {
             // should parse the table headers to see which is the right column.
             const time = $cells[3].innerHTML.replace('<br>', '&nbsp;').trim();
             const tags = $($cells[0]).text();
-            var found = tags.match(/(?<tag>Queue \d)/);
-            if (found) {
-                updateTimes[found.groups.tag] = time;
-            }
-            found = tags.match(/(?<tag>Prep \d)/);
-            if (found) {
-                updateTimes[found.groups.tag] = time;
-            }
+            const patterns = [
+                /(?<tag>Queue \d)/,
+                /(?<tag>Prep \d)/,
+            ];
+            patterns.forEach(function (pattern) {
+                const found = tags.match(pattern);
+                if (found) {
+                    updateTimes[found.groups.tag] = time;
+                }
+            })
         });
         return updateTimes;
     }
