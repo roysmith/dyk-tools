@@ -101,10 +101,10 @@ class Pingifier {
     }
 
     /**
-   * 
-   * @param {jquery} $anchor <a> element linking to a user.
-   * @return {string} the username.
-   */
+     * 
+     * @param {jquery} $anchor <a> element linking to a user.
+     * @return {string} the username.
+     */
     getUserName($anchor) {
         // It's unclear what adds the '#top' to some usernames.  It appears to
         // have something to do with users who have not set a custom signature.
