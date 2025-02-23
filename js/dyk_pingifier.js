@@ -115,11 +115,10 @@ class Pingifier {
     }
 
     addPingButtons() {
-        const userSubpagePattern = new RegExp('^/wiki/User:[^/]+$');
         const pingifier = this;
         const $userAnchors = $('div.mw-body-content a')
-            .filter(function (index) {
-                return userSubpagePattern.test($(this).attr('href'));
+            .filter(function () {
+                return $(this).attr('href').match(/^\/wiki\/User:[^/]+$/);
             });
         let processedUserNames = new Set();
         $userAnchors.each(function () {
