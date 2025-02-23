@@ -14,7 +14,6 @@ class Pingifier {
     }
 
     /**
-     * 
      * @param {string} html UTF-8 encoded HTML from {{Did you know/Queue/LocalUpdateTimes}}
      * @return an object mapping queue/prep names to times
      */
@@ -101,7 +100,6 @@ class Pingifier {
     }
 
     /**
-     * 
      * @param {jquery} $anchor <a> element linking to a user.
      * @return {string} the username.
      */
