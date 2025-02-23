@@ -1,5 +1,7 @@
 "use strict";
 
+const { getUrl } = require("mock-mediawiki/lib/mediawiki.util/util");
+
 // User:RoySmith/dyk-pingifier.js
 // Distributed under the MIT license
 // Source at https://github.com/roysmith/dyk-tools/
@@ -98,6 +100,20 @@ class Pingifier {
         $l2Button.insertAfter('#ping-box');
     }
 
+    /**
+   * 
+   * @param {jquery} $anchor <a> element linking to a user.
+   * @return {string} the username.
+   */
+    getUserName($anchor) {
+        // It's unclear what adds the '#top' to some usernames.  It appears to
+        // have something to do with users who have not set a custom signature.
+        return decodeURI($anchor.attr('href')
+            .replace(/^\/wiki\/User:/, '')
+            .replace(/#top$/, '')
+            .replace(/_/g, ' '));
+    }
+
     addPingButtons() {
         const userSubpagePattern = new RegExp('^/wiki/User:[^/]+$');
         const pingifier = this;
@@ -107,12 +123,7 @@ class Pingifier {
             });
         let processedUserNames = new Set();
         $userAnchors.each(function () {
-            // It's unclear what adds the '#top' to some usernames.  It appears to
-            // have something to do with users who have not set a custom signature.
-            const userName = decodeURI($(this).attr('href')
-                .replace(/^\/wiki\/User:/, '')
-                .replace(/#top$/, '')
-                .replace(/_/g, ' '));
+            const userName = pingifier.getUserName($(this));
             if (!processedUserNames.has(userName)) {
                 const $button = $('<button class="dyk-ping-button">')
                     .attr('data-username', userName)
