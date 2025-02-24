@@ -48,7 +48,7 @@ describe('parseLocalUpdateTimes', () => {
 describe('addPingButtons', () => {
     it('adds the ping buttons', () => {
         loadDocument('src/js/Template:Did_you_know_nominations/Main_Street_Vehicles@1275968747.html');
-        const pingifier = new Pingifier($, mw);
+        const pingifier = new Pingifier(mw);
         pingifier.addPingButtons();
         const $buttons = $(':button.dyk-ping-button');
         expect($.map($buttons, b => $(b).attr('data-username')))
