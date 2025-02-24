@@ -47,7 +47,7 @@ class Pingifier {
     }
 
     addPingBox() {
-        this.$pingBox = $('<textarea id="ping-box" rows="8"></textarea>');
+        this.$pingBox = $('<textarea id="dyk-ping-box" rows="8"></textarea>');
         this.$pingBox.insertBefore('#firstHeading');
         const templateName = $('#firstHeading > span.mw-page-title-main')
             .text()
@@ -58,7 +58,7 @@ class Pingifier {
     addCopyButton() {
         const $copyButton = $('<button id="copy-button">Sign and Copy</button>')
             .on('click', async function () {
-                const $text = $('#ping-box')
+                const $text = $('#dyk-ping-box')
                     .append('~~~~')
                     .val();
                 try {
@@ -69,7 +69,7 @@ class Pingifier {
                     return;
                 }
             });
-        $copyButton.insertAfter('#ping-box');
+        $copyButton.insertAfter('#dyk-ping-box');
     }
 
     addL2Button() {
@@ -96,7 +96,7 @@ class Pingifier {
                         })
                     });
             });
-        $l2Button.insertAfter('#ping-box');
+        $l2Button.insertAfter('#dyk-ping-box');
     }
 
     /**
@@ -204,7 +204,7 @@ class Pingifier {
             .on('click', async function () {
                 pingifier.$pingBox.append('{{ping|' + usernames + '}}\n');
             });
-        $pingDefaultButton.insertAfter('#ping-box');
+        $pingDefaultButton.insertAfter('#dyk-ping-box');
     }
 
     addPingAllButton() {
@@ -219,7 +219,7 @@ class Pingifier {
             .on('click', async function () {
                 pingifier.$pingBox.append('{{ping|' + usernames + '}}\n');
             });
-        $pingAllButton.insertAfter('#ping-box');
+        $pingAllButton.insertAfter('#dyk-ping-box');
     }
 
     async init() {
