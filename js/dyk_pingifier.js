@@ -224,12 +224,12 @@ class Pingifier {
 
     async init() {
         await this.initializeLocalUpdateTimes();
+        this.addPingButtons();
         this.addPingBox();
         this.addCopyButton();
         this.addL2Button();
-        this.addPingButtons();
-        this.addPingDefaultButton();
         this.addPingAllButton();
+        this.addPingDefaultButton();
     }
 }
 
