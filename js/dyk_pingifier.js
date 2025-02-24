@@ -177,12 +177,28 @@ class Pingifier {
         });
     }
 
+    addPingDefaultButton() {
+        const pingifier = this;
+        const usernames = $('button.dyk-promoter, button.dyk-nominator, button.dyk-approver')
+            .map(function () {
+                return $(this).data('username');
+            })
+            .get()
+            .join('|');
+        const $pingDefaultButton = $('<button id="ping-default-button">Ping Default</button>')
+            .on('click', async function () {
+                pingifier.$pingBox.append('{{ping|' + usernames + '}}\n');
+            });
+        $pingDefaultButton.insertAfter('#ping-box');
+    }
+
     async init() {
         await this.initializeLocalUpdateTimes();
         this.addPingBox();
         this.addCopyButton();
         this.addL2Button();
         this.addPingButtons();
+        this.addPingDefaultButton();
     }
 }
 
