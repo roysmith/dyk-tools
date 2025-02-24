@@ -56,9 +56,11 @@ class Pingifier {
     }
 
     addCopyButton() {
-        const $copyButton = $('<button id="copy-button">Copy</button>')
+        const $copyButton = $('<button id="copy-button">Sign and Copy</button>')
             .on('click', async function () {
-                const $text = $('#ping-box').val();
+                const $text = $('#ping-box')
+                    .append('~~~~')
+                    .val();
                 try {
                     await navigator.clipboard.writeText($text);
                     console.log('copied to clipboard', $text);
