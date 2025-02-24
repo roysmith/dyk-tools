@@ -1,7 +1,5 @@
 "use strict";
 
-const { getUrl } = require("mock-mediawiki/lib/mediawiki.util/util");
-
 // User:RoySmith/dyk-pingifier.js
 // Distributed under the MIT license
 // Source at https://github.com/roysmith/dyk-tools/
