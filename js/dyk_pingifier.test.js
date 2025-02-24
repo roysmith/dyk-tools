@@ -57,5 +57,83 @@ describe('addPingButtons', () => {
                 "Jackdude101",
                 "Gatoclass"
             ]);
+        expect($('button.dyk-promoter').data('username')).toEqual("SL93")
+        expect($('button.dyk-nominator').data('username')).toEqual("Jackdude101")
+        expect($('button.dyk-approver').data('username')).toEqual("Gatoclass")
+    });
+});
+
+describe('classifyUser', () => {
+    it('finds the promoter', () => {
+        document.documentElement.innerHTML = `<body><p>
+            The result was: <b>promoted</b> by <a href="/wiki/User:Foo">Foo</a><br>
+            </p></body>`;
+        const $anchor = $('a');
+        const pingifier = new Pingifier(mw);
+        expect(pingifier.classifyUser($anchor)).toEqual("promoter");
+    });
+
+    it('finds the nominator', () => {
+        document.documentElement.innerHTML = `<body><div>
+            5x expanded by <a href="/wiki/User:Epicgenius">Epicgenius</a>
+            Number of QPQs required: <b>1</b>. Nominator has 697 past nominations.
+            </div></body>`;
+        const $anchor = $('a');
+        const pingifier = new Pingifier(mw);
+        expect(pingifier.classifyUser($anchor)).toEqual("nominator");
+    });
+
+    it('finds the approver in a paragraph', () => {
+        document.documentElement.innerHTML = `<body><<p>
+        <span><a href="/wiki/File:Symbol_confirmed.svg"></a></span>
+        Blah
+        <a href="/wiki/User:Gatoclass" title="User:Gatoclass">Gatoclass</a>
+        </p></body>`;
+        const $anchor = $('a');
+        const pingifier = new Pingifier(mw);
+        expect(pingifier.classifyUser($anchor)).toEqual("approver");
+    });
+
+    it('finds the approver in a list item', () => {
+        document.documentElement.innerHTML = `<body><li>
+        <span><a href="/wiki/File:Symbol_confirmed.svg"></a></span>
+        is the best, I think<a href="/wiki/User:DragonflySixtyseven" title="User:DragonflySixtyseven"></a>
+        </li></body>`;
+        const $anchor = $('a[href*="Dragon"]');
+        const pingifier = new Pingifier(mw);
+        expect(pingifier.classifyUser($anchor)).toEqual("approver");
+    });
+
+    it('finds the approver with voting_keep', () => {
+        document.documentElement.innerHTML = `<body><<p>
+        <a href="/wiki/File:Symbol_voting_keep.svg"></a>
+        Blah
+        <a href="/wiki/User:Gatoclass" title="User:Gatoclass">Gatoclass</a>
+        </p></body>`;
+        const $anchor = $('a');
+        const pingifier = new Pingifier(mw);
+        expect(pingifier.classifyUser($anchor)).toEqual("approver");
+    });
+
+    it('returns null if none of the above', () => {
+        document.documentElement.innerHTML = `<body><div>
+            <a href="/wiki/User:Epicgenius">Epicgenius</a>
+            Whatever.
+            </div></body>`;
+        const $anchor = $('a');
+        const pingifier = new Pingifier(mw);
+        expect(pingifier.classifyUser($anchor)).toEqual(null);
+    });
+});
+
+describe('classifyAllUsers', () => {
+    it('builds the map correctly', () => {
+        loadDocument('src/js/Template:Did_you_know_nominations/Main_Street_Vehicles@1275968747.html');
+        const pingifier = new Pingifier(mw);
+        const $userAnchors = pingifier.findUserAnchors();
+        const userRoles = pingifier.classifyAllUsers($userAnchors);
+        expect(userRoles.get("SL93")).toEqual("promoter");
+        expect(userRoles.get("Jackdude101")).toEqual("nominator");
+        expect(userRoles.get("Gatoclass")).toEqual("approver");
     });
 });

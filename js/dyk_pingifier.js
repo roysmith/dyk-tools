@@ -110,12 +110,53 @@ class Pingifier {
             .replace(/_/g, ' '));
     }
 
-    addPingButtons() {
+    /**
+     * @param (jquery) $anchor <a> element linking to a user.
+     * @return (string) The user's role (promoter, nominator, approver), or null
+     */
+    classifyUser($anchor) {
+        if ($anchor.closest('p').text().match(/promoted +by/)) {
+            return "promoter";
+        }
+        if ($anchor.closest('p, li')
+            .find('a[href*="Symbol_confirmed.svg"], a[href*="Symbol_voting_keep.svg"]')
+            .length > 0) {
+            return "approver";
+        }
+        // It is important that check comes last.  Possibly this should
+        // parent('div') instead of closest('div'), which would eliminate
+        // the need for it to be checked last.
+        if ($anchor.closest('div').text().match(/nominations/)) {
+            return "nominator";
+        }
+        return null;
+    }
+
+    /**
+     * @param (jquery) $userAnchors all the <a> elements which link to users
+     * @return a Map of usernames to roles as returned by classifyUser().
+     */
+    classifyAllUsers($userAnchors) {
+        const userRoles = new Map();
         const pingifier = this;
-        const $userAnchors = $('div.mw-body-content a')
+        $userAnchors.each(function () {
+            const $anchor = $(this)
+            userRoles.set(pingifier.getUserName($anchor), pingifier.classifyUser($anchor));
+        });
+        return userRoles;
+    }
+
+    findUserAnchors() {
+        return $('div.mw-body-content a')
             .filter(function () {
                 return $(this).attr('href').match(/^\/wiki\/User:[^/]+$/);
             });
+    }
+
+    addPingButtons() {
+        const pingifier = this;
+        const $userAnchors = this.findUserAnchors();
+        const userRoles = this.classifyAllUsers($userAnchors);
         let processedUserNames = new Set();
         $userAnchors.each(function () {
             const userName = pingifier.getUserName($(this));
@@ -126,6 +167,10 @@ class Pingifier {
                     .on('click', async function () {
                         pingifier.$pingBox.append('{{ping|' + this.dataset.username + '}}\n');
                     });
+                const userRole = userRoles.get(userName);
+                if (userRole) {
+                    $button.addClass("dyk-" + userRole);
+                }
                 $button.insertAfter($(this));
                 processedUserNames.add(userName);
             }
