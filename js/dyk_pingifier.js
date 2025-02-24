@@ -192,6 +192,21 @@ class Pingifier {
         $pingDefaultButton.insertAfter('#ping-box');
     }
 
+    addPingAllButton() {
+        const pingifier = this;
+        const usernames = $('button.dyk-ping-button')
+            .map(function () {
+                return $(this).data('username');
+            })
+            .get()
+            .join('|');
+        const $pingAllButton = $('<button id="ping-all-button">Ping All</button>')
+            .on('click', async function () {
+                pingifier.$pingBox.append('{{ping|' + usernames + '}}\n');
+            });
+        $pingAllButton.insertAfter('#ping-box');
+    }
+
     async init() {
         await this.initializeLocalUpdateTimes();
         this.addPingBox();
@@ -199,6 +214,7 @@ class Pingifier {
         this.addL2Button();
         this.addPingButtons();
         this.addPingDefaultButton();
+        this.addPingAllButton();
     }
 }
 
