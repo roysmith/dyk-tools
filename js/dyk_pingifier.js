@@ -123,10 +123,10 @@ class Pingifier {
             .length > 0) {
             return "approver";
         }
-        // It is important that check comes last.  Possibly this should
-        // parent('div') instead of closest('div'), which would eliminate
-        // the need for it to be checked last.
-        if ($anchor.closest('div').text().match(/nominations/)) {
+        // It is (probably) important that check comes last.  It's not clear
+        // if parent() is the correct traversal to use here, but closest()
+        // is definitely too large and leads to false positives.
+        if ($anchor.parent('div').text().match(/nominations/)) {
             return "nominator";
         }
         return null;
@@ -140,8 +140,21 @@ class Pingifier {
         const userRoles = new Map();
         const pingifier = this;
         $userAnchors.each(function () {
-            const $anchor = $(this)
-            userRoles.set(pingifier.getUserName($anchor), pingifier.classifyUser($anchor));
+            const username = pingifier.getUserName($(this));
+            const role = pingifier.classifyUser($(this));
+            if (role) {
+                if (userRoles.has(username)) {
+                    console.log('username(',
+                        username,
+                        ') already mapped to "',
+                        userRoles.get(username),
+                        '", ignoring attempt to remap it to "',
+                        role,
+                        '"');
+                } else {
+                    userRoles.set(username, role);
+                }
+            }
         });
         return userRoles;
     }
