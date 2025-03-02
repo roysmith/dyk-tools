@@ -3,6 +3,7 @@
 const fs = require('node:fs');
 const { Pingifier } = require('./dyk_pingifier');
 const { mw } = require('mock-mediawiki');
+const { describe } = require('node:test');
 
 function getDocument(pathName) {
     return fs.readFileSync(pathName, 'utf8');
@@ -137,3 +138,15 @@ describe('classifyAllUsers', () => {
         expect(userRoles.get("Gatoclass")).toEqual("approver");
     });
 });
+
+describe('l2Button', () => {
+    it('finds a queue', () => {
+        document.documentElement.innerHTML = `<body><div>
+            <textarea id="dyk-ping-box" rows="8"></textarea>
+            </div></body>`;
+        let mockApi
+        let mockMw = {
+        };
+        const pingifier = new Pingifier(mockMw);
+    })
+})
