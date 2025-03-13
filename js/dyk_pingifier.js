@@ -5,8 +5,7 @@
 // Source at https://github.com/roysmith/dyk-tools/
 
 class Pingifier {
-    constructor(mw) {
-        this.mw = mw;
+    constructor() {
         this.updateTimes = {};
     }
 
@@ -51,7 +50,7 @@ class Pingifier {
         const templateName = $('#firstHeading > span.mw-page-title-main')
             .text()
             .replace('Did you know nominations/', '');
-        $pingBox.append('===[[', this.mw.config.get('wgPageName'), '|', templateName, ']]===\n');
+        $pingBox.append('===[[', mw.config.get('wgPageName'), '|', templateName, ']]===\n');
     }
 
     addCopyButton() {
@@ -77,14 +76,14 @@ class Pingifier {
                 const params = {
                     action: 'query',
                     prop: 'linkshere',
-                    titles: event.data.mw.config.get('wgPageName'),
+                    titles: mw.config.get('wgPageName'),
                     format: 'json',
                     lhnamespace: 10,  // Template namespace, TODO: don't hardwire number
                 };
-                const api = new event.data.mw.Api();
+                const api = new mw.Api();
                 api.get(params)
                     .then(function (data) {
-                        const id = event.data.mw.config.get('wgArticleId');
+                        const id = mw.config.get('wgArticleId');
                         data.query.pages[id].linkshere.forEach(function (pageData) {
                             const title = pageData.title;
                             const titlePattern = new RegExp('^Template:Did you know/Queue/(?<n>\\d+)$');

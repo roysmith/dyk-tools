@@ -17,7 +17,6 @@ describe('constructor', () => {
     it('builds a default instance', () => {
         const p = new Pingifier(mw);
         expect(p).toBeInstanceOf(Pingifier);
-        expect(p.mw).toBe(mw);
         expect(p.updateTimes).toEqual({});
     });
 });
@@ -149,7 +148,7 @@ describe('l2Button', () => {
             `;
         const pingifier = new Pingifier(mw);
         pingifier.updateTimes = { 'Queue 1': 'Foo' };
-        pingifier.mw.config.get = jest.fn()
+        mw.config.get = jest.fn()
             .mockReturnValueOnce('Template:Did you know nominations/Roland L. Bragg')
             .mockReturnValueOnce(79214943);
         mw.Api.prototype.get = jest.fn()
