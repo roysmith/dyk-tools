@@ -148,7 +148,6 @@ describe('l2Button', () => {
             </body>
             `;
         const pingifier = new Pingifier(mw);
-        pingifier.$pingBox = $('#dyk-ping-box');
         pingifier.updateTimes = { 'Queue 1': 'Foo' };
         pingifier.mw.config.get = jest.fn()
             .mockReturnValueOnce('Template:Did you know nominations/Roland L. Bragg')

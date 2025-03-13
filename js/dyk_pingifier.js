@@ -8,7 +8,6 @@ class Pingifier {
     constructor(mw) {
         this.mw = mw;
         this.updateTimes = {};
-        this.$pingBox = null;
     }
 
     /**
@@ -47,12 +46,12 @@ class Pingifier {
     }
 
     addPingBox() {
-        this.$pingBox = $('<textarea id="dyk-ping-box" rows="8"></textarea>');
-        this.$pingBox.insertBefore('#firstHeading');
+        const $pingBox = $('<textarea id="dyk-ping-box" rows="8"></textarea>');
+        $pingBox.insertBefore('#firstHeading');
         const templateName = $('#firstHeading > span.mw-page-title-main')
             .text()
             .replace('Did you know nominations/', '');
-        this.$pingBox.append('===[[', this.mw.config.get('wgPageName'), '|', templateName, ']]===\n');
+        $pingBox.append('===[[', this.mw.config.get('wgPageName'), '|', templateName, ']]===\n');
     }
 
     addCopyButton() {
@@ -92,7 +91,7 @@ class Pingifier {
                             const match = title.match(titlePattern);
                             if (match) {
                                 const key = 'Queue ' + match.groups.n;
-                                event.data.$pingBox.prepend('==[[', title, '|', key, ']] (', event.data.updateTimes[key], ')==\n\n');
+                                $('#dyk-ping-box').prepend('==[[', title, '|', key, ']] (', event.data.updateTimes[key], ')==\n\n');
                             };
                         })
                     });
@@ -181,7 +180,7 @@ class Pingifier {
                     .attr('data-username', userName)
                     .text('ping')
                     .on('click', async function () {
-                        pingifier.$pingBox.append('{{ping|' + this.dataset.username + '}}\n');
+                        $('#dyk-ping-box').append('{{ping|' + this.dataset.username + '}}\n');
                     });
                 const userRole = userRoles.get(userName);
                 if (userRole) {
@@ -203,7 +202,7 @@ class Pingifier {
             .join('|');
         const $pingDefaultButton = $('<button id="ping-default-button">Ping Default</button>')
             .on('click', async function () {
-                pingifier.$pingBox.append('{{ping|' + usernames + '}}\n');
+                $('#dyk-ping-box').append('{{ping|' + usernames + '}}\n');
             });
         $pingDefaultButton.insertAfter('#dyk-ping-box');
     }
@@ -218,7 +217,7 @@ class Pingifier {
             .join('|');
         const $pingAllButton = $('<button id="ping-all-button">Ping All</button>')
             .on('click', async function () {
-                pingifier.$pingBox.append('{{ping|' + usernames + '}}\n');
+                $('#dyk-ping-box').append('{{ping|' + usernames + '}}\n');
             });
         $pingAllButton.insertAfter('#dyk-ping-box');
     }
