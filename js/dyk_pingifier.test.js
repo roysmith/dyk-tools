@@ -2,7 +2,7 @@
 
 const fs = require('node:fs');
 const { Pingifier } = require('./dyk_pingifier');
-const { mw } = require('mock-mediawiki');
+const { describe } = require('node:test');
 
 function getDocument(pathName) {
     return fs.readFileSync(pathName, 'utf8');
@@ -137,3 +137,54 @@ describe('classifyAllUsers', () => {
         expect(userRoles.get("Gatoclass")).toEqual("approver");
     });
 });
+
+describe('l2Button', () => {
+    it('finds a queue', async () => {
+        document.documentElement.innerHTML = `
+            <body
+                <div>
+                    <textarea id="dyk-ping-box"></textarea>
+                </div>
+            </body>
+            `;
+        const pingifier = new Pingifier(mw);
+        pingifier.$pingBox = $('#dyk-ping-box');
+        pingifier.updateTimes = { 'Queue 1': 'Foo' };
+        pingifier.mw.config.get = jest.fn()
+            .mockReturnValueOnce('Template:Did you know nominations/Roland L. Bragg')
+            .mockReturnValueOnce(79214943);
+        mw.Api.prototype.get = jest.fn()
+            .mockResolvedValue({
+                // Output of https://w.wiki/DQzr
+                "batchcomplete": "",
+                "query": {
+                    "pages": {
+                        "79214943": {
+                            "pageid": 79214943,
+                            "ns": 10,
+                            "title": "Template:Did you know nominations/Roland L. Bragg",
+                            "linkshere": [
+                                {
+                                    "pageid": 19951383,
+                                    "ns": 10,
+                                    "title": "Template:Did you know/Queue/1"
+                                }
+                            ]
+                        }
+                    }
+                }
+            });
+
+        pingifier.addL2Button();
+        await $('#l2-button').trigger("click");
+
+        expect(mw.Api.prototype.get).toHaveBeenCalledWith({
+            action: 'query',
+            prop: 'linkshere',
+            titles: 'Template:Did you know nominations/Roland L. Bragg',
+            format: 'json',
+            lhnamespace: 10,
+        });
+        expect($('#dyk-ping-box').val()).toMatch('==[[Template:Did you know/Queue/1|Queue 1]] (Foo)==');
+    })
+})

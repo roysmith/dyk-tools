@@ -80,10 +80,11 @@ class Pingifier {
                     prop: 'linkshere',
                     titles: event.data.mw.config.get('wgPageName'),
                     format: 'json',
+                    lhnamespace: 10,  // Template namespace, TODO: don't hardwire number
                 };
                 const api = new event.data.mw.Api();
                 api.get(params)
-                    .done(function (data) {
+                    .then(function (data) {
                         const id = event.data.mw.config.get('wgArticleId');
                         data.query.pages[id].linkshere.forEach(function (pageData) {
                             const title = pageData.title;
