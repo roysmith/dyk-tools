@@ -14,7 +14,7 @@ function loadDocument(pathName) {
 
 describe('constructor', () => {
 
-    it('builds an default instance', () => {
+    it('builds a default instance', () => {
         const p = new Pingifier(mw);
         expect(p).toBeInstanceOf(Pingifier);
         expect(p.mw).toBe(mw);
