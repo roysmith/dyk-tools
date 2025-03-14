@@ -54,7 +54,7 @@ class Pingifier {
     }
 
     addCopyButton() {
-        const $copyButton = $('<button id="copy-button">Sign and Copy</button>')
+        const $copyButton = $('<button id="dyk-copy-button">Sign and Copy</button>')
             .on('click', async function () {
                 const $text = $('#dyk-ping-box')
                     .append('~~~~')
@@ -71,7 +71,7 @@ class Pingifier {
     }
 
     addL2Button() {
-        const $l2Button = $('<button id="l2-button">Add L2 Header</button>')
+        const $l2Button = $('<button id="dyk-l2-button">Add L2 Header</button>')
             .on('click', this, async function (event) {
                 const params = {
                     action: 'query',
@@ -207,7 +207,7 @@ class Pingifier {
             })
             .get()
             .join('|');
-        const $pingDefaultButton = $('<button id="ping-default-button">Ping Default</button>')
+        const $pingDefaultButton = $('<button id="dyk-ping-default-button">Ping Default</button>')
             .on('click', async function () {
                 $('#dyk-ping-box').append('{{ping|' + usernames + '}}\n');
             });
@@ -222,7 +222,7 @@ class Pingifier {
             })
             .get()
             .join('|');
-        const $pingAllButton = $('<button id="ping-all-button">Ping All</button>')
+        const $pingAllButton = $('<button id="dyk-ping-all-button">Ping All</button>')
             .on('click', async function () {
                 $('#dyk-ping-box').append('{{ping|' + usernames + '}}\n');
             });
