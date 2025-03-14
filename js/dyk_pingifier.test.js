@@ -185,4 +185,51 @@ describe('l2Button', () => {
         });
         expect($('#dyk-ping-box').val()).toMatch('==[[Template:Did you know/Queue/1|Queue 1]] (Foo)==');
     })
+
+    it('finds a prep area', async () => {
+        document.documentElement.innerHTML = `
+            <body
+                <div>
+                    <textarea id="dyk-ping-box"></textarea>
+                </div>
+            </body>
+            `;
+        const pingifier = new Pingifier(mw);
+        pingifier.updateTimes = { 'Prep 1': 'Bar' };
+        mw.config.get = jest.fn()
+            .mockReturnValueOnce('Template:Did you know nominations/Blah')
+            .mockReturnValueOnce(23001);
+        mw.Api.prototype.get = jest.fn()
+            .mockResolvedValue({
+                "batchcomplete": "",
+                "query": {
+                    "pages": {
+                        "23001": {
+                            "pageid": 23001,
+                            "ns": 10,
+                            "title": "Template:Did you know nominations/Blah",
+                            "linkshere": [
+                                {
+                                    "pageid": 23002,
+                                    "ns": 10,
+                                    "title": "Template:Did you know/Preparation area 1"
+                                }
+                            ]
+                        }
+                    }
+                }
+            });
+
+        pingifier.addL2Button();
+        await $('#l2-button').trigger("click");
+
+        expect(mw.Api.prototype.get).toHaveBeenCalledWith({
+            action: 'query',
+            prop: 'linkshere',
+            titles: 'Template:Did you know nominations/Blah',
+            format: 'json',
+            lhnamespace: 10,
+        });
+        expect($('#dyk-ping-box').val()).toMatch('==[[Template:Did you know/Preparation area 1|Prep 1]] (Bar)==');
+    })
 })
