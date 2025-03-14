@@ -44,6 +44,26 @@ describe('parseLocalUpdateTimes', () => {
     });
 });
 
+describe('addPingBox', () => {
+    it('adds the l3 header', () => {
+        document.documentElement.innerHTML = `
+            <body
+                <h1 id="firstHeading" class="firstHeading mw-first-heading">
+                    <span class="mw-page-title-namespace">Template</span
+                    <span class="mw-page-title-separator">:</span>
+                    <span class="mw-page-title-main">Did you know nominations/Forbidden City cats</span>
+                </h1>
+            </body>
+            `;
+
+        const pingifier = new Pingifier(mw);
+        pingifier.addPingBox();
+
+        expect($('#dyk-ping-box').val())
+            .toMatch('===[[Template:Did you know nominations/Forbidden City cats|Forbidden City cats]]===')
+    });
+});
+
 describe('addPingButtons', () => {
     it('adds the ping buttons', () => {
         loadDocument('src/js/Template:Did_you_know_nominations/Main_Street_Vehicles@1275968747.html');

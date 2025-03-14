@@ -45,12 +45,13 @@ class Pingifier {
     }
 
     addPingBox() {
-        const $pingBox = $('<textarea id="dyk-ping-box" rows="8"></textarea>');
-        $pingBox.insertBefore('#firstHeading');
-        const templateName = $('#firstHeading > span.mw-page-title-main')
-            .text()
+        const nominationPageName = $('#firstHeading > span.mw-page-title-main')
+            .text();
+        const templateName = nominationPageName
             .replace('Did you know nominations/', '');
-        $pingBox.append('===[[', mw.config.get('wgPageName'), '|', templateName, ']]===\n');
+        $('<textarea id="dyk-ping-box" rows="8"></textarea>')
+            .append('===[[Template:', nominationPageName, '|', templateName, ']]===\n')
+            .insertBefore('#firstHeading');
     }
 
     addCopyButton() {
