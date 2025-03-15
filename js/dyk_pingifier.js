@@ -50,7 +50,7 @@ class Pingifier {
         const templateName = nominationPageName
             .replace('Did you know nominations/', '');
         $('<textarea id="dyk-ping-box" rows="8"></textarea>')
-            .append('===[[Template:', nominationPageName, '|', templateName, ']]===\n')
+            .append(`===[[Template:${nominationPageName}|${templateName}]]===\n`)
             .insertBefore('#firstHeading');
     }
 
@@ -147,13 +147,7 @@ class Pingifier {
             const role = pingifier.classifyUser($(this));
             if (role) {
                 if (userRoles.has(username)) {
-                    console.log('username(',
-                        username,
-                        ') already mapped to "',
-                        userRoles.get(username),
-                        '", ignoring attempt to remap it to "',
-                        role,
-                        '"');
+                    console.log(`Ignoring remap of "${username}" from "${userRoles.get(username)}" to "${role}"`);
                 } else {
                     userRoles.set(username, role);
                 }
@@ -181,11 +175,11 @@ class Pingifier {
                     .attr('data-username', userName)
                     .text('ping')
                     .on('click', async function () {
-                        $('#dyk-ping-box').append('{{ping|' + this.dataset.username + '}}\n');
+                        $('#dyk-ping-box').append(`{{ping|${this.dataset.username}}}\n`);
                     });
                 const userRole = userRoles.get(userName);
                 if (userRole) {
-                    $button.addClass("dyk-" + userRole);
+                    $button.addClass(`dyk-${userRole}`);
                 }
                 $button.insertAfter($(this));
                 processedUserNames.add(userName);
@@ -193,32 +187,29 @@ class Pingifier {
         });
     }
 
-    addPingDefaultButton() {
-        const pingifier = this;
-        const usernames = $('button.dyk-promoter, button.dyk-nominator, button.dyk-approver')
+    pingTemplate(userClasses) {
+        const usernames = $(userClasses)
             .map(function () {
                 return $(this).data('username');
             })
-            .get()
-            .join('|');
+            .get();
+        return `{{ping|${usernames.join('|')}}}`;
+    }
+
+    addPingDefaultButton() {
+        const template = this.pingTemplate('button.dyk-promoter, button.dyk-nominator, button.dyk-approver');
         const $pingDefaultButton = $('<button id="dyk-ping-default-button">Ping Default</button>')
             .on('click', async function () {
-                $('#dyk-ping-box').append('{{ping|' + usernames + '}}\n');
+                $('#dyk-ping-box').append(`${template}\n`);
             });
         $pingDefaultButton.insertAfter('#dyk-ping-box');
     }
 
     addPingAllButton() {
-        const pingifier = this;
-        const usernames = $('button.dyk-ping-button')
-            .map(function () {
-                return $(this).data('username');
-            })
-            .get()
-            .join('|');
+        const template = this.pingTemplate('button.dyk-ping-button')
         const $pingAllButton = $('<button id="dyk-ping-all-button">Ping All</button>')
             .on('click', async function () {
-                $('#dyk-ping-box').append('{{ping|' + usernames + '}}\n');
+                $('#dyk-ping-box').append(`${template}\n`);
             });
         $pingAllButton.insertAfter('#dyk-ping-box');
     }
