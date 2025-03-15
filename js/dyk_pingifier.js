@@ -86,20 +86,13 @@ class Pingifier {
                     .then(function (data) {
                         const id = mw.config.get('wgArticleId');
                         data.query.pages[id].linkshere.forEach(function (pageData) {
+                            const queuePattern = new RegExp('^Template:Did you know/(?<name>Queue)/(?<number>\\d+)$');
+                            const prepPattern = new RegExp('^Template:Did you know/(?<name>Prep)aration area (?<number>\\d+)$');
                             const title = pageData.title;
-                            const queuePattern = new RegExp('^Template:Did you know/Queue/(?<n>\\d+)$');
-                            let match = title.match(queuePattern);
-                            if (match) {
-                                const key = 'Queue ' + match.groups.n;
-                                $('#dyk-ping-box').prepend('==[[', title, '|', key, ']] (', event.data.updateTimes[key], ')==\n\n');
-                                return;
-                            };
-                            const prepPattern = new RegExp('^Template:Did you know/Preparation area (?<n>\\d+)$');
-                            match = title.match(prepPattern);
-                            if (match) {
-                                const key = 'Prep ' + match.groups.n;
-                                $('#dyk-ping-box').prepend('==[[', title, '|', key, ']] (', event.data.updateTimes[key], ')==\n\n');
-                                return;
+                            const m = title.match(queuePattern) || title.match(prepPattern);
+                            if (m) {
+                                const key = `${m.groups.name} ${m.groups.number}`;
+                                $('#dyk-ping-box').prepend(`==[[${title}|${key}]] (${event.data.updateTimes[key]})==\n\n`);
                             };
                         })
                     });
