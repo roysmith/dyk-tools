@@ -192,7 +192,7 @@ describe('l2Button', () => {
                 }
             });
 
-        pingifier.addL2Button();
+        await pingifier.addL2Button();
         await $('#dyk-l2-button').trigger("click");
 
         expect(mw.Api.prototype.get).toHaveBeenCalledWith({
@@ -239,7 +239,7 @@ describe('l2Button', () => {
                 }
             });
 
-        pingifier.addL2Button();
+        await pingifier.addL2Button();
         await $('#dyk-l2-button').trigger("click");
 
         expect(mw.Api.prototype.get).toHaveBeenCalledWith({
