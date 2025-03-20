@@ -1,8 +1,10 @@
 "use strict";
 
 const fs = require('node:fs');
-const { HookSet } = require('./hookset');
 const { describe } = require('node:test');
+
+const { HookSet } = require('./hookset');
+const { Hook, Link } = require('./hook');
 
 function getDocument(pathName) {
     return fs.readFileSync(pathName, 'utf8');
@@ -42,7 +44,7 @@ describe('init', () => {
                     + "<!--Hooks-->\n"
                     + "{{main page image}}\n"
                     + "* ... that politician '''[[Prasenjit Barman]]''' was credited for leading the restoration of the [[Cooch Behar Palace]]?\n"
-                    + "* ... that '''[[Sound Transit]]''' has 170 pieces of permanent public art at its stations and facilities?\n"
+                    + "* ... that '''[[Sound Transit]]''' has 170 pieces of '''[[permanent public art]]''' at its stations and facilities?\n"
                     + "<!--HooksEnd-->\n"
                     + "{{flatlist|class=dyk-footer noprint|style=margin-top: 0.5em; text-align: right;}}\n"
             }
@@ -54,9 +56,11 @@ describe('init', () => {
         await hs.init("My Queue");
 
         expect(hs.hooks).toEqual([
-            "* ... that politician '''[[Prasenjit Barman]]''' was credited for leading the restoration of the [[Cooch Behar Palace]]?",
-            "* ... that '''[[Sound Transit]]''' has 170 pieces of permanent public art at its stations and facilities?"
+            new Hook("* ... that politician '''[[Prasenjit Barman]]''' was credited for leading the restoration of the [[Cooch Behar Palace]]?"),
+            new Hook("* ... that '''[[Sound Transit]]''' has 170 pieces of '''[[permanent public art]]''' at its stations and facilities?")
         ]);
+        expect(hs.hooks[0].links.length).toEqual(1);
+        expect(hs.hooks[1].links.length).toEqual(2);
     });
 });
 

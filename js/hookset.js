@@ -1,5 +1,7 @@
 "use strict";
 
+const { Hook, Link } = require('./hook');
+
 // hookset.js
 // Distributed under the MIT license
 // Source at https://github.com/roysmith/dyk-tools/
@@ -35,6 +37,12 @@ class HookSet {
     }
 
     findHooks(wikitext) {
+        return this.findHookLines(wikitext).map((line) => {
+            return new Hook(line);
+        });
+    }
+
+    findHookLines(wikitext) {
         const m = wikitext.match(new RegExp('^<!--Hooks-->$(?<block>.*)^<!--HooksEnd-->$', 'sm'));
         return m.groups.block.split('\n')
             .filter((line) => {
