@@ -7,7 +7,7 @@
 class Pingifier {
     constructor() {
         this.updateTimes = {};
-        this.l2Header = '';
+        this.tk = {};
     }
 
     /**
@@ -45,6 +45,34 @@ class Pingifier {
         this.updateTimes = Pingifier.parseLocalUpdateTimes(html);
     }
 
+    async initializeHookSetTitleAndKey() {
+        const params = {
+            action: 'query',
+            prop: 'linkshere',
+            titles: mw.config.get('wgPageName'),
+            format: 'json',
+            lhnamespace: 10,  // Template namespace, TODO: don't hardwire number
+        };
+        const api = new mw.Api();
+        let title = null;
+        let key = null;
+        await api.get(params)
+            .then(function (data) {
+                const queuePattern = new RegExp('^Template:Did you know/(?<name>Queue)/(?<number>\\d+)$');
+                const prepPattern = new RegExp('^Template:Did you know/(?<name>Prep)aration area (?<number>\\d+)$');
+                const id = mw.config.get('wgArticleId');
+                data.query.pages[id].linkshere.forEach(function (pageData) {
+                    title = pageData.title;
+                    const m = title.match(queuePattern) || title.match(prepPattern);
+                    if (m) {
+                        key = `${m.groups.name} ${m.groups.number}`;
+                    };
+                });
+            });
+        this.tk.title = title;
+        this.tk.key = key;
+    }
+
     addPingBox() {
         const nominationPageName = $('#firstHeading > span.mw-page-title-main')
             .text();
@@ -72,42 +100,13 @@ class Pingifier {
         $copyButton.insertAfter('#dyk-ping-box');
     }
 
-    async findHookSetTitleAndKey() {
-        const params = {
-            action: 'query',
-            prop: 'linkshere',
-            titles: mw.config.get('wgPageName'),
-            format: 'json',
-            lhnamespace: 10,  // Template namespace, TODO: don't hardwire number
-        };
-        const api = new mw.Api();
-        let title = null;
-        let key = null;
-        await api.get(params)
-            .then(function (data) {
-                const queuePattern = new RegExp('^Template:Did you know/(?<name>Queue)/(?<number>\\d+)$');
-                const prepPattern = new RegExp('^Template:Did you know/(?<name>Prep)aration area (?<number>\\d+)$');
-                const id = mw.config.get('wgArticleId');
-                data.query.pages[id].linkshere.forEach(function (pageData) {
-                    title = pageData.title;
-                    const m = title.match(queuePattern) || title.match(prepPattern);
-                    if (m) {
-                        key = `${m.groups.name} ${m.groups.number}`;
-                    };
-                });
-            });
-        return {
-            title: title,
-            key: key,
-        };
-    }
-
     async addL2Button() {
-        const tk = await this.findHookSetTitleAndKey();
-        this.l2Header = `==[[${tk.title}|${tk.key}]] (${this.updateTimes[tk.key]})==\n`;
         const $l2Button = $('<button id="dyk-l2-button">Add L2 Header</button>')
             .on('click', this, async function (event) {
-                $('#dyk-ping-box').prepend(event.data.l2Header);
+                const pingifier = event.data;
+                const tk = pingifier.tk;
+                const l2Header = `==[[${tk.title}|${tk.key}]] (${pingifier.updateTimes[tk.key]})==\n`;
+                $('#dyk-ping-box').prepend(l2Header);
             });
         $l2Button.insertAfter('#dyk-ping-box');
     }
@@ -228,6 +227,7 @@ class Pingifier {
 
     async init() {
         await this.initializeLocalUpdateTimes();
+        await this.initializeHookSetTitleAndKey();
         this.addPingButtons();
         this.addPingBox();
         this.addCopyButton();

@@ -167,6 +167,9 @@ describe('l2Button', () => {
             `;
         const pingifier = new Pingifier(mw);
         pingifier.updateTimes = { 'Queue 1': 'Foo' };
+        pingifier.tk = {};
+        pingifier.tk.title = 'Template:Did you know/Queue/1';
+        pingifier.tk.key = 'Queue 1';
         mw.config.get = jest.fn()
             .mockReturnValueOnce('Template:Did you know nominations/Roland L. Bragg')
             .mockReturnValueOnce(79214943);
@@ -195,13 +198,6 @@ describe('l2Button', () => {
         await pingifier.addL2Button();
         await $('#dyk-l2-button').trigger("click");
 
-        expect(mw.Api.prototype.get).toHaveBeenCalledWith({
-            action: 'query',
-            prop: 'linkshere',
-            titles: 'Template:Did you know nominations/Roland L. Bragg',
-            format: 'json',
-            lhnamespace: 10,
-        });
         expect($('#dyk-ping-box').val()).toMatch('==[[Template:Did you know/Queue/1|Queue 1]] (Foo)==');
     })
 
@@ -215,6 +211,9 @@ describe('l2Button', () => {
             `;
         const pingifier = new Pingifier(mw);
         pingifier.updateTimes = { 'Prep 1': 'Bar' };
+        pingifier.tk = {};
+        pingifier.tk.title = 'Template:Did you know/Preparation area 1';
+        pingifier.tk.key = 'Prep 1';
         mw.config.get = jest.fn()
             .mockReturnValueOnce('Template:Did you know nominations/Blah')
             .mockReturnValueOnce(23001);
@@ -242,13 +241,6 @@ describe('l2Button', () => {
         await pingifier.addL2Button();
         await $('#dyk-l2-button').trigger("click");
 
-        expect(mw.Api.prototype.get).toHaveBeenCalledWith({
-            action: 'query',
-            prop: 'linkshere',
-            titles: 'Template:Did you know nominations/Blah',
-            format: 'json',
-            lhnamespace: 10,
-        });
         expect($('#dyk-ping-box').val()).toMatch('==[[Template:Did you know/Preparation area 1|Prep 1]] (Bar)==');
     })
 })
