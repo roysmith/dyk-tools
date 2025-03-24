@@ -4,38 +4,31 @@
 // Distributed under the MIT license
 // Source at https://github.com/roysmith/dyk-tools/
 
-class Link {
-    /**
-     * 
-     * @param {string} link Full link, optionally including the square brackets
-     */
-    constructor(link) {
-        const [target, title = ""] = link
-            .replace(/^\[\[/, '')
-            .replace(/\]\]$/, '')
-            .split('|');
-        this.target = target;
-        this.title = title;
-    }
-}
+const { Link } = require('./link');
+
 
 class Hook {
-    constructor(text) {
-        this.text = text;
-        this.links = this.findBoldedLinks(text);
+    constructor(hookText, links) {
+        this.text = hookText;
+        this.links = links;
     }
 
-    findBoldedLinks(text) {
-        let s = text;
+    static build(hookText) {
+        const links = Hook.findBoldedLinks(hookText);
+        return new Hook(hookText, links);
+    }
+
+    static findBoldedLinks(hookText) {
+        let s = hookText;
         const pattern = new RegExp("^.*?'''(?<link>\\[\\[.*?\]\])'''(?<remainder>.*)$");
         const links = [];
         let m = null;
         while (m = s.match(pattern)) {
-            links.push(new Link(m.groups.link));
+            links.push(Link.build(m.groups.link));
             s = m.groups.remainder;
         }
         return links;
     }
 }
 
-module.exports = { Hook, Link };
+module.exports = { Hook };

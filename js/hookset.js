@@ -12,6 +12,11 @@ class HookSet {
         this.hooks = [];
     }
 
+    static build(wikitext) {
+        const hooks = HookSet.findHooks(wikitext);
+        return new HookSet(wikitext, Hooks);
+    }
+
     async init(pageTitle) {
         await this.load(pageTitle);
         this.hooks = this.findHooks(this.wikitext);
@@ -38,7 +43,7 @@ class HookSet {
 
     findHooks(wikitext) {
         return this.findHookLines(wikitext).map((line) => {
-            return new Hook(line);
+            return Hook.build(line);
         });
     }
 

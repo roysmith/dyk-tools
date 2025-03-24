@@ -4,13 +4,14 @@ const fs = require('node:fs');
 const { describe } = require('node:test');
 
 const { HookSet } = require('./hookset');
-const { Hook, Link } = require('./hook');
+const { Hook } = require('./hook');
+const { Link } = require('./link');
 
 function getDocument(pathName) {
     return fs.readFileSync(pathName, 'utf8');
 }
 
-describe('constructor', () => {
+describe('build', () => {
     it('builds a default instance', () => {
         const hs = new HookSet();
         expect(hs).toBeInstanceOf(HookSet);
@@ -56,8 +57,8 @@ describe('init', () => {
         await hs.init("My Queue");
 
         expect(hs.hooks).toEqual([
-            new Hook("* ... that politician '''[[Prasenjit Barman]]''' was credited for leading the restoration of the [[Cooch Behar Palace]]?"),
-            new Hook("* ... that '''[[Sound Transit]]''' has 170 pieces of '''[[permanent public art]]''' at its stations and facilities?")
+            Hook.build("* ... that politician '''[[Prasenjit Barman]]''' was credited for leading the restoration of the [[Cooch Behar Palace]]?"),
+            Hook.build("* ... that '''[[Sound Transit]]''' has 170 pieces of '''[[permanent public art]]''' at its stations and facilities?")
         ]);
         expect(hs.hooks[0].links.length).toEqual(1);
         expect(hs.hooks[1].links.length).toEqual(2);
