@@ -1,28 +1,24 @@
 "use strict";
 
-const { Hook, Link } = require('./hook');
+const { Hook } = require('./hook');
 
 // hookset.js
 // Distributed under the MIT license
 // Source at https://github.com/roysmith/dyk-tools/
 
 class HookSet {
-    constructor(pageTitle) {
-        this.wikitext = "";
-        this.hooks = [];
+    constructor(wikitext, hooks) {
+        this.wikitext = wikitext;
+        this.hooks = hooks;
     }
 
-    static build(wikitext) {
+    static async build(pageTitle) {
+        const wikitext = await HookSet.load(pageTitle);
         const hooks = HookSet.findHooks(wikitext);
-        return new HookSet(wikitext, Hooks);
+        return new HookSet(wikitext, hooks);
     }
 
-    async init(pageTitle) {
-        await this.load(pageTitle);
-        this.hooks = this.findHooks(this.wikitext);
-    }
-
-    async load(pageTitle) {
+    static async load(pageTitle) {
         const api = new mw.Api();
         const params = {
             action: 'parse',
@@ -31,23 +27,21 @@ class HookSet {
             prop: 'wikitext',
             formatversion: 2,
         };
-        const self = this;
-        api.get(params)
+        let wikitext = null;
+        await api.get(params)
             .then((result) => {
-                const wikitext = JSON.parse(result).parse.wikitext;
-                self.wikitext = wikitext;
-            }, (result) => {
-                console.log(result);
+                wikitext = wikitext = JSON.parse(result).parse.wikitext;
             });
+        return wikitext;
     }
 
-    findHooks(wikitext) {
-        return this.findHookLines(wikitext).map((line) => {
+    static findHooks(wikitext) {
+        return HookSet.findHookLines(wikitext).map((line) => {
             return Hook.build(line);
         });
     }
 
-    findHookLines(wikitext) {
+    static findHookLines(wikitext) {
         const m = wikitext.match(new RegExp('^<!--Hooks-->$(?<block>.*)^<!--HooksEnd-->$', 'sm'));
         return m.groups.block.split('\n')
             .filter((line) => {

@@ -1,5 +1,10 @@
 "use strict";
 
+// import dedent from "dedent";
+
+const dedent = require('dedent');
+
+
 const fs = require('node:fs');
 const { describe } = require('node:test');
 
@@ -7,25 +12,27 @@ const { HookSet } = require('./hookset');
 const { Hook } = require('./hook');
 const { Link } = require('./link');
 
-function getDocument(pathName) {
-    return fs.readFileSync(pathName, 'utf8');
-}
-
-describe('build', () => {
-    it('builds a default instance', () => {
-        const hs = new HookSet();
+describe('constructor', async () => {
+    it('constructs a default instance', async () => {
+        const hs = new HookSet('foo', []);
         expect(hs).toBeInstanceOf(HookSet);
+        expect(hs.wikitext).toBe('foo');
+        expect(hs.hooks).toEqual([]);
     });
 });
 
-describe('init', () => {
-    it('loads wikitext', async () => {
-        const json = getDocument('src/js/Template:Did_you_know/Queue/1@1280703597.json');
+describe('load', () => {
+    it('calls api.get()', async () => {
         mw.Api.prototype.get = jest.fn()
-            .mockResolvedValue(json);
+            .mockResolvedValue(JSON.stringify({
+                "parse": {
+                    "title": "Template:Did you know/Queue/1",
+                    "pageid": 19951383,
+                    "wikitext": "{{DYKbotdo|xxx}}"
+                }
+            }));
 
-        const hs = new HookSet();
-        await hs.init("My Queue");
+        const wikitext = HookSet.load('My Queue');
 
         expect(mw.Api.prototype.get).toHaveBeenCalledTimes(1);
         expect(mw.Api.prototype.get).toHaveBeenCalledWith({
@@ -35,33 +42,52 @@ describe('init', () => {
             prop: 'wikitext',
             formatversion: 2,
         });
-        expect(hs.wikitext).toMatch(/^{{DYKbotdo.*}}/);
-    });
-
-    it('parses the hooks', async () => {
-        const json = JSON.stringify({
-            "parse": {
-                "wikitext": "Blah blah\n"
-                    + "<!--Hooks-->\n"
-                    + "{{main page image}}\n"
-                    + "* ... that politician '''[[Prasenjit Barman]]''' was credited for leading the restoration of the [[Cooch Behar Palace]]?\n"
-                    + "* ... that '''[[Sound Transit]]''' has 170 pieces of '''[[permanent public art]]''' at its stations and facilities?\n"
-                    + "<!--HooksEnd-->\n"
-                    + "{{flatlist|class=dyk-footer noprint|style=margin-top: 0.5em; text-align: right;}}\n"
-            }
-        });
-        mw.Api.prototype.get = jest.fn()
-            .mockResolvedValue(json);
-
-        const hs = new HookSet();
-        await hs.init("My Queue");
-
-        expect(hs.hooks).toEqual([
-            Hook.build("* ... that politician '''[[Prasenjit Barman]]''' was credited for leading the restoration of the [[Cooch Behar Palace]]?"),
-            Hook.build("* ... that '''[[Sound Transit]]''' has 170 pieces of '''[[permanent public art]]''' at its stations and facilities?")
-        ]);
-        expect(hs.hooks[0].links.length).toEqual(1);
-        expect(hs.hooks[1].links.length).toEqual(2);
+        await expect(wikitext).resolves.toBe('{{DYKbotdo|xxx}}');
     });
 });
+
+describe('findHookLines', () => {
+    it('parses the hooks', async () => {
+        const wikitext = dedent(
+            `Blah blah
+            <!--Hooks-->
+            {{main page image}}
+            * ... that politician '''[[Prasenjit Barman]]''' was credited for leading the restoration of the [[Cooch Behar Palace]]?
+            * ... that '''[[Sound Transit]]''' has 170 pieces of '''[[permanent public art]]''' at its stations and facilities?
+            <!--HooksEnd-->
+            {{ flatlist| class=dyk - footer noprint | style=margin - top: 0.5em; text - align: right;}}
+             `
+        );
+
+        const lines = HookSet.findHookLines(wikitext);
+
+        expect(lines).toEqual([
+            "* ... that politician '''[[Prasenjit Barman]]''' was credited for leading the restoration of the [[Cooch Behar Palace]]?",
+            "* ... that '''[[Sound Transit]]''' has 170 pieces of '''[[permanent public art]]''' at its stations and facilities?",
+        ]);
+    });
+});
+
+describe('findHooks', () => {
+    it('parses the hooks', async () => {
+        const wikitext = dedent(
+            `<!--Hooks-->
+            * ... that '''[[foo]]''' blah?
+            * ... that '''[[foo|bar]]''' and '''[[baz]]'''{{-?}}
+            <!--HooksEnd-->`);
+
+        const hooks = HookSet.findHooks(wikitext);
+
+        expect(hooks).toEqual([
+            new Hook("* ... that '''[[foo]]''' blah?", [
+                new Link('foo', ''),
+            ]),
+            new Hook("* ... that '''[[foo|bar]]''' and '''[[baz]]'''{{-?}}", [
+                new Link('foo', 'bar'),
+                new Link('baz', ''),
+            ]),
+        ]);
+    });
+});
+
 
