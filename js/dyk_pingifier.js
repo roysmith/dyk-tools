@@ -56,6 +56,7 @@ class Pingifier {
         const api = new mw.Api();
         let title = null;
         let key = null;
+        const self = this;
         await api.get(params)
             .then(function (data) {
                 const queuePattern = new RegExp('^Template:Did you know/(?<name>Queue)/(?<number>\\d+)$');
@@ -65,12 +66,11 @@ class Pingifier {
                     title = pageData.title;
                     const m = title.match(queuePattern) || title.match(prepPattern);
                     if (m) {
-                        key = `${m.groups.name} ${m.groups.number}`;
+                        self.tk.title = title;
+                        self.tk.key = `${m.groups.name} ${m.groups.number}`;
                     };
                 });
             });
-        this.tk.title = title;
-        this.tk.key = key;
     }
 
     addPingBox() {

@@ -156,6 +156,58 @@ describe('classifyAllUsers', () => {
     });
 });
 
+describe('initializeHookSetTitleAndKey', () => {
+    it('finds the right title and key', async () => {
+        const pingifier = new Pingifier();
+        mw.Api.prototype.get = jest.fn()
+            .mockResolvedValue({
+                "batchcomplete": "",
+                "query": {
+                    "pages": {
+                        "79457898": {
+                            "pageid": 79457898,
+                            "ns": 10,
+                            "title": "Template:Did you know nominations/Daniel A. Gilbert",
+                            "linkshere": [
+                                {
+                                    "pageid": 19951990,
+                                    "ns": 10,
+                                    "title": "Template:Did you know/Queue/2"
+                                },
+                                {
+                                    "pageid": 79466917,
+                                    "ns": 10,
+                                    "title": "Template:Did you know nominations/Xavier Molyneux"
+                                }
+                            ]
+                        }
+                    }
+                }
+            });
+        mw.config.get = jest.fn()
+            .mockReturnValueOnce('Template:Did you know nominations/Daniel A. Gilbert')
+            .mockReturnValueOnce(79457898);
+
+        await pingifier.initializeHookSetTitleAndKey();
+
+        expect(mw.Api.prototype.get).toHaveBeenCalledTimes(1);
+        expect(mw.Api.prototype.get).toHaveBeenCalledWith({
+            "action": "query",
+            "format": "json",
+            "prop": "linkshere",
+            "titles": "Template:Did you know nominations/Daniel A. Gilbert",
+            "lhnamespace": 10,
+        });
+        expect(mw.config.get).toHaveBeenCalledTimes(2);
+        expect(mw.config.get).nthCalledWith(1, 'wgPageName');
+        expect(mw.config.get).nthCalledWith(2, 'wgArticleId');
+        expect(pingifier.tk).toEqual({
+            title: "Template:Did you know/Queue/2",
+            key: "Queue 2",
+        })
+    });
+});
+
 describe('l2Button', () => {
     it('finds a queue', async () => {
         document.documentElement.innerHTML = `
