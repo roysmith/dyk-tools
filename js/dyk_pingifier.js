@@ -30,12 +30,12 @@ class Pingifier {
                 /(?<tag>Queue \d)/,
                 /(?<tag>Prep \d)/,
             ];
-            patterns.forEach(function (pattern) {
-                const found = tags.match(pattern);
-                if (found) {
-                    updateTimes[found.groups.tag] = time;
+            for (const pattern of patterns) {
+                const m = tags.match(pattern);
+                if (m) {
+                    updateTimes[m.groups.tag] = time;
                 }
-            })
+            }
         });
         return updateTimes;
     }
