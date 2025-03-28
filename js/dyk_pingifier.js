@@ -54,22 +54,21 @@ class Pingifier {
             lhnamespace: 10,  // Template namespace, TODO: don't hardwire number
         };
         const api = new mw.Api();
-        let title = null;
-        let key = null;
         const self = this;
         await api.get(params)
             .then(function (data) {
                 const queuePattern = new RegExp('^Template:Did you know/(?<name>Queue)/(?<number>\\d+)$');
                 const prepPattern = new RegExp('^Template:Did you know/(?<name>Prep)aration area (?<number>\\d+)$');
                 const id = mw.config.get('wgArticleId');
-                data.query.pages[id].linkshere.forEach(function (pageData) {
-                    title = pageData.title;
+                for (const pageData of data.query.pages[id].linkshere) {
+                    const title = pageData.title;
                     const m = title.match(queuePattern) || title.match(prepPattern);
                     if (m) {
                         self.tk.title = title;
                         self.tk.key = `${m.groups.name} ${m.groups.number}`;
+                        break;
                     };
-                });
+                };
             });
     }
 
