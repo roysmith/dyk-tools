@@ -1,9 +1,6 @@
 "use strict";
 
-// import dedent from "dedent";
-
 const dedent = require('dedent');
-
 
 const fs = require('node:fs');
 const { describe } = require('node:test');
