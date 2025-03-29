@@ -2,7 +2,6 @@
 
 const dedent = require('dedent');
 
-const fs = require('node:fs');
 const { describe } = require('node:test');
 
 const { HookSet } = require('./hookset');
