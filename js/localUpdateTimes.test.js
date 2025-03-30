@@ -11,9 +11,9 @@ function getDocument(pathName) {
 
 describe('constructor', () => {
     it('constructs a default instance', () => {
-        const lut = new LocalUpdateTimes({});
+        const lut = new LocalUpdateTimes();
         expect(lut).toBeInstanceOf(LocalUpdateTimes);
-        expect(lut.updateTimes).toEqual({});
+        expect(lut.updateTimes).toBeUndefined();
     });
 });
 
