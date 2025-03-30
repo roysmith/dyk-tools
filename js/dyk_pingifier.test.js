@@ -3,6 +3,7 @@
 const fs = require('node:fs');
 const { Pingifier } = require('./dyk_pingifier');
 const { describe } = require('node:test');
+const { LocalUpdateTimes } = require('./localUpdateTimes');
 
 function getDocument(pathName) {
     return fs.readFileSync(pathName, 'utf8');
@@ -16,30 +17,7 @@ describe('constructor', () => {
     it('builds a default instance', () => {
         const p = new Pingifier(mw);
         expect(p).toBeInstanceOf(Pingifier);
-        expect(p.updateTimes).toEqual({});
-    });
-});
-
-describe('parseLocalUpdateTimes', () => {
-    it('finds the preps and queues', () => {
-        const html = getDocument('src/js/localUpdateTimes.html');
-        const updateTimes = Pingifier.parseLocalUpdateTimes(html);
-        expect(updateTimes).toEqual({
-            'Queue 1': '17&nbsp;February&nbsp;00:00',
-            'Queue 2': '14&nbsp;February&nbsp;00:00',
-            'Queue 3': '14&nbsp;February&nbsp;12:00',
-            'Queue 4': '15&nbsp;February&nbsp;00:00',
-            'Queue 5': '15&nbsp;February&nbsp;12:00',
-            'Queue 6': '16&nbsp;February&nbsp;00:00',
-            'Queue 7': '16&nbsp;February&nbsp;12:00',
-            'Prep 1': '17&nbsp;February&nbsp;00:00',
-            'Prep 2': '17&nbsp;February&nbsp;12:00',
-            'Prep 3': '18&nbsp;February&nbsp;00:00',
-            'Prep 4': '18&nbsp;February&nbsp;12:00',
-            'Prep 5': '19&nbsp;February&nbsp;00:00',
-            'Prep 6': '16&nbsp;February&nbsp;00:00',
-            'Prep 7': '16&nbsp;February&nbsp;12:00',
-        });
+        expect(p.localUpdateTimes).toBeNull();
     });
 });
 
@@ -218,7 +196,7 @@ describe('l2Button', () => {
             </body>
             `;
         const pingifier = new Pingifier(mw);
-        pingifier.updateTimes = { 'Queue 1': 'Foo' };
+        pingifier.localUpdateTimes = new LocalUpdateTimes({ 'Queue 1': 'Foo' });
         pingifier.tk = {};
         pingifier.tk.title = 'Template:Did you know/Queue/1';
         pingifier.tk.key = 'Queue 1';
@@ -262,7 +240,7 @@ describe('l2Button', () => {
             </body>
             `;
         const pingifier = new Pingifier(mw);
-        pingifier.updateTimes = { 'Prep 1': 'Bar' };
+        pingifier.localUpdateTimes = new LocalUpdateTimes({ 'Prep 1': 'Bar' });
         pingifier.tk = {};
         pingifier.tk.title = 'Template:Did you know/Preparation area 1';
         pingifier.tk.key = 'Prep 1';

@@ -4,45 +4,16 @@
 // Distributed under the MIT license
 // Source at https://github.com/roysmith/dyk-tools/
 
+const { LocalUpdateTimes } = require('./localUpdateTimes');
+
 class Pingifier {
     constructor() {
-        this.updateTimes = {};
+        this.localUpdateTimes = null;
         this.tk = {};
     }
 
-    /**
-     * @param {string} html UTF-8 encoded HTML from {{Did you know/Queue/LocalUpdateTimes}}
-     * @return an object mapping queue/prep names to times
-     */
-    static parseLocalUpdateTimes(localUpdateTimes) {
-        let updateTimes = {};
-        $(localUpdateTimes).find('table.wikitable > tbody > tr').each(function () {
-            const $cells = $(this).find('td');
-            if ($cells.length < 1) {
-                // This will happen on the header row.
-                return;
-            }
-            // This is ugly; it hard-wires that UTC is in column 3.  We really
-            // should parse the table headers to see which is the right column.
-            const time = $cells[3].innerHTML.replace('<br>', '&nbsp;').trim();
-            const tags = $($cells[0]).text();
-            const patterns = [
-                /(?<tag>Queue \d)/,
-                /(?<tag>Prep \d)/,
-            ];
-            for (const pattern of patterns) {
-                const m = tags.match(pattern);
-                if (m) {
-                    updateTimes[m.groups.tag] = time;
-                }
-            }
-        });
-        return updateTimes;
-    }
-
     async initializeLocalUpdateTimes() {
-        const html = await $.get({ 'url': '/wiki/Template:Did_you_know/Queue/LocalUpdateTimes' });
-        this.updateTimes = Pingifier.parseLocalUpdateTimes(html);
+        this.localUpdateTimes = await LocalUpdateTimes.build();
     }
 
     async initializeHookSetTitleAndKey() {
@@ -104,7 +75,7 @@ class Pingifier {
             .on('click', this, async function (event) {
                 const pingifier = event.data;
                 const tk = pingifier.tk;
-                const l2Header = `==[[${tk.title}|${tk.key}]] (${pingifier.updateTimes[tk.key]})==\n`;
+                const l2Header = `==[[${tk.title}|${tk.key}]] (${pingifier.localUpdateTimes.updateTimes[tk.key]})==\n`;
                 $('#dyk-ping-box').prepend(l2Header);
             });
         $l2Button.insertAfter('#dyk-ping-box');
