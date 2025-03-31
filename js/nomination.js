@@ -5,30 +5,29 @@
 // Source at https://github.com/roysmith/dyk-tools/
 
 class Nomination {
-    constructor(html) {
+    constructor(title, html) {
+        this.title = title;
         this.document = document.implementation.createHTMLDocument()
         this.document.documentElement.innerHTML = html;
     }
 
     static async build(nominationPageTitle) {
         const html = await $.get(nominationPageTitle);
-        return new Nomination(html);
+        return new Nomination(nominationPageTitle, html);
     }
 
     /**
     *
-    * @param {string} nominationTitle  Full title of the nomination page,
-    *     i.e. "Template:Did you know nominations/Aliko Dangote"
     * @returns [hookSetTitle, key],
     *     i.e. ["Template:Did you know/Queue/6", "Queue 6"]
     * @returns null if no hookSet can be found
     */
-    static async findHookSet(nominationTitle) {
+    async findHookSet() {
         const params = {
             action: 'query',
             format: 'json',
             prop: 'linkshere',
-            titles: nominationTitle,
+            titles: this.title,
             formatVersion: 2,
             lhnamespace: 10,  // Template namespace, TODO: don't hardwire number
             lhlimit: 100,
@@ -48,7 +47,7 @@ class Nomination {
                 return [hookSetTitle, key];
             };
         }
-        console.log(nominationTitle, "not found in result");
+        console.log(this.title, "not found in result");
         return null;
     }
 }

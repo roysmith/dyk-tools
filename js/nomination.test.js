@@ -13,8 +13,9 @@ describe('construct', () => {
     it('generates a document', () => {
         const html = getDocument('src/js/Template:Did_you_know_nominations/Main_Street_Vehicles@1275968747.html');
 
-        const nom = new Nomination(html);
+        const nom = new Nomination('Template:Did you know nominations/Main Street Vehicles', html);
 
+        expect(nom.title).toEqual('Template:Did you know nominations/Main Street Vehicles');
         expect($('h1#firstHeading', nom.document).text())
             .toEqual('Template:Did you know nominations/Main Street Vehicles');
     });
@@ -37,6 +38,8 @@ describe('build', () => {
 });
 
 describe('findHookSet', () => {
+    const nom = new Nomination('Template:Did you know nominations/Aliko Dangote',
+        '<html></html>');
     it('finds the queue or prep this nomination is part of', async () => {
         mw.Api.prototype.get = jest.fn()
             .mockResolvedValue({
@@ -66,7 +69,7 @@ describe('findHookSet', () => {
                 }
             });
 
-        const result = await Nomination.findHookSet('Template:Did you know nominations/Aliko Dangote');
+        const result = await nom.findHookSet();
 
         expect(mw.Api.prototype.get).toHaveBeenCalledTimes(1);
         expect(mw.Api.prototype.get).toHaveBeenCalledWith({
@@ -85,6 +88,8 @@ describe('findHookSet', () => {
     });
 
     it('returns null if no hookSet', async () => {
+        const nom = new Nomination('Template:Did you know nominations/Aliko Dangote',
+            '<html></html>');
         mw.Api.prototype.get = jest.fn()
             .mockResolvedValue({
                 "batchcomplete": true,
@@ -107,7 +112,7 @@ describe('findHookSet', () => {
                 }
             });
 
-        const result = await Nomination.findHookSet('Template:Did you know nominations/Aliko Dangote');
+        const result = await nom.findHookSet();
 
         expect(result).toBeNull();
     });
