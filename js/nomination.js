@@ -1,0 +1,56 @@
+"use strict";
+
+// nomination.js
+// Distributed under the MIT license
+// Source at https://github.com/roysmith/dyk-tools/
+
+class Nomination {
+    constructor(html) {
+        this.document = document.implementation.createHTMLDocument()
+        this.document.documentElement.innerHTML = html;
+    }
+
+    static async build(nominationPageTitle) {
+        const html = await $.get(nominationPageTitle);
+        return new Nomination(html);
+    }
+
+    /**
+    *
+    * @param {string} nominationTitle  Full title of the nomination page,
+    *     i.e. "Template:Did you know nominations/Aliko Dangote"
+    * @returns [hookSetTitle, key],
+    *     i.e. ["Template:Did you know/Queue/6", "Queue 6"]
+    * @returns null if no hookSet can be found
+    */
+    static async findHookSet(nominationTitle) {
+        const params = {
+            action: 'query',
+            format: 'json',
+            prop: 'linkshere',
+            titles: nominationTitle,
+            formatVersion: 2,
+            lhnamespace: 10,  // Template namespace, TODO: don't hardwire number
+            lhlimit: 100,
+        };
+        const api = new mw.Api();
+        const result = await api.get(params);
+        console.assert(result.batchcomplete, "Incomplete batch");
+        console.assert(result.query.pages.length == 1, "pages.length != 1");
+
+        const queuePattern = new RegExp('^Template:Did you know/(?<name>Queue)/(?<number>\\d+)$');
+        const prepPattern = new RegExp('^Template:Did you know/(?<name>Prep)aration area (?<number>\\d+)$');
+        for (const linkData of result.query.pages[0].linkshere) {
+            const hookSetTitle = linkData.title;
+            const m = hookSetTitle.match(queuePattern) || hookSetTitle.match(prepPattern);
+            if (m) {
+                const key = `${m.groups.name} ${m.groups.number}`;
+                return [hookSetTitle, key];
+            };
+        }
+        console.log(nominationTitle, "not found in result");
+        return null;
+    }
+}
+
+module.exports = { Nomination };
