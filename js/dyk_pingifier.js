@@ -191,6 +191,6 @@ if (typeof (module) != 'undefined') {
 
 mw.hook('wikipage.content').add(async function ($content) {
     if (mw.config.get('wgPageName').match(/^Template:Did_you_know_nominations\//)) {
-        new Pingifier(mw).init();
+        new Pingifier().init();
     }
 });

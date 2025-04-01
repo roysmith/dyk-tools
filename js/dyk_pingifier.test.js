@@ -15,7 +15,7 @@ function loadDocument(pathName) {
 
 describe('constructor', () => {
     it('builds a default instance', () => {
-        const p = new Pingifier(mw);
+        const p = new Pingifier();
         expect(p).toBeInstanceOf(Pingifier);
         expect(p.localUpdateTimes).toBeNull();
     });
@@ -33,7 +33,7 @@ describe('addPingBox', () => {
             </body>
             `;
 
-        const pingifier = new Pingifier(mw);
+        const pingifier = new Pingifier();
         pingifier.addPingBox();
 
         expect($('#dyk-ping-box').val())
@@ -44,7 +44,7 @@ describe('addPingBox', () => {
 describe('addPingButtons', () => {
     it('adds the ping buttons', () => {
         loadDocument('src/js/Template:Did_you_know_nominations/Main_Street_Vehicles@1275968747.html');
-        const pingifier = new Pingifier(mw);
+        const pingifier = new Pingifier();
         pingifier.addPingButtons();
         const $buttons = $(':button.dyk-ping-button');
         expect($.map($buttons, b => $(b).attr('data-username')))
@@ -65,7 +65,7 @@ describe('classifyUser', () => {
             The result was: <b>promoted</b> by <a href="/wiki/User:Foo">Foo</a><br>
             </p></body>`;
         const $anchor = $('a');
-        const pingifier = new Pingifier(mw);
+        const pingifier = new Pingifier();
         expect(pingifier.classifyUser($anchor)).toEqual("promoter");
     });
 
@@ -75,7 +75,7 @@ describe('classifyUser', () => {
             Number of QPQs required: <b>1</b>. Nominator has 697 past nominations.
             </div></body>`;
         const $anchor = $('a');
-        const pingifier = new Pingifier(mw);
+        const pingifier = new Pingifier();
         expect(pingifier.classifyUser($anchor)).toEqual("nominator");
     });
 
@@ -86,7 +86,7 @@ describe('classifyUser', () => {
         <a href="/wiki/User:Gatoclass" title="User:Gatoclass">Gatoclass</a>
         </p></body>`;
         const $anchor = $('a');
-        const pingifier = new Pingifier(mw);
+        const pingifier = new Pingifier();
         expect(pingifier.classifyUser($anchor)).toEqual("approver");
     });
 
@@ -96,7 +96,7 @@ describe('classifyUser', () => {
         is the best, I think<a href="/wiki/User:DragonflySixtyseven" title="User:DragonflySixtyseven"></a>
         </li></body>`;
         const $anchor = $('a[href*="Dragon"]');
-        const pingifier = new Pingifier(mw);
+        const pingifier = new Pingifier();
         expect(pingifier.classifyUser($anchor)).toEqual("approver");
     });
 
@@ -107,7 +107,7 @@ describe('classifyUser', () => {
         <a href="/wiki/User:Gatoclass" title="User:Gatoclass">Gatoclass</a>
         </p></body>`;
         const $anchor = $('a');
-        const pingifier = new Pingifier(mw);
+        const pingifier = new Pingifier();
         expect(pingifier.classifyUser($anchor)).toEqual("approver");
     });
 
@@ -117,7 +117,7 @@ describe('classifyUser', () => {
             Whatever.
             </div></body>`;
         const $anchor = $('a');
-        const pingifier = new Pingifier(mw);
+        const pingifier = new Pingifier();
         expect(pingifier.classifyUser($anchor)).toEqual(null);
     });
 });
@@ -125,7 +125,7 @@ describe('classifyUser', () => {
 describe('classifyAllUsers', () => {
     it('builds the map correctly', () => {
         loadDocument('src/js/Template:Did_you_know_nominations/Main_Street_Vehicles@1275968747.html');
-        const pingifier = new Pingifier(mw);
+        const pingifier = new Pingifier();
         const $userAnchors = pingifier.findUserAnchors();
         const userRoles = pingifier.classifyAllUsers($userAnchors);
         expect(userRoles.get("SL93")).toEqual("promoter");
@@ -143,7 +143,7 @@ describe('l2Button', () => {
                 </div>
             </body>
             `;
-        const pingifier = new Pingifier(mw);
+        const pingifier = new Pingifier();
         pingifier.localUpdateTimes = new LocalUpdateTimes({ 'Queue 1': 'Foo' });
         pingifier.nomination = {
             findHookSet: jest.fn()
@@ -188,7 +188,7 @@ describe('l2Button', () => {
                 </div>
             </body>
             `;
-        const pingifier = new Pingifier(mw);
+        const pingifier = new Pingifier();
         pingifier.localUpdateTimes = new LocalUpdateTimes({ 'Prep 1': 'Bar' });
         pingifier.nomination = {
             findHookSet: jest.fn()
