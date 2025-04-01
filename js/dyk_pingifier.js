@@ -5,42 +5,20 @@
 // Source at https://github.com/roysmith/dyk-tools/
 
 const { LocalUpdateTimes } = require('./localUpdateTimes');
+const { Nomination } = require('./nomination');
 
 class Pingifier {
     constructor() {
         this.localUpdateTimes = null;
-        this.tk = {};
+        this.nomination = null;
     }
 
     async initializeLocalUpdateTimes() {
         this.localUpdateTimes = await LocalUpdateTimes.build();
     }
 
-    async initializeHookSetTitleAndKey() {
-        const params = {
-            action: 'query',
-            prop: 'linkshere',
-            titles: mw.config.get('wgPageName'),
-            format: 'json',
-            lhnamespace: 10,  // Template namespace, TODO: don't hardwire number
-        };
-        const api = new mw.Api();
-        const self = this;
-        await api.get(params)
-            .then(function (data) {
-                const queuePattern = new RegExp('^Template:Did you know/(?<name>Queue)/(?<number>\\d+)$');
-                const prepPattern = new RegExp('^Template:Did you know/(?<name>Prep)aration area (?<number>\\d+)$');
-                const id = mw.config.get('wgArticleId');
-                for (const pageData of data.query.pages[id].linkshere) {
-                    const title = pageData.title;
-                    const m = title.match(queuePattern) || title.match(prepPattern);
-                    if (m) {
-                        self.tk.title = title;
-                        self.tk.key = `${m.groups.name} ${m.groups.number}`;
-                        break;
-                    };
-                };
-            });
+    async initializeNomination() {
+        this.nomination = await Nomination.build(mw.config.get('wgPageName'));
     }
 
     addPingBox() {
@@ -74,8 +52,8 @@ class Pingifier {
         const $l2Button = $('<button id="dyk-l2-button">Add L2 Header</button>')
             .on('click', this, async function (event) {
                 const pingifier = event.data;
-                const tk = pingifier.tk;
-                const l2Header = `==[[${tk.title}|${tk.key}]] (${pingifier.localUpdateTimes.updateTimes[tk.key]})==\n`;
+                const [nomTitle, nomKey] = await pingifier.nomination.findHookSet();
+                const l2Header = `==[[${nomTitle}|${nomKey}]] (${pingifier.localUpdateTimes.updateTimes[nomKey]})==\n`;
                 $('#dyk-ping-box').prepend(l2Header);
             });
         $l2Button.insertAfter('#dyk-ping-box');
@@ -197,7 +175,7 @@ class Pingifier {
 
     async init() {
         await this.initializeLocalUpdateTimes();
-        await this.initializeHookSetTitleAndKey();
+        await this.initializeNomination();
         this.addPingButtons();
         this.addPingBox();
         this.addCopyButton();
