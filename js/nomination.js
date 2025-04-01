@@ -17,7 +17,8 @@ class Nomination {
     }
 
     /**
-    *
+    * Find the HookSet this Nomination is part of.
+    * 
     * @returns [hookSetTitle, key],
     *     i.e. ["Template:Did you know/Queue/6", "Queue 6"]
     * @returns null if no hookSet can be found
