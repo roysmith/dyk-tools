@@ -7,7 +7,8 @@ const { Hook } = require('./hook');
 // Source at https://github.com/roysmith/dyk-tools/
 
 class HookSet {
-    constructor(wikitext, hooks) {
+    constructor(title, wikitext, hooks) {
+        this.title = title;
         this.wikitext = wikitext;
         this.hooks = hooks;
     }
@@ -15,7 +16,7 @@ class HookSet {
     static async build(pageTitle) {
         const wikitext = await HookSet.load(pageTitle);
         const hooks = HookSet.findHooks(wikitext);
-        return new HookSet(wikitext, hooks);
+        return new HookSet(pageTitle, wikitext, hooks);
     }
 
     static async load(pageTitle) {

@@ -10,8 +10,9 @@ const { Link } = require('./link');
 
 describe('constructor', async () => {
     it('constructs a default instance', async () => {
-        const hs = new HookSet('foo', []);
+        const hs = new HookSet('My Title', 'foo', []);
         expect(hs).toBeInstanceOf(HookSet);
+        expect(hs.title).toEqual('My Title');
         expect(hs.wikitext).toBe('foo');
         expect(hs.hooks).toEqual([]);
     });
