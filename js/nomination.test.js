@@ -31,7 +31,7 @@ describe('build', () => {
 
         expect(nom).toBeInstanceOf(Nomination);
         expect($.get).toHaveBeenCalledTimes(1);
-        expect($.get).toHaveBeenCalledWith('Template:Did you know nominations/Foo');
+        expect($.get).toHaveBeenCalledWith('/wiki/Template:Did you know nominations/Foo');
         expect($('h1#firstHeading', nom.document).text())
             .toEqual('Template:Did you know nominations/Main Street Vehicles');
     });
@@ -77,7 +77,7 @@ describe('findHookSet', () => {
             "format": "json",
             "prop": "linkshere",
             "titles": "Template:Did you know nominations/Aliko Dangote",
-            "formatVersion": 2,
+            "formatversion": 2,
             "lhnamespace": 10,
             "lhlimit": 100,
         });

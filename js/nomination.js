@@ -12,7 +12,7 @@ class Nomination {
     }
 
     static async build(nominationPageTitle) {
-        const html = await $.get(nominationPageTitle);
+        const html = await $.get('/wiki/' + nominationPageTitle);
         return new Nomination(nominationPageTitle, html);
     }
 
@@ -29,7 +29,7 @@ class Nomination {
             format: 'json',
             prop: 'linkshere',
             titles: this.title,
-            formatVersion: 2,
+            formatversion: 2,
             lhnamespace: 10,  // Template namespace, TODO: don't hardwire number
             lhlimit: 100,
         };
