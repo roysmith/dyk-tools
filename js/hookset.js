@@ -32,18 +32,28 @@ class HookSet {
         return result.parse.wikitext;
     }
 
-    static findHooks(wikitext) {
-        return HookSet.findHookLines(wikitext).map((line) => {
-            return Hook.build(line);
-        });
+    /**
+     * @param string wikitext
+     * @returns a generator over Hooks
+     */
+    static * findHooks(wikitext) {
+        for (const line of HookSet.findHookBlock(wikitext)) {
+            if (line.startsWith('* ... ')) {
+                yield Hook.build(line);
+            }
+        }
     }
 
-    static findHookLines(wikitext) {
+    /**
+     * 
+     * @param string wikitext 
+     * @returns an array of strings (one line per string).  This includes everything
+     * between the <!--Hooks--> and <!--HooksEnd--> markers, which should be both a
+     * {{main page image/DYK}} template and the actual hooks.
+     */
+    static findHookBlock(wikitext) {
         const m = wikitext.match(new RegExp('^<!--Hooks-->$(?<block>.*)^<!--HooksEnd-->$', 'sm'));
-        return m.groups.block.split('\n')
-            .filter((line) => {
-                return line.startsWith('* ... ');
-            });
+        return m.groups.block.split('\n');
     }
 }
 

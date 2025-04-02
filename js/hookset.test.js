@@ -43,37 +43,16 @@ describe('load', () => {
     });
 });
 
-describe('findHookLines', () => {
-    it('parses the hooks', async () => {
-        const wikitext = dedent(
-            `Blah blah
-            <!--Hooks-->
-            {{main page image}}
-            * ... that politician '''[[Prasenjit Barman]]''' was credited for leading the restoration of the [[Cooch Behar Palace]]?
-            * ... that '''[[Sound Transit]]''' has 170 pieces of '''[[permanent public art]]''' at its stations and facilities?
-            <!--HooksEnd-->
-            {{ flatlist| class=dyk - footer noprint | style=margin - top: 0.5em; text - align: right;}}
-             `
-        );
-
-        const lines = HookSet.findHookLines(wikitext);
-
-        expect(lines).toEqual([
-            "* ... that politician '''[[Prasenjit Barman]]''' was credited for leading the restoration of the [[Cooch Behar Palace]]?",
-            "* ... that '''[[Sound Transit]]''' has 170 pieces of '''[[permanent public art]]''' at its stations and facilities?",
-        ]);
-    });
-});
-
 describe('findHooks', () => {
     it('parses the hooks', async () => {
         const wikitext = dedent(
             `<!--Hooks-->
+            {{main page image/DYK}}
             * ... that '''[[foo]]''' blah?
             * ... that '''[[foo|bar]]''' and '''[[baz]]'''{{-?}}
             <!--HooksEnd-->`);
 
-        const hooks = HookSet.findHooks(wikitext);
+        const hooks = Array.from(HookSet.findHooks(wikitext));
 
         expect(hooks).toEqual([
             new Hook("* ... that '''[[foo]]''' blah?", [
