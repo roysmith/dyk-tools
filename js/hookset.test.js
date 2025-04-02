@@ -21,13 +21,13 @@ describe('constructor', async () => {
 describe('load', () => {
     it('calls api.get()', async () => {
         mw.Api.prototype.get = jest.fn()
-            .mockResolvedValue(JSON.stringify({
+            .mockResolvedValue({
                 "parse": {
                     "title": "Template:Did you know/Queue/1",
                     "pageid": 19951383,
                     "wikitext": "{{DYKbotdo|xxx}}"
                 }
-            }));
+            });
 
         const wikitext = HookSet.load('My Queue');
 

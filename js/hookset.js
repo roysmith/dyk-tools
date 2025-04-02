@@ -28,12 +28,8 @@ class HookSet {
             prop: 'wikitext',
             formatversion: 2,
         };
-        let wikitext = null;
-        await api.get(params)
-            .then((result) => {
-                wikitext = wikitext = JSON.parse(result).parse.wikitext;
-            });
-        return wikitext;
+        const result = await api.get(params);
+        return result.parse.wikitext;
     }
 
     static findHooks(wikitext) {
