@@ -14,12 +14,12 @@ class HookSet {
     }
 
     static async build(pageTitle) {
-        const wikitext = await HookSet.load(pageTitle);
+        const wikitext = await HookSet.loadWikitext(pageTitle);
         const hooks = HookSet.findHooks(wikitext);
         return new HookSet(pageTitle, wikitext, hooks);
     }
 
-    static async load(pageTitle) {
+    static async loadWikitext(pageTitle) {
         const api = new mw.Api();
         const params = {
             action: 'parse',

@@ -18,7 +18,7 @@ describe('constructor', async () => {
     });
 });
 
-describe('load', () => {
+describe('loadWikitext', () => {
     it('calls api.get()', async () => {
         mw.Api.prototype.get = jest.fn()
             .mockResolvedValue({
@@ -29,7 +29,7 @@ describe('load', () => {
                 }
             });
 
-        const wikitext = HookSet.load('My Queue');
+        const wikitext = HookSet.loadWikitext('My Queue');
 
         expect(mw.Api.prototype.get).toHaveBeenCalledTimes(1);
         expect(mw.Api.prototype.get).toHaveBeenCalledWith({
