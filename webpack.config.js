@@ -1,13 +1,14 @@
 const path = require('path');
 
 module.exports = {
-    entry: './js/dyk_pingifier.js',
+    entry: {
+        pingifier: './js/dyk_pingifier.js',
+        review: './js/dyk_reviewTool.js',
+    },
     output: {
-        filename: 'dyk_pingifier.pack.js',
-        path: path.resolve(__dirname, 'dist'),
+        filename: '[name].js',
     },
     mode: 'development',
-    // devtool: 'eval-cheap-module-source-map',
     devtool: false,
     devServer: {
         static: '../dist',
