@@ -33,6 +33,20 @@ class HookSet {
     }
 
     /**
+     * @returns a short name for the hookSet.  This will be a string of the form
+     * "Queue 1" or "Prep 5".  It is called a key because it can be used to index
+     * into data structures such as that returned by LocalUpdateTimes.
+     */
+    key() {
+        const queuePattern = new RegExp('^Template:Did you know/(?<name>Queue)/(?<number>\\d+)$');
+        const prepPattern = new RegExp('^Template:Did you know/(?<name>Prep)aration area (?<number>\\d+)$');
+        const m = this.title.match(queuePattern) || this.title.match(prepPattern);
+        if (m) {
+            return `${m.groups.name} ${m.groups.number}`;
+        };
+    }
+
+    /**
      * @param string wikitext
      * @returns a generator over Hooks
      */
