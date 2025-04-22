@@ -8,8 +8,8 @@ const { HookSet } = require('./hookset');
 const { Hook } = require('./hook');
 const { Link } = require('./link');
 
-describe('constructor', async () => {
-    it('constructs a default instance', async () => {
+describe('constructor', () => {
+    it('constructs a default instance', () => {
         const hs = new HookSet('My Title', 'foo', []);
         expect(hs).toBeInstanceOf(HookSet);
         expect(hs.title).toEqual('My Title');
@@ -44,7 +44,7 @@ describe('loadWikitext', () => {
 });
 
 describe('findHooks', () => {
-    it('parses the hooks', async () => {
+    it('parses the hooks', () => {
         const wikitext = dedent(
             `<!--Hooks-->
             {{main page image/DYK}}
