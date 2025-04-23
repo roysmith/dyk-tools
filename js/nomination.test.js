@@ -38,9 +38,9 @@ describe('build', () => {
 });
 
 describe('findHookSet', () => {
-    const nom = new Nomination('Template:Did you know nominations/Aliko Dangote',
-        '<html></html>');
     it('finds the queue or prep this nomination is part of', async () => {
+        const nom = new Nomination('Template:Did you know nominations/Aliko Dangote',
+            '<html></html>');
         mw.Api.prototype.get = jest.fn()
             .mockResolvedValue({
                 "batchcomplete": true,
