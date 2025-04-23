@@ -37,6 +37,14 @@ class DYKReviewTool {
         const $reviewBox = $('<textarea id="dyk-review-box" rows="8"></textarea>')
             .append(`==[[${this.hookSet.title}|${key}]] (${this.localUpdateTimes.updateTimes[key]})==\n`)
             .insertBefore('#firstHeading');
+        for (const hook of this.hookSet.hooks) {
+            const firstTarget = hook.links[0].target;
+            const nomTitle = this.hookSet.nominationMap.get(firstTarget);
+            $reviewBox
+                .append(`\n`)
+                .append(`===${nomTitle} ([[Template:Did you know nominations/${nomTitle}|nom]]===\n`)
+                .append(`${hook.text}\n`)
+        }
     }
 }
 
