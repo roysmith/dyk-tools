@@ -66,4 +66,27 @@ describe('findHooks', () => {
     });
 });
 
+describe('findNominations', () => {
+    it('builds the map', () => {
+        const wikitext = dedent(
+            `==Credits==
+            <div id="credits">blah, blah
+            * {{DYKmake|Kirisuto no Haka|AlphaBetaGamma|subpage=Kirisuto no Haka}}
+            * {{DYKmake|Richmond Landon|1ctinus|subpage=Richmond Landon}}
+            * {{DYKmake|Alice Lord (diver)|1ctinus|subpage=Richmond Landon}}
+            * {{DYKmake|Johannes-Passion (Gubaidulina)|Gerda Arendt|subpage=Johannes-Passion (Gubaidulina)}}
+            </div>
+            {{ Did you know/ Clear/footer}}</noinclude >`);
+
+        const nominationMap = HookSet.findNominations(wikitext);
+
+        expect(nominationMap).toEqual(new Map([
+            ['Kirisuto no Haka', 'Kirisuto no Haka'],
+            ['Richmond Landon', 'Richmond Landon'],
+            ['Alice Lord (diver)', 'Richmond Landon'],
+            ['Johannes-Passion (Gubaidulina)', 'Johannes-Passion (Gubaidulina)'],
+        ]));
+    })
+})
+
 

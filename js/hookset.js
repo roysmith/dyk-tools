@@ -7,16 +7,18 @@ const { Hook } = require('./hook');
 // Source at https://github.com/roysmith/dyk-tools/
 
 class HookSet {
-    constructor(title, wikitext, hooks) {
+    constructor(title, wikitext, hooks, nominationMap) {
         this.title = title;
         this.wikitext = wikitext;
         this.hooks = hooks;
+        this.nominationMap = nominationMap;
     }
 
     static async build(pageTitle) {
         const wikitext = await HookSet.loadWikitext(pageTitle);
         const hooks = HookSet.findHooks(wikitext);
-        return new HookSet(pageTitle, wikitext, hooks);
+        const nominationMap = HookSet.findNominations(wikitext);
+        return new HookSet(pageTitle, wikitext, hooks), nominationMap;
     }
 
     static async loadWikitext(pageTitle) {
@@ -68,6 +70,38 @@ class HookSet {
     static findHookBlock(wikitext) {
         const m = wikitext.match(new RegExp('^<!--Hooks-->$(?<block>.*)^<!--HooksEnd-->$', 'sm'));
         return m.groups.block.split('\n');
+    }
+
+    /**
+     * @param string wikitext
+     * @returns a Map mapping article titles to nomination page titles.  Note that
+     * a given hook may contain multiple article links; in theory all of them should
+     * map to the same nomination, but the Map just relects what is in the {{DYKmake}}
+     * and/or {{DYKnom}} templates, which is not guaranteed to match reality.
+     * 
+     * With the possibility of multiple links per hook, multiple authors and/or
+     * nominators, and nominators who are not authors, things can get messy.  If
+     * there are multiple DYKmake/DYKnom templates mapping a given article, in theory
+     * they should all map to the same nomination page.  If they don't, there's no
+     * guarantee how we'll handle that exceptional case.
+     *
+     * Also note that this expects the credit templates to be formatted on a single
+     * and just pattern-matches them with regexes instead of actually parsing the
+     * wikitext (i.e. with Parsoid).  This sucks, but Parsoid is just too painful
+     * to use.
+     */
+    static findNominations(wikitext) {
+        const map = new Map();
+        const dykMakePattern = new RegExp('^\\* {{(?<template>DYKmake.*)}}');
+        for (const line of wikitext.split('\n')) {
+            const m = line.match(dykMakePattern);
+            if (m) {
+                const [templateName, articleTitle, author, subpage] = m.groups.template.split('|');
+                const [unused, nominationTitle] = subpage.split('=');
+                map.set(articleTitle, nominationTitle);
+            }
+        }
+        return map;
     }
 }
 
