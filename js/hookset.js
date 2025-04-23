@@ -18,7 +18,7 @@ class HookSet {
         const wikitext = await HookSet.loadWikitext(pageTitle);
         const hooks = HookSet.findHooks(wikitext);
         const nominationMap = HookSet.findNominations(wikitext);
-        return new HookSet(pageTitle, wikitext, hooks), nominationMap;
+        return new HookSet(pageTitle, wikitext, hooks, nominationMap);
     }
 
     static async loadWikitext(pageTitle) {
