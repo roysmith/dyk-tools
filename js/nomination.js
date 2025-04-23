@@ -5,6 +5,15 @@
 // Source at https://github.com/roysmith/dyk-tools/
 
 class Nomination {
+    /**
+     * 
+     * @param {string} title: The full page title (including the 'Template:Did you know nominations/')
+     * @param {string} html: The rendered HTML of the page, as a browser would see it.
+     * 
+     * Historically, this class has worked by screen-scraping the HTML.  At some point
+     * in the future, that may change to either using Parsoid or just pattern-matching on the
+     * wikitext.  So treat this.document as private.
+     */
     constructor(title, html) {
         this.title = title;
         this.document = document.implementation.createHTMLDocument()
