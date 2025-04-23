@@ -73,7 +73,7 @@ class Pingifier {
     }
 
     /**
-     * @param (jquery) $anchor <a> element linking to a user.
+     * @param (jquery) $anchor: an <a> element linking to a user.
      * @return (string) The user's role (promoter, nominator, approver), or null
      */
     classifyUser($anchor) {
@@ -85,8 +85,8 @@ class Pingifier {
             .length > 0) {
             return "approver";
         }
-        // It is (probably) important that check comes last.  It's not clear
-        // if parent() is the correct traversal to use here, but closest()
+        // It is (probably) important that the nominator check comes last.  It's
+        // not clear if parent() is the correct traversal to use here, but closest()
         // is definitely too large and leads to false positives.
         if ($anchor.parent('div').text().match(/nominations/)) {
             return "nominator";
